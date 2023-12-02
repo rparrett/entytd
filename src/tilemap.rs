@@ -11,6 +11,9 @@ impl Plugin for TilemapPlugin {
     }
 }
 
+pub const SCALE: f32 = 2.;
+pub const TILE_SIZE: f32 = 12.;
+
 #[derive(Resource)]
 pub struct TileAtlas(pub Handle<TextureAtlas>);
 
@@ -74,10 +77,11 @@ pub struct Tile {
     sprite: Option<Entity>,
 }
 
+#[derive(Resource)]
 pub struct Tilemap {
-    tiles: Vec<Vec<Tile>>,
-    width: usize,
-    height: usize,
+    pub tiles: Vec<Vec<Tile>>,
+    pub width: usize,
+    pub height: usize,
 }
 
 impl Tilemap {
@@ -113,9 +117,6 @@ impl Tilemap {
     }
 
     pub fn spawn(&mut self, commands: &mut Commands, atlas_handle: Handle<TextureAtlas>) {
-        let scale = 2.;
-        let tile_size = 12.;
-
         for x in 0..self.width {
             for y in 0..self.height {
                 let tile = &mut self.tiles[x][y];
@@ -124,12 +125,12 @@ impl Tilemap {
                     .spawn(SpriteSheetBundle {
                         texture_atlas: atlas_handle.clone(),
                         sprite: TextureAtlasSprite::new(tile.kind.atlas_index()),
-                        transform: Transform::from_scale(Vec3::splat(scale)).with_translation(
+                        transform: Transform::from_scale(Vec3::splat(SCALE)).with_translation(
                             Vec3::new(
-                                scale * tile_size * (-(self.width as f32) / 2. + x as f32)
-                                    + tile_size / 2. * scale,
-                                scale * tile_size * (-(self.height as f32) / 2. + y as f32)
-                                    + tile_size / 2. * scale,
+                                SCALE * TILE_SIZE * (-(self.width as f32) / 2. + x as f32)
+                                    + TILE_SIZE / 2. * SCALE,
+                                SCALE * TILE_SIZE * (-(self.height as f32) / 2. + y as f32)
+                                    + TILE_SIZE / 2. * SCALE,
                                 0.,
                             ),
                         ),

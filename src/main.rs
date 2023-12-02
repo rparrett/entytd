@@ -20,6 +20,7 @@ fn main() {
 }
 
 fn setup(mut commands: Commands, atlas: Res<TileAtlas>) {
-    let mut map = Tilemap::new_random(54, 30);
+    let mut map = Tilemap::new_random(108, 60);
     map.spawn(&mut commands, atlas.0.clone());
+    commands.insert_resource(map);
 }

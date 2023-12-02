@@ -1,4 +1,6 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
+
+use crate::tilemap::Tilemap;
 
 pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
@@ -16,16 +18,40 @@ fn update(
     keys: Res<Input<KeyCode>>,
     mut query: Query<&mut Transform, With<Camera2d>>,
     time: Res<Time>,
+    tilemap: Res<Tilemap>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
-    let speed = 50.;
-
     let x = keys.pressed(KeyCode::Right) as i8 - keys.pressed(KeyCode::Left) as i8;
     let y = keys.pressed(KeyCode::Up) as i8 - keys.pressed(KeyCode::Down) as i8;
     let dir = Vec2::new(x as f32, y as f32).normalize_or_zero();
 
-    if dir != Vec2::ZERO {
-        for mut camera in &mut query {
-            camera.translation += dir.extend(0.) * time.delta_seconds() * speed;
-        }
+    if dir == Vec2::ZERO {
+        return;
     }
+
+    let Ok(mut camera) = query.get_single_mut() else {
+        return;
+    };
+
+    let Ok(window) = window_query.get_single() else {
+        return;
+    };
+
+    let speed = if keys.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]) {
+        400.
+    } else {
+        150.
+    };
+
+    camera.translation += dir.extend(0.) * time.delta_seconds() * speed;
+
+    let max = Vec2::new(tilemap.width as f32, tilemap.height as f32)
+        * crate::tilemap::SCALE
+        * crate::tilemap::TILE_SIZE
+        / 2.
+        - Vec2::new(window.width(), window.height()) / 2.;
+    let min = -max;
+
+    camera.translation.x = camera.translation.x.clamp(min.x, max.x);
+    camera.translation.y = camera.translation.y.clamp(min.y, max.y);
 }
