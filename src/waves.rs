@@ -1,31 +1,53 @@
 use bevy::prelude::*;
 use serde::Deserialize;
 
-use crate::GameState;
+use crate::{
+    level::{LevelConfig, LevelHandle},
+    spawner::Spawn,
+    GameState,
+};
 
 pub struct WavesPlugin;
 impl Plugin for WavesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Loading), queue_load);
+        app.add_systems(OnEnter(GameState::Playing), init);
     }
 }
 
-#[derive(Deserialize)]
-pub struct Waves(pub Vec<Wave>);
+#[derive(Resource)]
+pub struct Waves {
+    pub current: usize,
+    pub waves: Vec<Wave>,
+}
+impl Waves {
+    pub fn current(&self) -> Option<&Wave> {
+        self.waves.get(self.current)
+    }
+    pub fn advance(&mut self) -> Option<&Wave> {
+        self.current += 1;
+        self.current()
+    }
+}
+impl From<Vec<Wave>> for Waves {
+    fn from(waves: Vec<Wave>) -> Self {
+        Self { current: 0, waves }
+    }
+}
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct Wave {
-    delay: f32,
-    spawns: Vec<Spawn>,
+    pub spawns: Vec<Spawn>,
 }
 
-#[derive(Deserialize)]
-pub struct Spawn {
-    spawner: usize,
-    num: usize,
-    interval: f32,
-    hp: u32,
-    // TODO element
-}
+#[derive(Event)]
+pub struct WaveStartEvent;
 
-fn queue_load(asset_server: Res<AssetServer>) {}
+pub fn init(
+    mut commands: Commands,
+    level_handle: Res<LevelHandle>,
+    levels: Res<Assets<LevelConfig>>,
+) {
+    if let Some(level) = levels.get(&level_handle.0) {
+        commands.insert_resource::<Waves>(level.waves.clone().into());
+    }
+}

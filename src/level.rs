@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::{
     loading::{LoadingAssets, LoadingResources},
-    waves::Waves,
+    waves::Wave,
     GameState,
 };
 
@@ -20,7 +20,7 @@ impl Plugin for LevelPlugin {
 #[derive(Asset, TypePath, Deserialize)]
 pub struct LevelConfig {
     pub map: String,
-    pub waves: Waves,
+    pub waves: Vec<Wave>,
 }
 
 #[derive(Resource)]
