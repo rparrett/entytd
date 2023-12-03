@@ -59,6 +59,7 @@ pub enum TileKind {
     Dirt,
     Bridge,
     Road,
+    Spawn,
 }
 
 pub struct TileNotMappedError;
@@ -81,6 +82,7 @@ impl TryFrom<[u8; 3]> for TileKind {
             [255, 156, 0] => Ok(Self::HomeTwo),
             [255, 255, 0] => Ok(Self::Bridge),
             [255, 200, 0] => Ok(Self::Road),
+            [0, 255, 255] => Ok(Self::Spawn),
             _ => Err(TileNotMappedError),
         }
     }
@@ -116,6 +118,7 @@ impl TileKind {
             Self::Dirt => 103 * 5 + 1,
             Self::Bridge => 103 * 4 + 0,
             Self::Road => 103 * 1 + 13,
+            Self::Spawn => 103 * 17 + 80,
         }
     }
 }
