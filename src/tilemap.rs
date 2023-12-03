@@ -4,42 +4,25 @@ use rand::{
     thread_rng, Rng,
 };
 
-use crate::{home::Home, loading::LoadingAssets, spawner::Spawner, GameState};
+use crate::{
+    home::Home,
+    level::{LevelConfig, LevelHandle},
+    loading::LoadingAssets,
+    spawner::Spawner,
+    GameState,
+};
 
 pub struct TilemapPlugin;
 impl Plugin for TilemapPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<TileAtlas>()
-            .add_systems(OnEnter(GameState::Loading), queue_load)
-            .add_systems(Update, process_loaded_maps);
+        app.add_systems(Update, queue_load.run_if(in_state(GameState::Loading)))
+            .add_systems(Update, process_loaded_maps)
+            .add_systems(OnEnter(GameState::Playing), spawn);
     }
 }
 
 pub const SCALE: f32 = 2.;
 pub const TILE_SIZE: f32 = 12.;
-
-#[derive(Resource)]
-pub struct TileAtlas(pub Handle<TextureAtlas>);
-
-impl FromWorld for TileAtlas {
-    fn from_world(world: &mut World) -> Self {
-        let server = world.resource::<AssetServer>();
-
-        let texture_handle = server.load("urizen_onebit_tileset__v1d0.png");
-        let atlas_handle = TextureAtlas::from_grid(
-            texture_handle,
-            Vec2::new(12.0, 12.0),
-            103,
-            50,
-            Some(Vec2::splat(1.)),
-            Some(Vec2::splat(1.)),
-        );
-
-        let mut atlases = world.resource_mut::<Assets<TextureAtlas>>();
-
-        Self(atlases.add(atlas_handle))
-    }
-}
 
 #[derive(Clone)]
 pub enum TileKind {
@@ -178,6 +161,9 @@ impl Tilemap {
 #[derive(Resource)]
 pub struct TilemapHandle(pub Handle<Tilemap>);
 
+#[derive(Resource)]
+pub struct AtlasHandle(pub Handle<TextureAtlas>);
+
 #[derive(Bundle, Default)]
 pub struct TilemapBundle {
     tilemap_handle: Handle<Tilemap>,
@@ -190,8 +176,23 @@ fn queue_load(
     asset_server: Res<AssetServer>,
     mut loading_assets: ResMut<LoadingAssets>,
     mut atlases: ResMut<Assets<TextureAtlas>>,
+    level_handle: Option<Res<LevelHandle>>,
+    levels: Res<Assets<LevelConfig>>,
+    mut queued: Local<bool>,
 ) {
-    let tilemap_handle = asset_server.load("map.map.png");
+    if *queued {
+        return;
+    }
+
+    let Some(level_handle) = level_handle else {
+        return;
+    };
+
+    let Some(level) = levels.get(&level_handle.0) else {
+        return;
+    };
+
+    let tilemap_handle = asset_server.load(&level.map);
 
     let texture_handle = asset_server.load("urizen_onebit_tileset__v1d0.png");
     loading_assets.0.push(texture_handle.clone().into());
@@ -209,13 +210,10 @@ fn queue_load(
 
     loading_assets.0.push(tilemap_handle.clone().into());
 
-    // TODO save the handles and spawn after load
+    commands.insert_resource(TilemapHandle(tilemap_handle));
+    commands.insert_resource(AtlasHandle(atlas_handle));
 
-    commands.spawn(TilemapBundle {
-        tilemap_handle,
-        atlas_handle,
-        ..default()
-    });
+    *queued = true;
 }
 
 pub fn process_loaded_maps(
@@ -305,4 +303,16 @@ pub fn process_loaded_maps(
             }
         }
     }
+}
+
+fn spawn(
+    mut commands: Commands,
+    tilemap_handle: Res<TilemapHandle>,
+    atlas_handle: Res<AtlasHandle>,
+) {
+    commands.spawn(TilemapBundle {
+        tilemap_handle: tilemap_handle.0.clone(),
+        atlas_handle: atlas_handle.0.clone(),
+        ..default()
+    });
 }

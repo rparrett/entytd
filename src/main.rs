@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use camera::CameraPlugin;
 use enemy::EnemyPlugin;
 use home::HomePlugin;
+use level::LevelPlugin;
 use loading::LoadingPlugin;
 use map_loader::MapFileLoaderPlugin;
 use spawner::SpawnerPlugin;
@@ -17,7 +18,9 @@ use {
 
 mod camera;
 mod enemy;
+mod hit_points;
 mod home;
+mod level;
 mod loading;
 mod map_loader;
 mod spawner;
@@ -36,6 +39,7 @@ fn main() {
             HomePlugin,
             WavesPlugin,
             EnemyPlugin,
+            LevelPlugin,
             #[cfg(feature = "inspector")]
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         ))

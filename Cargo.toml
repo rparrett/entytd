@@ -4,8 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+bevy_common_assets = { version = "0.8.0", features = ["ron"] }
 image = "*"
 rand = "0.8.5"
+serde = "*"
 
 [features]
 inspector = ["bevy-inspector-egui"]

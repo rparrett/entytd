@@ -1,0 +1,54 @@
+LevelConfig (
+    map: "map.map.png",
+    waves: Waves([
+        Wave (
+            delay: 15.,
+            spawns: [Spawn (
+                spawner: 0,
+                num: 4,
+                interval: 4.,
+                hp: 1,
+//                element: Element::Neutral,
+            )]
+        ),
+        Wave (
+            delay: 15.,
+            spawns: [Spawn (
+                spawner: 0,
+                num: 4,
+                interval: 4.,
+                hp: 2,
+//                element: Element::Ice
+            )]
+        ),
+        Wave (
+            delay: 15.,
+            spawns: [Spawn (
+                spawner: 1,
+                num: 4,
+                interval: 4.,
+                hp: 2,
+//                element: Element::Fire
+            )]
+        ),
+        Wave (
+            delay: 15.,
+            spawns: [
+                Spawn (
+                    spawner: 0,
+                    num: 4,
+                    interval: 4.,
+                    hp: 2,
+//                    element: Element::Ice
+                ),
+                Spawn (
+                    spawner: 1,
+                    num: 4,
+                    interval: 4.,
+                    hp: 2,
+//                    element: Element::Fire
+                ),
+            ]
+        ),
+    ])
+)
