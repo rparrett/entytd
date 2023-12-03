@@ -1,12 +1,15 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
-use crate::tilemap::Tilemap;
+use crate::{
+    tilemap::{Tilemap, TilemapHandle},
+    GameState,
+};
 
 pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn);
-        app.add_systems(Update, update);
+        app.add_systems(Update, update.run_if(in_state(GameState::Playing)));
     }
 }
 
@@ -18,7 +21,8 @@ fn update(
     keys: Res<Input<KeyCode>>,
     mut query: Query<&mut Transform, With<Camera2d>>,
     time: Res<Time>,
-    tilemap: Res<Tilemap>,
+    tilemaps: Res<Assets<Tilemap>>,
+    tilemap_handle: Res<TilemapHandle>,
     window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     let x = keys.pressed(KeyCode::Right) as i8 - keys.pressed(KeyCode::Left) as i8;
@@ -34,6 +38,10 @@ fn update(
     };
 
     let Ok(window) = window_query.get_single() else {
+        return;
+    };
+
+    let Some(tilemap) = tilemaps.get(&tilemap_handle.0) else {
         return;
     };
 
