@@ -4,7 +4,7 @@ use rand::{
     thread_rng, Rng,
 };
 
-use crate::{loading::LoadingAssets, GameState};
+use crate::{home::Home, loading::LoadingAssets, spawner::Spawner, GameState};
 
 pub struct TilemapPlugin;
 impl Plugin for TilemapPlugin {
@@ -141,6 +141,12 @@ pub struct TileEntities {
     pub entities: Vec<Vec<Option<Entity>>>,
 }
 
+#[derive(Component)]
+pub struct TilePos {
+    x: usize,
+    y: usize,
+}
+
 impl Tilemap {
     pub fn new(width: usize, height: usize) -> Self {
         let map = Self {
@@ -264,8 +270,8 @@ pub fn process_loaded_maps(
                 for y in 0..map.height {
                     let tile = &map.tiles[x][y];
 
-                    let entity = commands
-                        .spawn(SpriteSheetBundle {
+                    let mut command = commands.spawn((
+                        SpriteSheetBundle {
                             texture_atlas: atlas_handle.clone(),
                             sprite: TextureAtlasSprite::new(tile.atlas_index()),
                             transform: Transform::from_scale(Vec3::splat(SCALE)).with_translation(
@@ -278,8 +284,21 @@ pub fn process_loaded_maps(
                                 ),
                             ),
                             ..default()
-                        })
-                        .id();
+                        },
+                        TilePos { x, y },
+                    ));
+
+                    match tile {
+                        TileKind::Spawn => {
+                            command.insert(Spawner);
+                        }
+                        TileKind::Home => {
+                            command.insert(Home);
+                        }
+                        _ => {}
+                    }
+
+                    let entity = command.id();
 
                     tile_entities.entities[x][y] = Some(entity);
                 }

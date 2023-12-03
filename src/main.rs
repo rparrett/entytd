@@ -1,9 +1,13 @@
 use bevy::prelude::*;
 
 use camera::CameraPlugin;
+use enemy::EnemyPlugin;
+use home::HomePlugin;
 use loading::LoadingPlugin;
 use map_loader::MapFileLoaderPlugin;
+use spawner::SpawnerPlugin;
 use tilemap::TilemapPlugin;
+use waves::WavesPlugin;
 
 #[cfg(feature = "inspector")]
 use {
@@ -12,9 +16,13 @@ use {
 };
 
 mod camera;
+mod enemy;
+mod home;
 mod loading;
 mod map_loader;
+mod spawner;
 mod tilemap;
+mod waves;
 
 fn main() {
     App::new()
@@ -24,6 +32,10 @@ fn main() {
             CameraPlugin,
             TilemapPlugin,
             MapFileLoaderPlugin,
+            SpawnerPlugin,
+            HomePlugin,
+            WavesPlugin,
+            EnemyPlugin,
             #[cfg(feature = "inspector")]
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         ))
