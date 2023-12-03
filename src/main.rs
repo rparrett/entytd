@@ -1,11 +1,15 @@
-//! Renders an animated sprite by loading all animation frames from a single image (a sprite sheet)
-//! into a texture atlas, and changing the displayed image periodically.
-
 use bevy::prelude::*;
+
 use camera::CameraPlugin;
 use loading::LoadingPlugin;
 use map_loader::MapFileLoaderPlugin;
-use tilemap::{TileAtlas, Tilemap, TilemapPlugin};
+use tilemap::TilemapPlugin;
+
+#[cfg(feature = "inspector")]
+use {
+    bevy::input::common_conditions::input_toggle_active,
+    bevy_inspector_egui::quick::WorldInspectorPlugin,
+};
 
 mod camera;
 mod loading;
@@ -20,9 +24,10 @@ fn main() {
             CameraPlugin,
             TilemapPlugin,
             MapFileLoaderPlugin,
+            #[cfg(feature = "inspector")]
+            WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         ))
         .add_state::<GameState>()
-        .add_systems(Startup, setup)
         .run();
 }
 
@@ -31,10 +36,4 @@ enum GameState {
     #[default]
     Loading,
     Playing,
-}
-
-fn setup(mut commands: Commands, atlas: Res<TileAtlas>) {
-    // let mut map = Tilemap::new_random(108, 60);
-    // map.spawn(&mut commands, atlas.0.clone());
-    // commands.insert_resource(map);
 }

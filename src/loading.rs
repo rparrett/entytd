@@ -27,6 +27,8 @@ fn wait(
         .iter()
         .all(|id| asset_server.get_load_state(*id) == Some(LoadState::Loaded))
     {
+        info!("Advancing to GameState::Playing");
+
         next_state.set(GameState::Playing);
     }
 }

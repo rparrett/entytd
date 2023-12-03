@@ -1,9 +1,8 @@
-use crate::tilemap::{TileKind, Tilemap};
+use crate::tilemap::Tilemap;
 use bevy::utils::thiserror;
 use bevy::{
     asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext},
     prelude::*,
-    reflect::TypePath,
     utils::BoxedFuture,
 };
 use image::{GenericImageView, ImageError, Pixel};
@@ -52,12 +51,11 @@ impl AssetLoader for MapFileLoader {
             let mut map = Tilemap::new(dyn_img.width() as usize, dyn_img.height() as usize);
 
             for (x, y, rgba) in dyn_img.pixels() {
-                info!("{} {} {:?}", x, y, rgba);
                 let Ok(kind) = rgba.to_rgb().0.try_into() else {
                     continue;
                 };
 
-                map.tiles[x as usize][dyn_img.height() as usize - y as usize - 1].kind = kind;
+                map.tiles[x as usize][dyn_img.height() as usize - y as usize - 1] = kind;
             }
 
             Ok(map)
