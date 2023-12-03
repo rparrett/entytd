@@ -284,6 +284,8 @@ pub fn process_loaded_maps(
                             ..default()
                         },
                         TilePos { x, y },
+                        #[cfg(feature = "inspector")]
+                        Name::new("Tile"),
                     ));
 
                     match tile {
