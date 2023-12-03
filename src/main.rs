@@ -27,6 +27,7 @@ fn main() {
             #[cfg(feature = "inspector")]
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         ))
+        .insert_resource(Msaa::Off)
         .add_state::<GameState>()
         .run();
 }
