@@ -61,22 +61,26 @@ fn spawn(
 
         let world = tilemap.pos_to_world(event.pos);
 
-        commands.spawn(EnemyBundle {
-            sheet: SpriteSheetBundle {
-                texture_atlas: atlas_handle.0.clone(),
-                sprite: TextureAtlasSprite::new(103 * 9 + 36),
-                transform: Transform {
-                    translation: world.extend(1.),
-                    scale: crate::tilemap::SCALE.extend(1.),
+        commands.spawn((
+            EnemyBundle {
+                sheet: SpriteSheetBundle {
+                    texture_atlas: atlas_handle.0.clone(),
+                    sprite: TextureAtlasSprite::new(103 * 9 + 36),
+                    transform: Transform {
+                        translation: world.extend(1.),
+                        scale: crate::tilemap::SCALE.extend(1.),
+                        ..default()
+                    },
                     ..default()
                 },
+                hit_points: HitPoints::full(event.hp),
+                kind: event.kind,
+                pos: event.pos,
                 ..default()
             },
-            hit_points: HitPoints::full(event.hp),
-            kind: event.kind,
-            pos: event.pos,
-            ..default()
-        });
+            #[cfg(feature = "inspector")]
+            Name::new("Enemy"),
+        ));
     }
 }
 

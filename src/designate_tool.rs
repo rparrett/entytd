@@ -249,6 +249,8 @@ fn designate(
                 ..default()
             },
             DesignationMarker,
+            #[cfg(feature = "inspector")]
+            Name::new("DesignationMarker"),
         ))
         .id();
 

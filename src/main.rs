@@ -16,6 +16,7 @@ use spawner::SpawnerPlugin;
 use tilemap::TilemapPlugin;
 use tool_selector::ToolSelectorPlugin;
 use waves::WavesPlugin;
+use worker::WorkerPlugin;
 
 #[cfg(feature = "inspector")]
 use {
@@ -40,6 +41,7 @@ mod tilemap;
 mod tool_selector;
 mod util;
 mod waves;
+mod worker;
 
 fn main() {
     let mut app = App::new();
@@ -67,11 +69,15 @@ fn main() {
         WavesPlugin,
         EnemyPlugin,
         LevelPlugin,
+        PathfindingPlugin,
+        CommonAssetsPlugin,
+        WorkerPlugin,
+    ));
+
+    app.add_plugins((
         RadioButtonPlugin,
         ToolSelectorPlugin,
         DesignateToolPlugin,
-        PathfindingPlugin,
-        CommonAssetsPlugin,
         CursorPlugin,
     ));
 
