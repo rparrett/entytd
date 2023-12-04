@@ -5,7 +5,9 @@ use crate::tilemap::{TilePos, Tilemap, TilemapHandle};
 pub struct CursorPlugin;
 impl Plugin for CursorPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<Cursor>().add_systems(Update, cursor);
+        app.init_resource::<Cursor>()
+            .init_resource::<CursorSnapped>()
+            .add_systems(Update, cursor);
     }
 }
 
@@ -13,7 +15,10 @@ impl Plugin for CursorPlugin {
 pub struct Cursor {
     pub viewport_pos: Vec2,
     pub world_pos: Vec2,
-    pub world_pos_snapped: Option<Vec2>,
+}
+#[derive(Resource, Default)]
+pub struct CursorSnapped {
+    pub world_pos: Option<Vec2>,
     pub tile_pos: Option<TilePos>,
 }
 
@@ -23,6 +28,7 @@ fn cursor(
     maybe_tilemap_handle: Option<Res<TilemapHandle>>,
     tilemaps: Res<Assets<Tilemap>>,
     mut cursor: ResMut<Cursor>,
+    mut cursor_snapped: ResMut<CursorSnapped>,
 ) {
     let mut changed = false;
     for event in events.read() {
@@ -55,6 +61,6 @@ fn cursor(
     let tile = tilemap.world_to_pos(world);
     let snapped = tilemap.pos_to_world(tile);
 
-    cursor.tile_pos = Some(tile);
-    cursor.world_pos_snapped = Some(snapped);
+    cursor_snapped.tile_pos = Some(tile);
+    cursor_snapped.world_pos = Some(snapped);
 }

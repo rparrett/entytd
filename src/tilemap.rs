@@ -148,7 +148,7 @@ pub struct TileEntities {
     pub entities: Vec<Vec<Option<Entity>>>,
 }
 
-#[derive(Component, Debug, Clone, Copy, Default)]
+#[derive(Component, Debug, Clone, Copy, Default, Hash, Eq, PartialEq)]
 pub struct TilePos {
     pub x: usize,
     pub y: usize,

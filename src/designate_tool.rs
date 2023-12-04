@@ -1,7 +1,9 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashSet};
 
 use crate::{
-    cursor::Cursor,
+    cursor::{Cursor, CursorSnapped},
+    loading::LoadingResources,
+    tilemap::{TilePos, Tilemap, TilemapHandle},
     tool_selector::{SelectedTool, Tool},
     GameState,
 };
@@ -9,9 +11,20 @@ use crate::{
 pub struct DesignateToolPlugin;
 impl Plugin for DesignateToolPlugin {
     fn build(&self, app: &mut App) {
+        app.init_resource::<DesignationToolState>();
         app.add_systems(
             Update,
             (move_cursor, show_cursor).run_if(in_state(GameState::Playing)),
+        );
+        app.add_systems(
+            Update,
+            (update_tool_state, designate)
+                .chain()
+                .run_if(in_state(GameState::Playing)),
+        );
+        app.add_systems(
+            Update,
+            init_designations.run_if(in_state(GameState::Loading)),
         );
         app.add_systems(OnEnter(GameState::Playing), init_cursor);
     }
@@ -19,6 +32,64 @@ impl Plugin for DesignateToolPlugin {
 
 #[derive(Component)]
 struct DesignateToolCursor;
+
+#[derive(Copy, Clone)]
+enum DesignationKind {
+    Dig,
+    BuildTower,
+    Dance,
+}
+
+#[derive(Clone)]
+struct Designation {
+    kind: DesignationKind,
+    indicator: Entity,
+}
+
+#[derive(Component)]
+struct DesignationMarker;
+
+#[derive(Resource)]
+struct Designations(Vec<Vec<Option<Designation>>>);
+
+#[derive(Resource, Default)]
+struct DesignationToolState {
+    active: bool,
+    removing: bool,
+    touched: HashSet<TilePos>,
+}
+
+fn init_designations(
+    mut commands: Commands,
+    mut loading_resources: ResMut<LoadingResources>,
+    maybe_designations: Option<Res<Designations>>,
+    maybe_tilemap_handle: Option<Res<TilemapHandle>>,
+    tilemaps: Res<Assets<Tilemap>>,
+    mut queued: Local<bool>,
+) {
+    if maybe_designations.is_some() {
+        return;
+    }
+
+    if !*queued {
+        loading_resources.0 += 1;
+        *queued = true;
+    }
+
+    let Some(tilemap_handle) = maybe_tilemap_handle else {
+        return;
+    };
+
+    let Some(tilemap) = tilemaps.get(&tilemap_handle.0) else {
+        return;
+    };
+
+    commands.insert_resource(Designations(vec![
+        vec![None; tilemap.height];
+        tilemap.width
+    ]));
+    loading_resources.0 -= 1;
+}
 
 fn init_cursor(mut commands: Commands) {
     commands.spawn((
@@ -36,13 +107,16 @@ fn init_cursor(mut commands: Commands) {
     ));
 }
 
-fn move_cursor(cursor: Res<Cursor>, mut query: Query<&mut Transform, With<DesignateToolCursor>>) {
-    if !cursor.is_changed() {
+fn move_cursor(
+    cursor_snapped: Res<CursorSnapped>,
+    mut query: Query<&mut Transform, With<DesignateToolCursor>>,
+) {
+    if !cursor_snapped.is_changed() {
         return;
     }
 
     for mut transform in &mut query {
-        let Some(snapped) = cursor.world_pos_snapped else {
+        let Some(snapped) = cursor_snapped.world_pos else {
             continue;
         };
 
@@ -67,4 +141,84 @@ fn show_cursor(
         Tool::Designate => Visibility::Visible,
         _ => Visibility::Hidden,
     };
+}
+
+fn update_tool_state(
+    buttons: Res<Input<MouseButton>>,
+    cursor_snapped: Res<CursorSnapped>,
+    mut tool_state: ResMut<DesignationToolState>,
+    designations: Res<Designations>,
+) {
+    if buttons.just_pressed(MouseButton::Left) {
+        let Some(tile_pos) = cursor_snapped.tile_pos else {
+            return;
+        };
+
+        tool_state.active = true;
+        if designations.0[tile_pos.x][tile_pos.y].is_some() {
+            tool_state.removing = true;
+        }
+        tool_state.touched.clear();
+    } else if buttons.just_released(MouseButton::Left) {
+        tool_state.active = false;
+        tool_state.removing = false;
+        tool_state.touched.clear();
+    }
+}
+
+fn designate(
+    mut commands: Commands,
+    buttons: Res<Input<MouseButton>>,
+    cursor_snapped: Res<CursorSnapped>,
+    mut designations: ResMut<Designations>,
+    mut tool_state: ResMut<DesignationToolState>,
+) {
+    if !tool_state.active {
+        return;
+    }
+
+    if !buttons.just_pressed(MouseButton::Left) && !cursor_snapped.is_changed() {
+        return;
+    }
+
+    let Some(tile_pos) = cursor_snapped.tile_pos else {
+        return;
+    };
+
+    if tool_state.touched.contains(&tile_pos) {
+        return;
+    };
+
+    let Some(world_pos_snapped) = cursor_snapped.world_pos else {
+        return;
+    };
+
+    if tool_state.removing {
+        if let Some(designation) = designations.0[tile_pos.x][tile_pos.y].take() {
+            commands.entity(designation.indicator).despawn();
+        }
+        return;
+    }
+
+    let id = commands
+        .spawn((
+            SpriteBundle {
+                sprite: Sprite {
+                    custom_size: Some(crate::tilemap::SCALE * crate::tilemap::TILE_SIZE),
+                    color: Color::AQUAMARINE.with_a(0.5),
+                    ..default()
+                },
+                transform: Transform::from_translation(world_pos_snapped.extend(1.)),
+                ..default()
+            },
+            DesignationMarker,
+        ))
+        .id();
+
+    designations.0[tile_pos.x][tile_pos.y] = Some(Designation {
+        kind: DesignationKind::Dig,
+        indicator: id,
+    });
+
+    tool_state.touched.insert(tile_pos);
 }
