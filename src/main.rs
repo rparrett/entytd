@@ -9,6 +9,7 @@ use loading::LoadingPlugin;
 use map_loader::MapFileLoaderPlugin;
 use spawner::SpawnerPlugin;
 use tilemap::TilemapPlugin;
+use tool_selector::ToolSelectorPlugin;
 use waves::WavesPlugin;
 
 #[cfg(feature = "inspector")]
@@ -26,6 +27,7 @@ mod loading;
 mod map_loader;
 mod spawner;
 mod tilemap;
+mod tool_selector;
 mod util;
 mod waves;
 
@@ -42,6 +44,7 @@ fn main() {
             WavesPlugin,
             EnemyPlugin,
             LevelPlugin,
+            ToolSelectorPlugin,
             NineSlicePlugin::default(),
             #[cfg(feature = "inspector")]
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
