@@ -1,10 +1,10 @@
-use std::time::Duration;
-
-use bevy::{prelude::*, utils::FloatOrd, window::PrimaryWindow};
+use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_nine_slice_ui::NineSliceTexture;
 use serde::Deserialize;
 
 use crate::{
+    enemy::{EnemyKind, SpawnEnemyEvent},
+    tilemap::TilePos,
     waves::{WaveStartEvent, Waves},
     GameState,
 };
@@ -37,14 +37,17 @@ pub struct SpawnerDelayText;
 #[derive(Component)]
 pub struct SpawnerContainer;
 
+#[derive(Component)]
+pub struct SpawnerIndex(pub usize);
+
 #[derive(Deserialize, Clone)]
 pub struct Spawn {
-    spawner: usize,
-    num: usize,
-    delay: f32,
-    interval: f32,
-    hp: u32,
-    // TODO enemy type
+    pub spawner: usize,
+    pub num: usize,
+    pub delay: f32,
+    pub interval: f32,
+    pub hp: u32,
+    pub kind: EnemyKind,
 }
 
 #[derive(Resource, Default)]
@@ -80,12 +83,18 @@ impl From<Spawn> for SpawnerState {
     }
 }
 
-fn spawn(mut spawners: ResMut<SpawnerStates>, time: Res<Time>, mut waves: ResMut<Waves>) {
-    if spawners.states.len() == 0 {
+fn spawn(
+    mut states: ResMut<SpawnerStates>,
+    time: Res<Time>,
+    mut waves: ResMut<Waves>,
+    mut events: EventWriter<SpawnEnemyEvent>,
+    spawners: Query<(&TilePos, &SpawnerIndex)>,
+) {
+    if states.states.len() == 0 {
         return;
     }
 
-    for state in &mut spawners.states {
+    for state in &mut states.states {
         if state.remaining == 0 {
             continue;
         }
@@ -97,13 +106,22 @@ fn spawn(mut spawners: ResMut<SpawnerStates>, time: Res<Time>, mut waves: ResMut
 
         state.spawn_timer.tick(time.delta());
         if state.spawn_timer.just_finished() {
-            info!("Spawning!");
+            let Some((pos, _)) = spawners.iter().find(|(_, i)| i.0 == state.spawn.spawner) else {
+                warn!("Couldn't fetch position of spawner.");
+                continue;
+            };
+
+            events.send(SpawnEnemyEvent {
+                pos: pos.clone(),
+                kind: state.spawn.kind,
+                hp: state.spawn.hp,
+            });
 
             state.remaining -= 1;
         }
     }
 
-    let none_remaining = spawners.states.iter().all(|s| s.remaining == 0);
+    let none_remaining = states.states.iter().all(|s| s.remaining == 0);
     if none_remaining {
         info!("All spawners have finished.");
         let _ = waves.advance();
@@ -171,19 +189,14 @@ fn add_spawner_ui(
 }
 
 fn update_spawner_ui(
-    query: Query<(&Transform, &SpawnerUi)>,
+    query: Query<(&Transform, &SpawnerIndex, &SpawnerUi)>,
     mut ui_query: Query<(&mut Style, &Children), With<SpawnerContainer>>,
     mut ui_text_query: Query<&mut Text, With<SpawnerDelayText>>,
     spawners: Res<SpawnerStates>,
     windows: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
 ) {
-    // spawners are indexed top-down, left-right
-    // TODO sort on level spawn and store index instead?
-    let mut uis = query.iter().collect::<Vec<_>>();
-    uis.sort_by_key(|(t, _)| (FloatOrd(-t.translation.y), FloatOrd(t.translation.x)));
-
-    for (index, (_, ui_entity)) in uis.iter().enumerate() {
+    for (_, index, ui_entity) in &query {
         let Ok((mut container_style, children)) = ui_query.get_mut(ui_entity.0) else {
             continue;
         };
@@ -193,7 +206,7 @@ fn update_spawner_ui(
             continue;
         };
 
-        let Some(state) = spawners.states.get(index) else {
+        let Some(state) = spawners.states.get(index.0) else {
             continue;
         };
 
@@ -215,7 +228,7 @@ fn update_spawner_ui(
         return;
     };
 
-    for (transform, ui_entity) in &mut uis {
+    for (transform, _, ui_entity) in &query {
         let diff = transform.translation.truncate() - camera_transform.translation().truncate();
 
         let inset = 12.;

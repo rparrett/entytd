@@ -8,7 +8,7 @@ use crate::{
     home::Home,
     level::{LevelConfig, LevelHandle},
     loading::LoadingAssets,
-    spawner::Spawner,
+    spawner::{Spawner, SpawnerIndex},
     GameState,
 };
 
@@ -148,10 +148,10 @@ pub struct TileEntities {
     pub entities: Vec<Vec<Option<Entity>>>,
 }
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone, Copy)]
 pub struct TilePos {
-    x: usize,
-    y: usize,
+    pub x: usize,
+    pub y: usize,
 }
 impl Into<Vec2> for TilePos {
     fn into(self) -> Vec2 {
@@ -293,6 +293,8 @@ pub fn process_loaded_maps(
 
             tile_entities.entities = vec![vec![None; map.height]; map.width];
 
+            let mut spawner_index = 0;
+
             for x in 0..map.width {
                 for y in 0..map.height {
                     let tile = &map.tiles[x][y];
@@ -317,9 +319,12 @@ pub fn process_loaded_maps(
                         TileKind::Spawn => {
                             command.insert((
                                 Spawner,
+                                SpawnerIndex(spawner_index),
                                 #[cfg(feature = "inspector")]
                                 Name::new("SpawnerTile"),
                             ));
+
+                            spawner_index += 1;
                         }
                         TileKind::Home => {
                             command.insert((

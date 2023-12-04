@@ -8,6 +8,7 @@ LevelConfig (
                 num: 4,
                 interval: 4.,
                 hp: 1,
+                kind: Skeleton
             )]
         ),
         Wave (
@@ -17,6 +18,7 @@ LevelConfig (
                 num: 4,
                 interval: 4.,
                 hp: 2,
+                kind: Skeleton
             )]
         ),
         Wave (
@@ -26,6 +28,7 @@ LevelConfig (
                 num: 4,
                 interval: 4.,
                 hp: 2,
+                kind: Skeleton
             )]
         ),
         Wave (
@@ -36,6 +39,7 @@ LevelConfig (
                     num: 4,
                     interval: 4.,
                     hp: 2,
+                    kind: Skeleton
                 ),
                 Spawn (
                     delay: 15.,
@@ -43,6 +47,7 @@ LevelConfig (
                     num: 4,
                     interval: 4.,
                     hp: 2,
+                    kind: Skeleton
                 ),
             ]
         ),

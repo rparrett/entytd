@@ -16,7 +16,7 @@ impl Default for HitPoints {
     }
 }
 impl HitPoints {
-    fn full(val: u32) -> Self {
+    pub fn full(val: u32) -> Self {
         Self {
             current: val,
             max: val,
