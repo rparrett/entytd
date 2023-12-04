@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use bevy_nine_slice_ui::NineSlicePlugin;
 use camera::CameraPlugin;
 use common_assets::CommonAssetsPlugin;
+use cursor::CursorPlugin;
 use designate_tool::DesignateToolPlugin;
 use enemy::EnemyPlugin;
 use home::HomePlugin;
@@ -24,6 +25,7 @@ use {
 
 mod camera;
 mod common_assets;
+mod cursor;
 mod designate_tool;
 mod enemy;
 mod hit_points;
@@ -70,8 +72,10 @@ fn main() {
         DesignateToolPlugin,
         PathfindingPlugin,
         CommonAssetsPlugin,
-        NineSlicePlugin::default(),
+        CursorPlugin,
     ));
+
+    app.add_plugins(NineSlicePlugin::default());
 
     #[cfg(feature = "inspector")]
     app.add_plugins(

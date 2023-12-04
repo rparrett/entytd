@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    tilemap::{Tilemap, TilemapHandle},
+    cursor::Cursor,
     tool_selector::{SelectedTool, Tool},
     GameState,
 };
@@ -11,7 +11,7 @@ impl Plugin for DesignateToolPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (cursor, show_cursor).run_if(in_state(GameState::Playing)),
+            (move_cursor, show_cursor).run_if(in_state(GameState::Playing)),
         );
         app.add_systems(OnEnter(GameState::Playing), init_cursor);
     }
@@ -36,39 +36,18 @@ fn init_cursor(mut commands: Commands) {
     ));
 }
 
-fn cursor(
-    mut events: EventReader<CursorMoved>,
-    camera_query: Query<(&Camera, &GlobalTransform)>,
-    mut query: Query<&mut Transform, With<DesignateToolCursor>>,
-    tilemap_handle: Res<TilemapHandle>,
-    tilemaps: Res<Assets<Tilemap>>,
-) {
-    // TODO we need to update this when the camera moves as well.
+fn move_cursor(cursor: Res<Cursor>, mut query: Query<&mut Transform, With<DesignateToolCursor>>) {
+    if !cursor.is_changed() {
+        return;
+    }
 
-    for event in events.read() {
-        let Ok((camera, camera_transform)) = camera_query.get_single() else {
+    for mut transform in &mut query {
+        let Some(snapped) = cursor.world_pos_snapped else {
             continue;
         };
 
-        let Some(world) = camera.viewport_to_world_2d(camera_transform, event.position) else {
-            continue;
-        };
-
-        let Ok(mut cursor_transform) = query.get_single_mut() else {
-            continue;
-        };
-
-        let Some(tilemap) = tilemaps.get(&tilemap_handle.0) else {
-            continue;
-        };
-
-        let tile = tilemap.world_to_pos(world);
-        let snapped = tilemap.pos_to_world(tile);
-
-        info!("Hovered Tile: {:?}", tile);
-
-        cursor_transform.translation.x = snapped.x;
-        cursor_transform.translation.y = snapped.y;
+        transform.translation.x = snapped.x;
+        transform.translation.y = snapped.y;
     }
 }
 
