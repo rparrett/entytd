@@ -3,10 +3,13 @@ use bevy::{prelude::*, utils::HashSet};
 use crate::{
     cursor::{Cursor, CursorSnapped},
     loading::LoadingResources,
-    tilemap::{TilePos, Tilemap, TilemapHandle},
+    tilemap::{TileKind, TilePos, Tilemap, TilemapHandle},
     tool_selector::{SelectedTool, Tool},
     GameState,
 };
+
+const DESIGNATE_OK: Color = Color::rgba(0., 1.0, 1.0, 0.5);
+const DESIGNATE_NOT_OK: Color = Color::rgba(1.0, 0.0, 0.0, 0.5);
 
 pub struct DesignateToolPlugin;
 impl Plugin for DesignateToolPlugin {
@@ -96,7 +99,7 @@ fn init_cursor(mut commands: Commands) {
         SpriteBundle {
             sprite: Sprite {
                 custom_size: Some(crate::tilemap::SCALE * crate::tilemap::TILE_SIZE),
-                color: Color::AQUAMARINE.with_a(0.5),
+                color: DESIGNATE_OK,
                 ..default()
             },
             visibility: Visibility::Hidden,
@@ -108,20 +111,36 @@ fn init_cursor(mut commands: Commands) {
 }
 
 fn move_cursor(
+    selected_tool: Res<SelectedTool>,
     cursor_snapped: Res<CursorSnapped>,
-    mut query: Query<&mut Transform, With<DesignateToolCursor>>,
+    mut query: Query<(&mut Transform, &mut Sprite), With<DesignateToolCursor>>,
+    tilemap_handle: Res<TilemapHandle>,
+    tilemaps: Res<Assets<Tilemap>>,
 ) {
     if !cursor_snapped.is_changed() {
         return;
     }
 
-    for mut transform in &mut query {
+    for (mut transform, mut sprite) in &mut query {
         let Some(snapped) = cursor_snapped.world_pos else {
+            continue;
+        };
+
+        let Some(tile_pos) = cursor_snapped.tile_pos else {
             continue;
         };
 
         transform.translation.x = snapped.x;
         transform.translation.y = snapped.y;
+
+        let Some(tilemap) = tilemaps.get(&tilemap_handle.0) else {
+            return;
+        };
+
+        match (selected_tool.0, &tilemap.tiles[tile_pos.x][tile_pos.y]) {
+            (Tool::Dig, TileKind::Stone) => sprite.color = DESIGNATE_OK,
+            _ => sprite.color = DESIGNATE_NOT_OK,
+        };
     }
 }
 
@@ -138,7 +157,8 @@ fn show_cursor(
     };
 
     *visibility = match selected_tool.0 {
-        Tool::Designate => Visibility::Visible,
+        Tool::Dig => Visibility::Visible,
+        Tool::BuildTower => Visibility::Visible,
         _ => Visibility::Hidden,
     };
 }
@@ -167,11 +187,14 @@ fn update_tool_state(
 }
 
 fn designate(
+    selected_tool: Res<SelectedTool>,
     mut commands: Commands,
     buttons: Res<Input<MouseButton>>,
     cursor_snapped: Res<CursorSnapped>,
     mut designations: ResMut<Designations>,
     mut tool_state: ResMut<DesignationToolState>,
+    tilemap_handle: Res<TilemapHandle>,
+    tilemaps: Res<Assets<Tilemap>>,
 ) {
     if !tool_state.active {
         return;
@@ -197,6 +220,20 @@ fn designate(
         if let Some(designation) = designations.0[tile_pos.x][tile_pos.y].take() {
             commands.entity(designation.indicator).despawn();
         }
+        return;
+    }
+
+    let Some(tilemap) = tilemaps.get(&tilemap_handle.0) else {
+        return;
+    };
+
+    let ok = match (selected_tool.0, &tilemap.tiles[tile_pos.x][tile_pos.y]) {
+        (Tool::Dig, TileKind::Stone) => true,
+        _ => false,
+    };
+
+    if !ok {
+        // TODO sound
         return;
     }
 

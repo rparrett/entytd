@@ -22,8 +22,9 @@ struct ToolButton;
 #[derive(Component, Default, Clone, Copy)]
 pub enum Tool {
     #[default]
-    Designate,
+    Dig,
     BuildTower,
+    Dance,
 }
 
 #[derive(Resource, Default)]
@@ -81,7 +82,7 @@ fn init(mut commands: Commands, common: Res<CommonAssets>) {
                 });
 
                 if i == 1 {
-                    button_command.insert(Tool::Designate);
+                    button_command.insert(Tool::Dig);
                 }
                 if i == 2 {
                     button_command.insert(Tool::BuildTower);
