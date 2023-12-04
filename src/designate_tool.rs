@@ -65,6 +65,8 @@ fn cursor(
         let tile = tilemap.world_to_pos(world);
         let snapped = tilemap.pos_to_world(tile);
 
+        info!("Hovered Tile: {:?}", tile);
+
         cursor_transform.translation.x = snapped.x;
         cursor_transform.translation.y = snapped.y;
     }

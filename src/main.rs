@@ -8,6 +8,7 @@ use home::HomePlugin;
 use level::LevelPlugin;
 use loading::LoadingPlugin;
 use map_loader::MapFileLoaderPlugin;
+use pathfinding::PathfindingPlugin;
 use radio_button::RadioButtonPlugin;
 use spawner::SpawnerPlugin;
 use tilemap::TilemapPlugin;
@@ -28,6 +29,7 @@ mod home;
 mod level;
 mod loading;
 mod map_loader;
+mod pathfinding;
 mod radio_button;
 mod spawner;
 mod tilemap;
@@ -38,7 +40,16 @@ mod waves;
 fn main() {
     App::new()
         .add_plugins((
-            DefaultPlugins.set(ImagePlugin::default_nearest()),
+            DefaultPlugins
+                .set(ImagePlugin::default_nearest())
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        #[cfg(feature = "recording")]
+                        decorations: false,
+                        ..default()
+                    }),
+                    ..default()
+                }),
             LoadingPlugin,
             CameraPlugin,
             TilemapPlugin,
@@ -51,6 +62,7 @@ fn main() {
             RadioButtonPlugin,
             ToolSelectorPlugin,
             DesignateToolPlugin,
+            PathfindingPlugin,
             NineSlicePlugin::default(),
             #[cfg(feature = "inspector")]
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),

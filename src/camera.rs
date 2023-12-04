@@ -14,7 +14,7 @@ fn spawn(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-fn update(
+pub fn update(
     keys: Res<Input<KeyCode>>,
     mut query: Query<&mut Transform, With<Camera2d>>,
     time: Res<Time>,
@@ -49,7 +49,7 @@ fn update(
     let speed = if keys.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]) {
         400.
     } else {
-        150.
+        20.
     };
 
     camera.translation += dir.extend(0.) * time.delta_seconds() * speed;

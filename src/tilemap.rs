@@ -148,7 +148,7 @@ pub struct TileEntities {
     pub entities: Vec<Vec<Option<Entity>>>,
 }
 
-#[derive(Component, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy, Default)]
 pub struct TilePos {
     pub x: usize,
     pub y: usize,
@@ -156,6 +156,27 @@ pub struct TilePos {
 impl Into<Vec2> for TilePos {
     fn into(self) -> Vec2 {
         Vec2::new(self.x as f32, self.y as f32)
+    }
+}
+impl From<(isize, isize)> for TilePos {
+    fn from(value: (isize, isize)) -> Self {
+        TilePos {
+            x: value.0 as usize,
+            y: value.1 as usize,
+        }
+    }
+}
+impl From<(usize, usize)> for TilePos {
+    fn from(value: (usize, usize)) -> Self {
+        TilePos {
+            x: value.0 as usize,
+            y: value.1 as usize,
+        }
+    }
+}
+impl Into<(isize, isize)> for TilePos {
+    fn into(self) -> (isize, isize) {
+        (self.x as isize, self.y as isize)
     }
 }
 
