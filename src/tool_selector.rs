@@ -17,6 +17,12 @@ impl Plugin for ToolSelectorPlugin {
 #[derive(Component)]
 struct ToolButton;
 
+#[derive(Component)]
+pub enum Tool {
+    Designate,
+    BuildTower,
+}
+
 fn init(mut commands: Commands, server: Res<AssetServer>) {
     let mut tool_button_ids = vec![];
 
@@ -35,41 +41,47 @@ fn init(mut commands: Commands, server: Res<AssetServer>) {
         })
         .with_children(|parent| {
             for i in 1..5 {
-                let entity = parent
-                    .spawn((
-                        ButtonBundle {
-                            style: Style {
-                                width: Val::Px(60.0),
-                                height: Val::Px(60.0),
-                                justify_content: JustifyContent::Center,
-                                align_items: AlignItems::FlexEnd,
-                                ..default()
-                            },
+                let mut button_command = parent.spawn((
+                    ButtonBundle {
+                        style: Style {
+                            width: Val::Px(60.0),
+                            height: Val::Px(60.0),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::FlexEnd,
                             ..default()
                         },
-                        RadioButton { selected: i == 1 },
-                        ToolButton,
-                    ))
-                    .insert(NineSliceTexture::from_image(
-                        server.load("ui_nine_slice.png"),
-                    ))
-                    .with_children(|parent| {
-                        parent.spawn(
-                            TextBundle::from_section(
-                                format!("{}", i),
-                                TextStyle {
-                                    font_size: 18.0,
-                                    color: Color::rgb(0.9, 0.9, 0.9),
-                                    ..default()
-                                },
-                            )
-                            .with_style(Style {
-                                margin: UiRect::bottom(Val::Px(8.)),
+                        ..default()
+                    },
+                    NineSliceTexture::from_image(server.load("ui_nine_slice.png")),
+                    RadioButton { selected: i == 1 },
+                    ToolButton,
+                ));
+
+                button_command.with_children(|parent| {
+                    parent.spawn(
+                        TextBundle::from_section(
+                            format!("{}", i),
+                            TextStyle {
+                                font_size: 18.0,
+                                color: Color::rgb(0.9, 0.9, 0.9),
                                 ..default()
-                            }),
-                        );
-                    })
-                    .id();
+                            },
+                        )
+                        .with_style(Style {
+                            margin: UiRect::bottom(Val::Px(8.)),
+                            ..default()
+                        }),
+                    );
+                });
+
+                if i == 1 {
+                    button_command.insert(Tool::Designate);
+                }
+                if i == 2 {
+                    button_command.insert(Tool::BuildTower);
+                }
+
+                let entity = button_command.id();
 
                 tool_button_ids.push(entity);
             }
