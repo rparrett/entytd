@@ -144,10 +144,8 @@ fn add_spawner_ui(
                     },
                     ..default()
                 },
+                NineSliceTexture::from_image(server.load("ui_nine_slice.png")),
                 SpawnerContainer,
-            ))
-            .insert(NineSliceTexture::from_image(
-                server.load("ui_nine_slice.png"),
             ))
             .with_children(|parent| {
                 parent.spawn((
