@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use bevy_nine_slice_ui::NineSlicePlugin;
 use camera::CameraPlugin;
 use enemy::EnemyPlugin;
 use home::HomePlugin;
@@ -25,6 +26,7 @@ mod loading;
 mod map_loader;
 mod spawner;
 mod tilemap;
+mod util;
 mod waves;
 
 fn main() {
@@ -40,6 +42,7 @@ fn main() {
             WavesPlugin,
             EnemyPlugin,
             LevelPlugin,
+            NineSlicePlugin::default(),
             #[cfg(feature = "inspector")]
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         ))

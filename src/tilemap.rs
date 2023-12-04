@@ -290,10 +290,18 @@ pub fn process_loaded_maps(
 
                     match tile {
                         TileKind::Spawn => {
-                            command.insert(Spawner);
+                            command.insert((
+                                Spawner,
+                                #[cfg(feature = "inspector")]
+                                Name::new("SpawnerTile"),
+                            ));
                         }
                         TileKind::Home => {
-                            command.insert(Home);
+                            command.insert((
+                                Home,
+                                #[cfg(feature = "inspector")]
+                                Name::new("HomeTile"),
+                            ));
                         }
                         _ => {}
                     }
