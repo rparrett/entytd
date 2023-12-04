@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use bevy_nine_slice_ui::NineSlicePlugin;
 use camera::CameraPlugin;
+use designate_tool::DesignateToolPlugin;
 use enemy::EnemyPlugin;
 use home::HomePlugin;
 use level::LevelPlugin;
@@ -20,6 +21,7 @@ use {
 };
 
 mod camera;
+mod designate_tool;
 mod enemy;
 mod hit_points;
 mod home;
@@ -48,6 +50,7 @@ fn main() {
             LevelPlugin,
             RadioButtonPlugin,
             ToolSelectorPlugin,
+            DesignateToolPlugin,
             NineSlicePlugin::default(),
             #[cfg(feature = "inspector")]
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),

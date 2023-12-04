@@ -21,8 +21,8 @@ impl Plugin for TilemapPlugin {
     }
 }
 
-pub const SCALE: f32 = 2.;
-pub const TILE_SIZE: f32 = 12.;
+pub const SCALE: Vec2 = Vec2::splat(2.);
+pub const TILE_SIZE: Vec2 = Vec2::splat(12.);
 
 #[derive(Clone)]
 pub enum TileKind {
@@ -118,16 +118,45 @@ pub struct Tilemap {
     pub width: usize,
     pub height: usize,
 }
+impl Tilemap {
+    pub fn size_vec2(&self) -> Vec2 {
+        Vec2::new(self.width as f32, self.height as f32)
+    }
+
+    pub fn pos_to_world(&self, pos: TilePos) -> Vec2 {
+        let size = self.size_vec2();
+        let pos: Vec2 = pos.into();
+        let pos = pos - size / 2.;
+
+        SCALE * TILE_SIZE * pos + TILE_SIZE / 2. * SCALE
+    }
+
+    pub fn world_to_pos(&self, world: Vec2) -> TilePos {
+        let size = self.size_vec2() * SCALE * TILE_SIZE;
+
+        let pos = (world + size / 2. - TILE_SIZE / 2. * SCALE) / TILE_SIZE / SCALE;
+
+        TilePos {
+            x: pos.x.round() as usize,
+            y: pos.y.round() as usize,
+        }
+    }
+}
 
 #[derive(Component, Default)]
 pub struct TileEntities {
     pub entities: Vec<Vec<Option<Entity>>>,
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct TilePos {
     x: usize,
     y: usize,
+}
+impl Into<Vec2> for TilePos {
+    fn into(self) -> Vec2 {
+        Vec2::new(self.x as f32, self.y as f32)
+    }
 }
 
 impl Tilemap {
@@ -272,15 +301,11 @@ pub fn process_loaded_maps(
                         SpriteSheetBundle {
                             texture_atlas: atlas_handle.clone(),
                             sprite: TextureAtlasSprite::new(tile.atlas_index()),
-                            transform: Transform::from_scale(Vec3::splat(SCALE)).with_translation(
-                                Vec3::new(
-                                    SCALE * TILE_SIZE * (-(map.width as f32) / 2. + x as f32)
-                                        + TILE_SIZE / 2. * SCALE,
-                                    SCALE * TILE_SIZE * (-(map.height as f32) / 2. + y as f32)
-                                        + TILE_SIZE / 2. * SCALE,
-                                    0.,
-                                ),
-                            ),
+                            transform: Transform {
+                                scale: SCALE.extend(0.),
+                                translation: map.pos_to_world(TilePos { x, y }).extend(0.),
+                                ..default()
+                            },
                             ..default()
                         },
                         TilePos { x, y },

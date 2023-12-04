@@ -9,19 +9,24 @@ use crate::{
 pub struct ToolSelectorPlugin;
 impl Plugin for ToolSelectorPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), init)
-            .add_systems(Update, update_style);
+        app.init_resource::<SelectedTool>()
+            .add_systems(OnEnter(GameState::Playing), init)
+            .add_systems(Update, (update_style, select_tool));
     }
 }
 
 #[derive(Component)]
 struct ToolButton;
 
-#[derive(Component)]
+#[derive(Component, Default, Clone, Copy)]
 pub enum Tool {
+    #[default]
     Designate,
     BuildTower,
 }
+
+#[derive(Resource, Default)]
+pub struct SelectedTool(pub Tool);
 
 fn init(mut commands: Commands, server: Res<AssetServer>) {
     let mut tool_button_ids = vec![];
@@ -114,6 +119,17 @@ fn update_style(
             commands.entity(entity).insert(NineSliceTexture::from_image(
                 server.load("ui_nine_slice.png"),
             ));
+        }
+    }
+}
+
+fn select_tool(
+    mut query: Query<(&RadioButton, &Tool), (Changed<RadioButton>, With<ToolButton>)>,
+    mut selected_tool: ResMut<SelectedTool>,
+) {
+    for (radio, tool) in query.iter_mut() {
+        if radio.selected {
+            selected_tool.0 = *tool;
         }
     }
 }
