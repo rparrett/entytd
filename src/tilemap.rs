@@ -302,7 +302,7 @@ pub fn process_loaded_maps(
                             texture_atlas: atlas_handle.clone(),
                             sprite: TextureAtlasSprite::new(tile.atlas_index()),
                             transform: Transform {
-                                scale: SCALE.extend(0.),
+                                scale: SCALE.extend(1.),
                                 translation: map.pos_to_world(TilePos { x, y }).extend(0.),
                                 ..default()
                             },
