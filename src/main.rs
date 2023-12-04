@@ -7,6 +7,7 @@ use home::HomePlugin;
 use level::LevelPlugin;
 use loading::LoadingPlugin;
 use map_loader::MapFileLoaderPlugin;
+use radio_button::RadioButtonPlugin;
 use spawner::SpawnerPlugin;
 use tilemap::TilemapPlugin;
 use tool_selector::ToolSelectorPlugin;
@@ -25,6 +26,7 @@ mod home;
 mod level;
 mod loading;
 mod map_loader;
+mod radio_button;
 mod spawner;
 mod tilemap;
 mod tool_selector;
@@ -44,6 +46,7 @@ fn main() {
             WavesPlugin,
             EnemyPlugin,
             LevelPlugin,
+            RadioButtonPlugin,
             ToolSelectorPlugin,
             NineSlicePlugin::default(),
             #[cfg(feature = "inspector")]

@@ -769,7 +769,7 @@ dependencies = [
 [[package]]
 name = "bevy_nine_slice_ui"
 version = "0.4.0"
-source = "git+https://github.com/rparrett/bevy_nine_slice_ui?branch=features#7c88b05e99c199c3f772c7b5d8eb906f7e0b330b"
+source = "git+https://github.com/rparrett/bevy_nine_slice_ui?branch=bevyjam4#199c1c1fcb47be0f0158628b91d921b26a164881"
 dependencies = [
  "bevy",
 ]

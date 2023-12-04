@@ -1,16 +1,25 @@
 use bevy::prelude::*;
 use bevy_nine_slice_ui::NineSliceTexture;
 
-use crate::GameState;
+use crate::{
+    radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
+    GameState,
+};
 
 pub struct ToolSelectorPlugin;
 impl Plugin for ToolSelectorPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), init);
+        app.add_systems(OnEnter(GameState::Playing), init)
+            .add_systems(Update, update_style);
     }
 }
 
+#[derive(Component)]
+struct ToolButton;
+
 fn init(mut commands: Commands, server: Res<AssetServer>) {
+    let mut tool_button_ids = vec![];
+
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -26,17 +35,21 @@ fn init(mut commands: Commands, server: Res<AssetServer>) {
         })
         .with_children(|parent| {
             for i in 1..5 {
-                parent
-                    .spawn(ButtonBundle {
-                        style: Style {
-                            width: Val::Px(60.0),
-                            height: Val::Px(60.0),
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::FlexEnd,
+                let entity = parent
+                    .spawn((
+                        ButtonBundle {
+                            style: Style {
+                                width: Val::Px(60.0),
+                                height: Val::Px(60.0),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::FlexEnd,
+                                ..default()
+                            },
                             ..default()
                         },
-                        ..default()
-                    })
+                        RadioButton { selected: i == 1 },
+                        ToolButton,
+                    ))
                     .insert(NineSliceTexture::from_image(
                         server.load("ui_nine_slice.png"),
                     ))
@@ -55,7 +68,40 @@ fn init(mut commands: Commands, server: Res<AssetServer>) {
                                 ..default()
                             }),
                         );
-                    });
+                    })
+                    .id();
+
+                tool_button_ids.push(entity);
             }
         });
+
+    let tool_group_id = commands
+        .spawn(RadioButtonGroup {
+            entities: tool_button_ids.clone(),
+        })
+        .id();
+
+    for id in tool_button_ids.iter() {
+        commands
+            .entity(*id)
+            .insert(RadioButtonGroupRelation(tool_group_id));
+    }
+}
+
+fn update_style(
+    mut commands: Commands,
+    mut query: Query<(Entity, &RadioButton), (Changed<RadioButton>, With<ToolButton>)>,
+    server: Res<AssetServer>,
+) {
+    for (entity, radio) in query.iter_mut() {
+        if radio.selected {
+            commands.entity(entity).insert(NineSliceTexture::from_image(
+                server.load("ui_nine_slice_selected.png"),
+            ));
+        } else {
+            commands.entity(entity).insert(NineSliceTexture::from_image(
+                server.load("ui_nine_slice.png"),
+            ));
+        }
+    }
 }
