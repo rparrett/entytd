@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use bevy_nine_slice_ui::NineSlicePlugin;
 use camera::CameraPlugin;
+use common_assets::CommonAssetsPlugin;
 use designate_tool::DesignateToolPlugin;
 use enemy::EnemyPlugin;
 use home::HomePlugin;
@@ -22,6 +23,7 @@ use {
 };
 
 mod camera;
+mod common_assets;
 mod designate_tool;
 mod enemy;
 mod hit_points;
@@ -38,38 +40,47 @@ mod util;
 mod waves;
 
 fn main() {
-    App::new()
-        .add_plugins((
-            DefaultPlugins
-                .set(ImagePlugin::default_nearest())
-                .set(WindowPlugin {
-                    primary_window: Some(Window {
-                        #[cfg(feature = "recording")]
-                        decorations: false,
-                        ..default()
-                    }),
+    let mut app = App::new();
+
+    app.add_plugins(
+        DefaultPlugins
+            .set(ImagePlugin::default_nearest())
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    #[cfg(feature = "recording")]
+                    decorations: false,
                     ..default()
                 }),
-            LoadingPlugin,
-            CameraPlugin,
-            TilemapPlugin,
-            MapFileLoaderPlugin,
-            SpawnerPlugin,
-            HomePlugin,
-            WavesPlugin,
-            EnemyPlugin,
-            LevelPlugin,
-            RadioButtonPlugin,
-            ToolSelectorPlugin,
-            DesignateToolPlugin,
-            PathfindingPlugin,
-            NineSlicePlugin::default(),
-            #[cfg(feature = "inspector")]
-            WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
-        ))
-        .insert_resource(Msaa::Off)
-        .add_state::<GameState>()
-        .run();
+                ..default()
+            }),
+    );
+
+    app.add_plugins((
+        LoadingPlugin,
+        CameraPlugin,
+        TilemapPlugin,
+        MapFileLoaderPlugin,
+        SpawnerPlugin,
+        HomePlugin,
+        WavesPlugin,
+        EnemyPlugin,
+        LevelPlugin,
+        RadioButtonPlugin,
+        ToolSelectorPlugin,
+        DesignateToolPlugin,
+        PathfindingPlugin,
+        CommonAssetsPlugin,
+        NineSlicePlugin::default(),
+    ));
+
+    #[cfg(feature = "inspector")]
+    app.add_plugins(
+        WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
+    );
+
+    app.insert_resource(Msaa::Off).add_state::<GameState>();
+
+    app.run();
 }
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]

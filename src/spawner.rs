@@ -3,6 +3,7 @@ use bevy_nine_slice_ui::NineSliceTexture;
 use serde::Deserialize;
 
 use crate::{
+    common_assets::CommonAssets,
     enemy::{EnemyKind, SpawnEnemyEvent},
     tilemap::TilePos,
     waves::{WaveStartEvent, Waves},
@@ -144,8 +145,8 @@ fn init(waves: Res<Waves>, mut states: ResMut<SpawnerStates>) {
 
 fn add_spawner_ui(
     mut commands: Commands,
-    server: Res<AssetServer>,
     query: Query<Entity, Added<Spawner>>,
+    common: Res<CommonAssets>,
 ) {
     for entity in &query {
         let ui_entity = commands
@@ -162,7 +163,7 @@ fn add_spawner_ui(
                     },
                     ..default()
                 },
-                NineSliceTexture::from_image(server.load("ui_nine_slice.png")),
+                NineSliceTexture::from_image(common.ui_nine_slice.clone()),
                 SpawnerContainer,
             ))
             .with_children(|parent| {

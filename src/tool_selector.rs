@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_nine_slice_ui::NineSliceTexture;
 
 use crate::{
+    common_assets::CommonAssets,
     radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
     GameState,
 };
@@ -28,7 +29,7 @@ pub enum Tool {
 #[derive(Resource, Default)]
 pub struct SelectedTool(pub Tool);
 
-fn init(mut commands: Commands, server: Res<AssetServer>) {
+fn init(mut commands: Commands, common: Res<CommonAssets>) {
     let mut tool_button_ids = vec![];
 
     commands
@@ -57,7 +58,7 @@ fn init(mut commands: Commands, server: Res<AssetServer>) {
                         },
                         ..default()
                     },
-                    NineSliceTexture::from_image(server.load("ui_nine_slice.png")),
+                    NineSliceTexture::from_image(common.ui_nine_slice.clone()),
                     RadioButton { selected: i == 1 },
                     ToolButton,
                 ));
@@ -109,16 +110,17 @@ fn update_style(
     mut commands: Commands,
     mut query: Query<(Entity, &RadioButton), (Changed<RadioButton>, With<ToolButton>)>,
     server: Res<AssetServer>,
+    common: Res<CommonAssets>,
 ) {
     for (entity, radio) in query.iter_mut() {
         if radio.selected {
             commands.entity(entity).insert(NineSliceTexture::from_image(
-                server.load("ui_nine_slice_selected.png"),
+                common.ui_nine_slice_selected.clone(),
             ));
         } else {
-            commands.entity(entity).insert(NineSliceTexture::from_image(
-                server.load("ui_nine_slice.png"),
-            ));
+            commands
+                .entity(entity)
+                .insert(NineSliceTexture::from_image(common.ui_nine_slice.clone()));
         }
     }
 }
