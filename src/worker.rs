@@ -3,7 +3,7 @@ use crate::{
     hit_points::HitPoints,
     movement::{MovingProgress, Speed},
     pathfinding::{heuristic, worker_cost_fn, NeighborCostIter, PathState},
-    tilemap::{AtlasHandle, TileEntities, TilePos, Tilemap, TilemapHandle},
+    tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap, TilemapHandle},
     GameState,
 };
 use bevy::prelude::*;
@@ -135,23 +135,28 @@ fn find_job(
         return;
     }
 
-    let mut designation = None;
+    let mut potential_jobs = vec![];
     for x in 0..map.width {
         for y in 0..map.height {
             if let Some(d) = &designations.0[x][y] {
-                designation = Some((x, y, d));
+                potential_jobs.push((TilePos { x, y }, d));
             }
         }
     }
 
-    let Some((x, y, _designation)) = designation else {
+    if potential_jobs.is_empty() {
         return;
-    };
+    }
 
     for (entity, pos) in &query {
         let now = std::time::Instant::now();
 
-        let goal = TilePos { x, y };
+        potential_jobs.sort_by_key(|a| heuristic(a.0, *pos));
+
+        let Some(goal) = potential_jobs.first() else {
+            continue;
+        };
+        let goal = goal.0;
 
         let Some(result) = astar(
             pos,
@@ -188,6 +193,9 @@ fn do_job(
     mut dig_query: Query<&mut HitPoints>,
     tilemap_query: Query<&mut TileEntities>,
     mut designations: ResMut<Designations>,
+    tilemap_handle: Res<TilemapHandle>,
+    mut tilemaps: ResMut<Assets<Tilemap>>,
+    mut tile_query: Query<(&mut TileKind, &mut TextureAtlasSprite)>,
 ) {
     if query.is_empty() {
         return;
@@ -207,11 +215,15 @@ fn do_job(
         match job {
             Job::Dig(dig_pos) => {
                 let Some(tile_entity) = map_entities.entities[dig_pos.x][dig_pos.y] else {
+                    commands.entity(entity).insert(Idle);
+                    commands.entity(entity).remove::<Job>();
                     warn!("Working trying to dig at position without entity.");
                     continue;
                 };
 
                 let Ok(mut hp) = dig_query.get_mut(tile_entity) else {
+                    commands.entity(entity).insert(Idle);
+                    commands.entity(entity).remove::<Job>();
                     warn!("Worker trying dig entity without hitpoints.");
                     continue;
                 };
@@ -227,6 +239,22 @@ fn do_job(
                         commands.entity(designation.indicator).despawn()
                     }
                     designations.0[dig_pos.x][dig_pos.y] = None;
+
+                    // TODO surely this stuff belongs elsewhere
+                    let Some(mut tilemap) = tilemaps.get_mut(&tilemap_handle.0) else {
+                        continue;
+                    };
+
+                    tilemap.tiles[dig_pos.x][dig_pos.y] = TileKind::Dirt;
+
+                    let Some(tile_entity) = map_entities.entities[dig_pos.x][dig_pos.y] else {
+                        continue;
+                    };
+                    let Ok((mut kind, mut sprite)) = tile_query.get_mut(tile_entity) else {
+                        continue;
+                    };
+                    *kind = TileKind::Dirt;
+                    sprite.index = kind.atlas_index();
                 }
 
                 did_work = true;
