@@ -1,23 +1,11 @@
 use bevy::prelude::*;
-use hierarchical_pathfinding::prelude::*;
 
-use crate::{
-    tilemap::{TileKind, TilePos, Tilemap, TilemapHandle},
-    GameState,
-};
+use crate::tilemap::{TileKind, TilePos, Tilemap};
 
 pub struct PathfindingPlugin;
 impl Plugin for PathfindingPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Update, init.run_if(in_state(GameState::Playing)));
-    }
+    fn build(&self, _app: &mut App) {}
 }
-
-#[derive(Resource)]
-pub struct EnemyPathfinding(pub PathCache<ManhattanNeighborhood>);
-
-#[derive(Resource)]
-pub struct WorkerPathfinding(pub PathCache<ManhattanNeighborhood>);
 
 #[derive(Component)]
 pub struct PathState {
@@ -32,60 +20,104 @@ impl From<Vec<(usize, usize)>> for PathState {
         }
     }
 }
+impl From<Vec<TilePos>> for PathState {
+    fn from(path: Vec<TilePos>) -> Self {
+        Self { index: 0, path }
+    }
+}
 impl PathState {
     pub fn finished(&self) -> bool {
         self.index + 2 > self.path.len()
     }
 }
 
-pub fn enemy_cost_fn(map: &Tilemap) -> impl '_ + Sync + Fn((usize, usize)) -> isize {
-    move |(x, y)| match map.tiles[x][y] {
-        TileKind::Dirt => 3,
-        TileKind::Road | TileKind::Bridge | TileKind::Spawn => 1,
-        _ => -1,
+pub fn enemy_cost_fn(map: &Tilemap) -> impl '_ + Fn(TilePos) -> isize {
+    move |pos| {
+        let Some(row) = map.tiles.get(pos.x) else {
+            return -1;
+        };
+        let Some(tile) = row.get(pos.y) else {
+            return -1;
+        };
+
+        match tile {
+            TileKind::Dirt => 3,
+            TileKind::Road | TileKind::Bridge | TileKind::Spawn => 1,
+            _ => -1,
+        }
     }
 }
 
-pub fn worker_cost_fn(map: &Tilemap) -> impl '_ + Sync + Fn((usize, usize)) -> isize {
-    move |(x, y)| match map.tiles[x][y] {
-        TileKind::Dirt => 1,
-        TileKind::Road | TileKind::Bridge | TileKind::Home => 3,
-        _ => -1,
+pub fn worker_cost_fn(map: &Tilemap) -> impl '_ + Fn(TilePos) -> isize {
+    move |pos| {
+        let Some(row) = map.tiles.get(pos.x) else {
+            return -1;
+        };
+        let Some(tile) = row.get(pos.y) else {
+            return -1;
+        };
+
+        // Workers avoid roads, which is where enemies typically are found.
+
+        match tile {
+            TileKind::Dirt => 1,
+            TileKind::Road | TileKind::Bridge | TileKind::Home => 3,
+            _ => -1,
+        }
     }
 }
 
-fn init(
-    mut commands: Commands,
-    tilemap_handle: Res<TilemapHandle>,
-    tilemaps: Res<Assets<Tilemap>>,
-    enemy_pathfinding: Option<Res<EnemyPathfinding>>,
-) {
-    // TODO can this be an onenter system? is the tilemap ready in time?
-    if enemy_pathfinding.is_some() {
-        return;
+pub fn heuristic(a: TilePos, b: TilePos) -> u32 {
+    let absdiff = (IVec2::new(a.x as i32, a.y as i32) - IVec2::new(b.x as i32, b.y as i32)).abs();
+    (absdiff.x + absdiff.y) as u32
+}
+
+const NEIGHBORS: [(isize, isize); 4] = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+
+pub struct NeighborCostIter<F> {
+    pos: TilePos,
+    index: usize,
+    cost_fn: F,
+}
+
+impl<F> NeighborCostIter<F>
+where
+    F: Sync + Fn(TilePos) -> isize,
+{
+    pub fn new(pos: TilePos, cost_fn: F) -> NeighborCostIter<F> {
+        NeighborCostIter {
+            pos,
+            index: 0,
+            cost_fn,
+        }
     }
+}
 
-    let Some(map) = tilemaps.get(&tilemap_handle.0) else {
-        return;
-    };
+impl<F> Iterator for NeighborCostIter<F>
+where
+    F: Fn(TilePos) -> isize,
+{
+    type Item = (TilePos, u32);
 
-    info!("building pathcache");
+    fn next(&mut self) -> Option<Self::Item> {
+        for i in self.index..NEIGHBORS.len() {
+            let n = NEIGHBORS.get(i)?;
 
-    let enemy_pathfinding = PathCache::new(
-        (map.width, map.height),
-        enemy_cost_fn(&map),
-        ManhattanNeighborhood::new(map.width, map.height),
-        PathCacheConfig::with_chunk_size(3),
-    );
+            let x = (self.pos.x as isize + n.0) as usize;
+            let y = (self.pos.y as isize + n.1) as usize;
 
-    commands.insert_resource(EnemyPathfinding(enemy_pathfinding));
+            let pos = TilePos { x, y };
 
-    let worker_pathfinding = PathCache::new(
-        (map.width, map.height),
-        worker_cost_fn(&map),
-        ManhattanNeighborhood::new(map.width, map.height),
-        PathCacheConfig::with_chunk_size(3),
-    );
+            let cost = (self.cost_fn)(pos);
+            if cost == -1 {
+                continue;
+            }
 
-    commands.insert_resource(WorkerPathfinding(worker_pathfinding));
+            self.index = i + 1;
+
+            return Some((TilePos { x, y }, cost as u32));
+        }
+
+        None
+    }
 }

@@ -4,10 +4,11 @@ use serde::Deserialize;
 use crate::{
     hit_points::HitPoints,
     movement::{MovingProgress, Speed},
-    pathfinding::{EnemyPathfinding, PathState},
+    pathfinding::{enemy_cost_fn, heuristic, NeighborCostIter, PathState},
     tilemap::{AtlasHandle, TilePos, Tilemap, TilemapHandle},
     GameState,
 };
+use pathfinding::prelude::astar;
 
 pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
@@ -86,7 +87,6 @@ fn spawn(
 fn pathfinding(
     mut commands: Commands,
     query: Query<(Entity, &TilePos), (With<Enemy>, Without<PathState>)>,
-    pathfinding: Option<Res<EnemyPathfinding>>,
     tilemap_handle: Res<TilemapHandle>,
     tilemaps: Res<Assets<Tilemap>>,
 ) {
@@ -94,22 +94,21 @@ fn pathfinding(
         return;
     };
 
-    let Some(pathfinding) = pathfinding else {
-        return;
-    };
+    // TODO spawner should do the pathfinding and cache the result.
 
     for (entity, pos) in &query {
-        let Some(path) = pathfinding.0.find_path(
-            (pos.x, pos.y),
-            (62, 30),
-            crate::pathfinding::enemy_cost_fn(&map),
+        let goal = TilePos { x: 61, y: 30 };
+
+        let Some(result) = astar(
+            pos,
+            |p| NeighborCostIter::new(*p, enemy_cost_fn(&map)),
+            |p| heuristic(*p, goal),
+            |p| NeighborCostIter::new(goal, enemy_cost_fn(&map)).any(|n| n.0 == *p),
         ) else {
             warn!("Enemy unable to find path to goal.");
             continue;
         };
 
-        let resolved = path.resolve(crate::pathfinding::enemy_cost_fn(&map));
-
-        commands.entity(entity).insert(PathState::from(resolved));
+        commands.entity(entity).insert(PathState::from(result.0));
     }
 }

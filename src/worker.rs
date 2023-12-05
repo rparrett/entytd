@@ -2,11 +2,12 @@ use crate::{
     designate_tool::Designations,
     hit_points::HitPoints,
     movement::{MovingProgress, Speed},
-    pathfinding::{PathState, WorkerPathfinding},
+    pathfinding::{heuristic, worker_cost_fn, NeighborCostIter, PathState},
     tilemap::{AtlasHandle, TileEntities, TilePos, Tilemap, TilemapHandle},
     GameState,
 };
 use bevy::prelude::*;
+use pathfinding::prelude::astar;
 use rand::{seq::SliceRandom, thread_rng, Rng};
 
 pub struct WorkerPlugin;
@@ -122,15 +123,10 @@ fn find_job(
     mut commands: Commands,
     query: Query<(Entity, &TilePos), (With<Worker>, With<Idle>)>,
     designations: Res<Designations>,
-    pathfinding: Option<Res<WorkerPathfinding>>,
     tilemap_handle: Res<TilemapHandle>,
     tilemaps: Res<Assets<Tilemap>>,
 ) {
     let Some(map) = tilemaps.get(&tilemap_handle.0) else {
-        return;
-    };
-
-    let Some(pathfinding) = pathfinding else {
         return;
     };
 
@@ -148,38 +144,34 @@ fn find_job(
         }
     }
 
-    let Some((x, y, designation)) = designation else {
+    let Some((x, y, _designation)) = designation else {
         return;
     };
 
-    let neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)];
-
     for (entity, pos) in &query {
-        let diff: IVec2 =
-            (IVec2::new(pos.x as i32, pos.y as i32) - IVec2::new(x as i32, y as i32)).abs();
-        if diff.x + diff.y < 1 {
-            info!("skipping, already here.");
-            continue;
-        }
+        let now = std::time::Instant::now();
 
-        // TODO find_closest_goal seems ideal here, but it is is sometimes panicking.
-        // https://github.com/mich101mich/hierarchical_pathfinding/issues/7
+        let goal = TilePos { x, y };
 
-        let Some(path) = neighbors.iter().find_map(|n| {
-            pathfinding
-                .0
-                .find_path((pos.x, pos.y), *n, crate::pathfinding::worker_cost_fn(&map))
-        }) else {
+        let Some(result) = astar(
+            pos,
+            |p| NeighborCostIter::new(*p, worker_cost_fn(&map)),
+            |p| heuristic(*p, goal),
+            |p| NeighborCostIter::new(goal, worker_cost_fn(&map)).any(|n| n.0 == *p),
+        ) else {
             warn!("Worker unable to find path to goal.");
             continue;
         };
 
-        let resolved = path.resolve(crate::pathfinding::worker_cost_fn(&map));
+        info!(
+            "Worker pathfinding complete in {}ms.",
+            now.elapsed().as_secs_f32() * 1000.
+        );
 
         commands
             .entity(entity)
-            .insert(PathState::from(resolved))
-            .insert(Job::Dig((x, y).into()))
+            .insert(PathState::from(result.0))
+            .insert(Job::Dig(goal))
             .remove::<Idle>();
 
         // limit the amount of pathfinding we do each frame.
@@ -203,7 +195,9 @@ fn do_job(
 
     let map_entities = tilemap_query.single();
 
-    for (entity, pos, job, mut cooldown) in &mut query {
+    for (entity, _pos, job, mut cooldown) in &mut query {
+        // TODO ensure we are actually near the job.
+
         if !cooldown.0.finished() {
             continue;
         }
