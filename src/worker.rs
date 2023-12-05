@@ -138,9 +138,22 @@ fn find_job(
     let mut potential_jobs = vec![];
     for x in 0..map.width {
         for y in 0..map.height {
-            if let Some(d) = &designations.0[x][y] {
-                potential_jobs.push((TilePos { x, y }, d));
+            let Some(d) = &designations.0[x][y] else {
+                continue;
+            };
+
+            let pos = TilePos { x, y };
+
+            // filter out jobs that are definitely unreachable because their
+            // immediate neighbors are not walkable.
+            if NeighborCostIter::new(pos, worker_cost_fn(&map))
+                .next()
+                .is_none()
+            {
+                continue;
             }
+
+            potential_jobs.push((pos, d));
         }
     }
 
@@ -164,7 +177,10 @@ fn find_job(
             |p| heuristic(*p, goal),
             |p| NeighborCostIter::new(goal, worker_cost_fn(&map)).any(|n| n.0 == *p),
         ) else {
-            warn!("Worker unable to find path to goal.");
+            warn!(
+                "Worker unable to find path to goal. ({}ms)",
+                now.elapsed().as_secs_f32() * 1000.
+            );
             continue;
         };
 
