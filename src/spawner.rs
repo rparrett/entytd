@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_nine_slice_ui::NineSliceTexture;
 use serde::Deserialize;
@@ -75,9 +77,12 @@ pub struct SpawnerState {
 }
 impl From<Spawn> for SpawnerState {
     fn from(spawn: Spawn) -> Self {
+        let mut spawn_timer = Timer::from_seconds(spawn.interval, TimerMode::Repeating);
+        spawn_timer.set_elapsed(Duration::from_secs_f32(spawn.interval));
+
         Self {
             delay_timer: Timer::from_seconds(spawn.delay, TimerMode::Once),
-            spawn_timer: Timer::from_seconds(spawn.interval, TimerMode::Repeating),
+            spawn_timer,
             remaining: spawn.num,
             spawn,
         }
