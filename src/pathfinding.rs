@@ -59,7 +59,6 @@ fn init(
     tilemap_handle: Res<TilemapHandle>,
     tilemaps: Res<Assets<Tilemap>>,
     enemy_pathfinding: Option<Res<EnemyPathfinding>>,
-    worker_pathfinding: Option<Res<WorkerPathfinding>>,
 ) {
     // TODO can this be an onenter system? is the tilemap ready in time?
     if enemy_pathfinding.is_some() {
