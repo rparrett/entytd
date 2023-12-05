@@ -1,5 +1,6 @@
 use crate::{
     hit_points::HitPoints,
+    movement::Speed,
     tilemap::{AtlasHandle, TilePos, Tilemap, TilemapHandle},
     GameState,
 };
@@ -26,6 +27,7 @@ pub struct WorkerBundle {
     hit_points: HitPoints,
     worker: Worker,
     pos: TilePos,
+    speed: Speed,
 }
 
 #[derive(Event)]

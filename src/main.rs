@@ -10,6 +10,7 @@ use home::HomePlugin;
 use level::LevelPlugin;
 use loading::LoadingPlugin;
 use map_loader::MapFileLoaderPlugin;
+use movement::MovementPlugin;
 use pathfinding::PathfindingPlugin;
 use radio_button::RadioButtonPlugin;
 use spawner::SpawnerPlugin;
@@ -34,6 +35,7 @@ mod home;
 mod level;
 mod loading;
 mod map_loader;
+mod movement;
 mod pathfinding;
 mod radio_button;
 mod spawner;
@@ -72,6 +74,7 @@ fn main() {
         PathfindingPlugin,
         CommonAssetsPlugin,
         WorkerPlugin,
+        MovementPlugin,
     ));
 
     app.add_plugins((
