@@ -40,7 +40,7 @@ impl PathState {
 
 pub fn enemy_cost_fn(map: &Tilemap) -> impl '_ + Sync + Fn((usize, usize)) -> isize {
     move |(x, y)| match map.tiles[x][y] {
-        TileKind::Dirt => 2,
+        TileKind::Dirt => 3,
         TileKind::Road | TileKind::Bridge | TileKind::Spawn => 1,
         _ => -1,
     }
@@ -49,7 +49,7 @@ pub fn enemy_cost_fn(map: &Tilemap) -> impl '_ + Sync + Fn((usize, usize)) -> is
 pub fn worker_cost_fn(map: &Tilemap) -> impl '_ + Sync + Fn((usize, usize)) -> isize {
     move |(x, y)| match map.tiles[x][y] {
         TileKind::Dirt => 1,
-        TileKind::Road | TileKind::Bridge => 3,
+        TileKind::Road | TileKind::Bridge | TileKind::Home => 3,
         _ => -1,
     }
 }
