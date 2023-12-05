@@ -4,7 +4,7 @@ use serde::Deserialize;
 use crate::{
     hit_points::HitPoints,
     movement::{MovingProgress, Speed},
-    pathfinding::{PathState, Pathfinding},
+    pathfinding::{EnemyPathfinding, PathState},
     tilemap::{AtlasHandle, TilePos, Tilemap, TilemapHandle},
     GameState,
 };
@@ -86,7 +86,7 @@ fn spawn(
 fn pathfinding(
     mut commands: Commands,
     query: Query<(Entity, &TilePos), (With<Enemy>, Without<PathState>)>,
-    pathfinding: Option<Res<Pathfinding>>,
+    pathfinding: Option<Res<EnemyPathfinding>>,
     tilemap_handle: Res<TilemapHandle>,
     tilemaps: Res<Assets<Tilemap>>,
 ) {
@@ -99,16 +99,16 @@ fn pathfinding(
     };
 
     for (entity, pos) in &query {
-        let Some(path) =
-            pathfinding
-                .0
-                .find_path((pos.x, pos.y), (62, 30), crate::pathfinding::cost_fn(&map))
-        else {
+        let Some(path) = pathfinding.0.find_path(
+            (pos.x, pos.y),
+            (62, 30),
+            crate::pathfinding::enemy_cost_fn(&map),
+        ) else {
             warn!("Enemy unable to find path to goal.");
             continue;
         };
 
-        let resolved = path.resolve(crate::pathfinding::cost_fn(&map));
+        let resolved = path.resolve(crate::pathfinding::enemy_cost_fn(&map));
 
         commands.entity(entity).insert(PathState::from(resolved));
     }

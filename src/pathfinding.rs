@@ -14,7 +14,10 @@ impl Plugin for PathfindingPlugin {
 }
 
 #[derive(Resource)]
-pub struct Pathfinding(pub PathCache<ManhattanNeighborhood>);
+pub struct EnemyPathfinding(pub PathCache<ManhattanNeighborhood>);
+
+#[derive(Resource)]
+pub struct WorkerPathfinding(pub PathCache<ManhattanNeighborhood>);
 
 #[derive(Component)]
 pub struct PathState {
@@ -35,10 +38,18 @@ impl PathState {
     }
 }
 
-pub fn cost_fn(map: &Tilemap) -> impl '_ + Sync + Fn((usize, usize)) -> isize {
+pub fn enemy_cost_fn(map: &Tilemap) -> impl '_ + Sync + Fn((usize, usize)) -> isize {
     move |(x, y)| match map.tiles[x][y] {
         TileKind::Dirt => 1,
         TileKind::Road | TileKind::Bridge | TileKind::Spawn => 2,
+        _ => -1,
+    }
+}
+
+pub fn worker_cost_fn(map: &Tilemap) -> impl '_ + Sync + Fn((usize, usize)) -> isize {
+    move |(x, y)| match map.tiles[x][y] {
+        TileKind::Dirt => 2,
+        TileKind::Road | TileKind::Bridge => 1,
         _ => -1,
     }
 }
@@ -47,10 +58,11 @@ fn init(
     mut commands: Commands,
     tilemap_handle: Res<TilemapHandle>,
     tilemaps: Res<Assets<Tilemap>>,
-    pathfinding: Option<Res<Pathfinding>>,
+    enemy_pathfinding: Option<Res<EnemyPathfinding>>,
+    worker_pathfinding: Option<Res<WorkerPathfinding>>,
 ) {
     // TODO can this be an onenter system? is the tilemap ready in time?
-    if pathfinding.is_some() {
+    if enemy_pathfinding.is_some() {
         return;
     }
 
@@ -60,12 +72,21 @@ fn init(
 
     info!("building pathcache");
 
-    let pathfinding = PathCache::new(
+    let enemy_pathfinding = PathCache::new(
         (map.width, map.height),
-        cost_fn(&map),
+        enemy_cost_fn(&map),
         ManhattanNeighborhood::new(map.width, map.height),
         PathCacheConfig::with_chunk_size(3),
     );
 
-    commands.insert_resource(Pathfinding(pathfinding));
+    commands.insert_resource(EnemyPathfinding(enemy_pathfinding));
+
+    let worker_pathfinding = PathCache::new(
+        (map.width, map.height),
+        worker_cost_fn(&map),
+        ManhattanNeighborhood::new(map.width, map.height),
+        PathCacheConfig::with_chunk_size(3),
+    );
+
+    commands.insert_resource(WorkerPathfinding(worker_pathfinding));
 }

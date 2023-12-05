@@ -2,7 +2,7 @@ use crate::{
     designate_tool::Designations,
     hit_points::HitPoints,
     movement::{MovingProgress, Speed},
-    pathfinding::{PathState, Pathfinding},
+    pathfinding::{PathState, WorkerPathfinding},
     tilemap::{AtlasHandle, TilePos, Tilemap, TilemapHandle},
     GameState,
 };
@@ -105,7 +105,7 @@ fn find_job(
     mut commands: Commands,
     query: Query<(Entity, &TilePos), (With<Worker>, With<Idle>)>,
     designations: Res<Designations>,
-    pathfinding: Option<Res<Pathfinding>>,
+    pathfinding: Option<Res<WorkerPathfinding>>,
     tilemap_handle: Res<TilemapHandle>,
     tilemaps: Res<Assets<Tilemap>>,
 ) {
@@ -140,13 +140,13 @@ fn find_job(
         let Some((_goal, path)) = pathfinding.0.find_closest_goal(
             (pos.x, pos.y),
             &neighbors,
-            crate::pathfinding::cost_fn(&map),
+            crate::pathfinding::worker_cost_fn(&map),
         ) else {
             warn!("Worker unable to find path to goal.");
             continue;
         };
 
-        let resolved = path.resolve(crate::pathfinding::cost_fn(&map));
+        let resolved = path.resolve(crate::pathfinding::worker_cost_fn(&map));
 
         commands
             .entity(entity)
