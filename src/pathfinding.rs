@@ -34,7 +34,7 @@ impl From<Vec<(usize, usize)>> for PathState {
 }
 impl PathState {
     pub fn finished(&self) -> bool {
-        self.index > self.path.len() - 2
+        self.index + 2 > self.path.len()
     }
 }
 
