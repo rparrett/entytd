@@ -44,8 +44,8 @@ enum DesignationKind {
 }
 
 #[derive(Clone)]
-struct Designation {
-    kind: DesignationKind,
+pub struct Designation {
+    pub kind: DesignationKind,
     indicator: Entity,
 }
 
@@ -53,7 +53,7 @@ struct Designation {
 struct DesignationMarker;
 
 #[derive(Resource)]
-struct Designations(Vec<Vec<Option<Designation>>>);
+pub struct Designations(pub Vec<Vec<Option<Designation>>>);
 
 #[derive(Resource, Default)]
 struct DesignationToolState {

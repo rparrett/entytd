@@ -37,7 +37,8 @@ impl PathState {
 
 pub fn cost_fn(map: &Tilemap) -> impl '_ + Sync + Fn((usize, usize)) -> isize {
     move |(x, y)| match map.tiles[x][y] {
-        TileKind::Road | TileKind::Bridge | TileKind::Spawn => 1,
+        TileKind::Dirt => 1,
+        TileKind::Road | TileKind::Bridge | TileKind::Spawn => 2,
         _ => -1,
     }
 }
