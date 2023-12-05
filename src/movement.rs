@@ -25,7 +25,15 @@ impl Plugin for MovementPlugin {
 }
 
 fn movement(
-    mut query: Query<(&mut Transform, &mut PathState, &mut MovingProgress, &Speed)>,
+    mut commands: Commands,
+    mut query: Query<(
+        Entity,
+        &mut Transform,
+        &mut TilePos,
+        &mut PathState,
+        &mut MovingProgress,
+        &Speed,
+    )>,
     tilemap_handle: Res<TilemapHandle>,
     tilemaps: Res<Assets<Tilemap>>,
     time: Res<Time>,
@@ -34,8 +42,9 @@ fn movement(
         return;
     };
 
-    for (mut transform, mut path_state, mut animation, speed) in &mut query {
+    for (entity, mut transform, mut tile_pos, mut path_state, mut animation, speed) in &mut query {
         if path_state.finished() {
+            commands.entity(entity).remove::<PathState>();
             continue;
         }
 
@@ -63,6 +72,8 @@ fn movement(
                 break;
             }
         }
+
+        *tile_pos = current;
 
         let diff = next_world - current_world;
         let step = diff * animation.0;
