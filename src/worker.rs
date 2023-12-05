@@ -3,7 +3,7 @@ use crate::{
     hit_points::HitPoints,
     movement::{MovingProgress, Speed},
     pathfinding::{PathState, WorkerPathfinding},
-    tilemap::{AtlasHandle, TilePos, Tilemap, TilemapHandle},
+    tilemap::{AtlasHandle, TileEntities, TilePos, Tilemap, TilemapHandle},
     GameState,
 };
 use bevy::prelude::*;
@@ -15,7 +15,10 @@ impl Plugin for WorkerPlugin {
         app.add_event::<SpawnWorkerEvent>()
             .add_systems(Update, spawn.run_if(in_state(GameState::Playing)))
             .add_systems(OnEnter(GameState::Playing), init)
-            .add_systems(Update, find_job.run_if(in_state(GameState::Playing)));
+            .add_systems(
+                Update,
+                (find_job, do_job, tick_cooldown).run_if(in_state(GameState::Playing)),
+            );
     }
 }
 
@@ -27,6 +30,19 @@ pub struct Worker;
 #[derive(Component)]
 pub struct Idle;
 
+#[derive(Component)]
+pub enum Job {
+    Dig(TilePos),
+}
+
+#[derive(Component)]
+pub struct WorkCooldown(Timer);
+impl Default for WorkCooldown {
+    fn default() -> Self {
+        Self(Timer::from_seconds(1., TimerMode::Once))
+    }
+}
+
 #[derive(Bundle, Default)]
 pub struct WorkerBundle {
     sheet: SpriteSheetBundle,
@@ -35,6 +51,7 @@ pub struct WorkerBundle {
     pos: TilePos,
     moving_animation: MovingProgress,
     speed: Speed,
+    work_cooldown: WorkCooldown,
 }
 
 #[derive(Event)]
@@ -118,6 +135,7 @@ fn find_job(
     };
 
     if query.is_empty() {
+        info!("no idle workers?");
         return;
     }
 
@@ -137,11 +155,21 @@ fn find_job(
     let neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)];
 
     for (entity, pos) in &query {
-        let Some((_goal, path)) = pathfinding.0.find_closest_goal(
-            (pos.x, pos.y),
-            &neighbors,
-            crate::pathfinding::worker_cost_fn(&map),
-        ) else {
+        let diff: IVec2 =
+            (IVec2::new(pos.x as i32, pos.y as i32) - IVec2::new(x as i32, y as i32)).abs();
+        if diff.x + diff.y < 1 {
+            info!("skipping, already here.");
+            continue;
+        }
+
+        // TODO find_closest_goal seems ideal here, but it is is sometimes panicking.
+        // https://github.com/mich101mich/hierarchical_pathfinding/issues/7
+
+        let Some(path) = neighbors.iter().find_map(|n| {
+            pathfinding
+                .0
+                .find_path((pos.x, pos.y), *n, crate::pathfinding::worker_cost_fn(&map))
+        }) else {
             warn!("Worker unable to find path to goal.");
             continue;
         };
@@ -151,6 +179,75 @@ fn find_job(
         commands
             .entity(entity)
             .insert(PathState::from(resolved))
+            .insert(Job::Dig((x, y).into()))
             .remove::<Idle>();
+
+        // limit the amount of pathfinding we do each frame.
+        break;
+    }
+}
+
+fn do_job(
+    mut commands: Commands,
+    mut query: Query<
+        (Entity, &TilePos, &Job, &mut WorkCooldown),
+        (With<Worker>, Without<Idle>, Without<PathState>),
+    >,
+    mut dig_query: Query<&mut HitPoints>,
+    tilemap_query: Query<&mut TileEntities>,
+    mut designations: ResMut<Designations>,
+) {
+    if query.is_empty() {
+        return;
+    }
+
+    let map_entities = tilemap_query.single();
+
+    for (entity, pos, job, mut cooldown) in &mut query {
+        if !cooldown.0.finished() {
+            continue;
+        }
+
+        let mut did_work = false;
+
+        match job {
+            Job::Dig(dig_pos) => {
+                let Some(tile_entity) = map_entities.entities[dig_pos.x][dig_pos.y] else {
+                    warn!("Working trying to dig at position without entity.");
+                    continue;
+                };
+
+                let Ok(mut hp) = dig_query.get_mut(tile_entity) else {
+                    warn!("Worker trying dig entity without hitpoints.");
+                    continue;
+                };
+
+                hp.sub(1);
+
+                if hp.is_zero() {
+                    commands.entity(entity).insert(Idle);
+                    commands.entity(entity).remove::<Job>();
+
+                    // TODO RemoveDesignationEvent?
+                    if let Some(designation) = &designations.0[dig_pos.x][dig_pos.y] {
+                        commands.entity(designation.indicator).despawn()
+                    }
+                    designations.0[dig_pos.x][dig_pos.y] = None;
+                }
+
+                did_work = true;
+            }
+        }
+
+        if did_work {
+            info!("Resetting cooldown.");
+            cooldown.0.reset();
+        }
+    }
+}
+
+fn tick_cooldown(mut query: Query<&mut WorkCooldown>, time: Res<Time>) {
+    for mut cooldown in &mut query {
+        cooldown.0.tick(time.delta());
     }
 }

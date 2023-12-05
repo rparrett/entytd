@@ -46,7 +46,7 @@ enum DesignationKind {
 #[derive(Clone)]
 pub struct Designation {
     pub kind: DesignationKind,
-    indicator: Entity,
+    pub indicator: Entity,
 }
 
 #[derive(Component)]

@@ -5,6 +5,7 @@ use rand::{
 };
 
 use crate::{
+    hit_points::HitPoints,
     home::Home,
     level::{LevelConfig, LevelHandle},
     loading::LoadingAssets,
@@ -15,7 +16,9 @@ use crate::{
 pub struct TilemapPlugin;
 impl Plugin for TilemapPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, queue_load.run_if(in_state(GameState::Loading)))
+        app.register_type::<TileKind>()
+            .register_type::<TilePos>()
+            .add_systems(Update, queue_load.run_if(in_state(GameState::Loading)))
             .add_systems(Update, process_loaded_maps)
             .add_systems(OnEnter(GameState::Playing), spawn);
     }
@@ -24,7 +27,7 @@ impl Plugin for TilemapPlugin {
 pub const SCALE: Vec2 = Vec2::splat(2.);
 pub const TILE_SIZE: Vec2 = Vec2::splat(12.);
 
-#[derive(Clone)]
+#[derive(Reflect, Component, Clone, Copy)]
 pub enum TileKind {
     Empty,
     Stone,
@@ -148,7 +151,7 @@ pub struct TileEntities {
     pub entities: Vec<Vec<Option<Entity>>>,
 }
 
-#[derive(Component, Debug, Clone, Copy, Default, Hash, Eq, PartialEq)]
+#[derive(Reflect, Component, Debug, Clone, Copy, Default, Hash, Eq, PartialEq)]
 pub struct TilePos {
     pub x: usize,
     pub y: usize,
@@ -156,6 +159,11 @@ pub struct TilePos {
 impl Into<Vec2> for TilePos {
     fn into(self) -> Vec2 {
         Vec2::new(self.x as f32, self.y as f32)
+    }
+}
+impl Into<IVec2> for TilePos {
+    fn into(self) -> IVec2 {
+        IVec2::new(self.x as i32, self.y as i32)
     }
 }
 impl From<(isize, isize)> for TilePos {
@@ -332,6 +340,7 @@ pub fn process_loaded_maps(
                             ..default()
                         },
                         TilePos { x, y },
+                        *tile,
                         #[cfg(feature = "inspector")]
                         Name::new("Tile"),
                     ));
@@ -352,6 +361,13 @@ pub fn process_loaded_maps(
                                 Home,
                                 #[cfg(feature = "inspector")]
                                 Name::new("HomeTile"),
+                            ));
+                        }
+                        TileKind::Stone => {
+                            command.insert((
+                                HitPoints::full(4),
+                                #[cfg(feature = "inspector")]
+                                Name::new("StoneTile"),
                             ));
                         }
                         _ => {}
