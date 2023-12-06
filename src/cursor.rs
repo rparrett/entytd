@@ -29,10 +29,18 @@ fn cursor(
     tilemaps: Res<Assets<Tilemap>>,
     mut cursor: ResMut<Cursor>,
     mut cursor_snapped: ResMut<CursorSnapped>,
+    added_window: Query<&Window, Added<Window>>,
 ) {
     let mut changed = false;
     for event in events.read() {
         cursor.viewport_pos = event.position;
+        changed = true;
+    }
+
+    for window in &added_window {
+        cursor.viewport_pos = window
+            .cursor_position()
+            .unwrap_or_else(|| Vec2::new(window.width(), window.height()) / 2.);
         changed = true;
     }
 
