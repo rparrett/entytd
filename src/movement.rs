@@ -50,9 +50,6 @@ fn movement(
         let mut current = path_state.path[path_state.index];
         let mut next = path_state.path[path_state.index + 1];
 
-        let mut current_world = map.pos_to_world(current);
-        let mut next_world = map.pos_to_world(next);
-
         animation.0 += time.delta_seconds() * speed.0;
 
         while animation.0 > 1.0 {
@@ -62,9 +59,6 @@ fn movement(
                 current = path_state.path[path_state.index];
                 next = path_state.path[path_state.index + 1];
 
-                current_world = map.pos_to_world(current);
-                next_world = map.pos_to_world(next);
-
                 animation.0 -= 1.0;
             } else {
                 animation.0 = 1.0;
@@ -72,7 +66,8 @@ fn movement(
             }
         }
 
-        *tile_pos = current;
+        let current_world = map.pos_to_world(current);
+        let next_world = map.pos_to_world(next);
 
         let diff = next_world - current_world;
         let step = diff * animation.0;
@@ -81,5 +76,12 @@ fn movement(
 
         transform.translation.x = lerped.x;
         transform.translation.y = lerped.y;
+
+        if path_state.finished() {
+            *tile_pos = next;
+            commands.entity(entity).remove::<PathState>();
+        } else {
+            *tile_pos = current;
+        }
     }
 }
