@@ -49,7 +49,7 @@ pub fn update(
     let speed = if keys.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]) {
         400.
     } else {
-        20.
+        200.
     };
 
     camera.translation += dir.extend(0.) * time.delta_seconds() * speed;
