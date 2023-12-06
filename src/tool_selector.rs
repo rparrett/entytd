@@ -13,7 +13,7 @@ impl Plugin for ToolSelectorPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<SelectedTool>()
             .add_systems(OnEnter(GameState::Playing), init)
-            .add_systems(Update, (update_style, select_tool));
+            .add_systems(Update, (update_style, select_tool, keyboard));
     }
 }
 
@@ -36,6 +36,21 @@ impl Tool {
             Self::Dig => 103 * 31 + 1,
             Self::BuildTower => 103 * 21 + 31,
             Self::Dance => 103 * 31 + 17,
+        }
+    }
+    pub fn index(&self) -> usize {
+        match self {
+            Self::Dig => 1,
+            Self::BuildTower => 2,
+            Self::Dance => 3,
+        }
+    }
+    pub fn from_index(val: usize) -> Self {
+        match val {
+            1 => Tool::Dig,
+            2 => Tool::BuildTower,
+            3 => Tool::Dance,
+            _ => Tool::Dance,
         }
     }
 }
@@ -61,14 +76,8 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
             ..default()
         })
         .with_children(|parent| {
-            for i in 1..5 {
-                let kind = match i {
-                    1 => Tool::Dig,
-                    2 => Tool::BuildTower,
-                    3 => Tool::BuildTower,
-                    4 => Tool::Dance,
-                    _ => Tool::Dance,
-                };
+            for i in 1..4 {
+                let kind = Tool::from_index(i);
 
                 let mut button_command = parent.spawn((
                     ButtonBundle {
@@ -165,6 +174,29 @@ fn select_tool(
     for (radio, tool) in query.iter_mut() {
         if radio.selected {
             selected_tool.0 = *tool;
+        }
+    }
+}
+
+fn keyboard(
+    mut query: Query<(&mut RadioButton, &Tool), With<ToolButton>>,
+    keys: Res<Input<KeyCode>>,
+) {
+    let index = if keys.just_pressed(KeyCode::Key1) {
+        1
+    } else if keys.just_pressed(KeyCode::Key2) {
+        2
+    } else if keys.just_pressed(KeyCode::Key3) {
+        3
+    } else if keys.just_pressed(KeyCode::Key4) {
+        4
+    } else {
+        return;
+    };
+
+    for (mut radio, tool) in &mut query {
+        if index == tool.index() {
+            radio.selected = true;
         }
     }
 }
