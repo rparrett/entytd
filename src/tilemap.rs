@@ -374,9 +374,10 @@ pub fn process_loaded_maps(
 
                             spawner_index += 1;
                         }
-                        TileKind::Home => {
+                        TileKind::Home | TileKind::HomeTwo => {
                             command.insert((
                                 Home,
+                                HitPoints::full(20),
                                 #[cfg(feature = "inspector")]
                                 Name::new("HomeTile"),
                             ));

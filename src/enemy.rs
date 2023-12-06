@@ -1,8 +1,10 @@
 use bevy::prelude::*;
+use rand::{seq::SliceRandom, thread_rng};
 use serde::Deserialize;
 
 use crate::{
     hit_points::HitPoints,
+    home::Home,
     movement::{MovingProgress, Speed},
     pathfinding::{enemy_cost_fn, heuristic, NeighborCostIter, PathState},
     tilemap::{AtlasHandle, TilePos, Tilemap},
@@ -15,7 +17,7 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SpawnEnemyEvent>().add_systems(
             Update,
-            (spawn, pathfinding).run_if(in_state(GameState::Playing)),
+            (spawn, pathfinding, behavior).run_if(in_state(GameState::Playing)),
         );
     }
 }
@@ -45,6 +47,21 @@ pub struct SpawnEnemyEvent {
     pub hp: u32,
 }
 
+#[derive(Component, Default)]
+enum Behavior {
+    #[default]
+    SeekHome,
+    Attack,
+}
+
+#[derive(Component)]
+pub struct AttackCooldown(Timer);
+impl Default for AttackCooldown {
+    fn default() -> Self {
+        Self(Timer::from_seconds(1., TimerMode::Once))
+    }
+}
+
 #[derive(Bundle, Default)]
 pub struct EnemyBundle {
     sheet: SpriteSheetBundle,
@@ -54,6 +71,8 @@ pub struct EnemyBundle {
     pos: TilePos,
     moving_animation: MovingProgress,
     speed: Speed,
+    attack_cooldown: AttackCooldown,
+    behavior: Behavior,
 }
 
 fn spawn(
@@ -95,28 +114,63 @@ fn spawn(
 
 fn pathfinding(
     mut commands: Commands,
-    query: Query<(Entity, &TilePos), (With<Enemy>, Without<PathState>)>,
+    query: Query<(Entity, &TilePos, &Behavior), (With<Enemy>, Without<PathState>)>,
     tilemap_query: Query<&Tilemap>,
+    home_query: Query<&TilePos, With<Home>>,
 ) {
-    let Ok(map) = tilemap_query.get_single() else {
-        return;
-    };
-
     // TODO spawner should do the pathfinding and cache the result.
+    // TODO i would like for enemies to randomly choose a neighbor of
+    // the goal to park in.
 
-    for (entity, pos) in &query {
-        let goal = TilePos { x: 61, y: 30 };
+    for (entity, pos, behavior) in &query {
+        if !matches!(behavior, Behavior::SeekHome) {
+            continue;
+        }
+
+        let Ok(map) = tilemap_query.get_single() else {
+            return;
+        };
+
+        let mut rng = thread_rng();
+        let goals = home_query.iter().collect::<Vec<_>>();
+        let Some(goal) = goals.choose(&mut rng) else {
+            return;
+        };
+
+        // choose a random neighbor of the goal and path directly to it,
+        // so when enemies are attacking it feels a bit swarmier.
+        let neighbors = NeighborCostIter::new(**goal, enemy_cost_fn(&map)).collect::<Vec<_>>();
+        let Some((goal, _)) = neighbors.choose(&mut rng) else {
+            return;
+        };
 
         let Some(result) = astar(
             pos,
             |p| NeighborCostIter::new(*p, enemy_cost_fn(&map)),
-            |p| heuristic(*p, goal),
-            |p| NeighborCostIter::new(goal, enemy_cost_fn(&map)).any(|n| n.0 == *p),
+            |p| heuristic(*p, *goal),
+            |p| *p == *goal,
         ) else {
             warn!("Enemy unable to find path to goal.");
             continue;
         };
 
         commands.entity(entity).insert(PathState::from(result.0));
+
+        // limit the amount of pathfinding we do each frame.
+        break;
+    }
+}
+
+fn behavior(
+    mut removed: RemovedComponents<PathState>,
+    mut query: Query<&mut Behavior, (With<Enemy>, Without<PathState>)>,
+) {
+    // just assume that we've reached the home whenever a PathState is removed.
+
+    let mut enemy_iter = query.iter_many_mut(removed.read());
+    while let Some(mut behavior) = enemy_iter.fetch_next() {
+        if matches!(*behavior, Behavior::SeekHome) {
+            *behavior = Behavior::Attack;
+        }
     }
 }
