@@ -61,8 +61,6 @@ fn cursor(
     let tile = tilemap.world_to_pos(world);
     let snapped = tilemap.pos_to_world(tile);
 
-    info!("Cursor at: {:?}", tile);
-
     cursor_snapped.tile_pos = Some(tile);
     cursor_snapped.world_pos = Some(snapped);
 }
