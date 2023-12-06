@@ -1,6 +1,10 @@
 use std::time::Duration;
 
-use bevy::prelude::*;
+use bevy::{
+    core::FrameCount,
+    diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
+    prelude::*,
+};
 use bevy_nine_slice_ui::NineSliceTexture;
 
 use crate::{
@@ -14,8 +18,12 @@ pub struct HudPlugin;
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<EntityCountUpdateTimer>()
+            .init_resource::<FpsUpdateTimer>()
             .add_systems(OnEnter(GameState::Playing), init)
-            .add_systems(Update, (update_entity_count, update_idle_workers));
+            .add_systems(
+                Update,
+                (update_entity_count, update_idle_workers, update_fps),
+            );
     }
 }
 
@@ -24,6 +32,9 @@ pub struct HudContainer;
 
 #[derive(Component, Default)]
 pub struct EntityCount;
+
+#[derive(Component, Default)]
+pub struct Fps;
 
 #[derive(Component, Default)]
 pub struct IdleWorkers;
@@ -42,6 +53,16 @@ pub struct EntityCountUpdateTimer(Timer);
 impl Default for EntityCountUpdateTimer {
     fn default() -> Self {
         let mut timer = Timer::from_seconds(1., TimerMode::Repeating);
+        timer.set_elapsed(Duration::from_secs_f32(1.0 - f32::EPSILON));
+        Self(timer)
+    }
+}
+
+#[derive(Resource)]
+pub struct FpsUpdateTimer(Timer);
+impl Default for FpsUpdateTimer {
+    fn default() -> Self {
+        let mut timer = Timer::from_seconds(0.2, TimerMode::Repeating);
         timer.set_elapsed(Duration::from_secs_f32(1.0 - f32::EPSILON));
         Self(timer)
     }
@@ -85,6 +106,7 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                 ))
                 .with_children(|parent| {
                     init_hud_item::<EntityCount>(parent, atlas_handle.0.clone(), 103 * 47 + 101);
+                    init_hud_item::<Fps>(parent, atlas_handle.0.clone(), 103 * 49 + 78);
                     init_hud_item::<IdleWorkers>(parent, atlas_handle.0.clone(), 103 * 15 + 24);
                     init_hud_item::<Crystal>(parent, atlas_handle.0.clone(), 103 * 24 + 0);
                     init_hud_item::<Metal>(parent, atlas_handle.0.clone(), 103 * 25 + 6);
@@ -187,4 +209,33 @@ fn update_idle_workers(
     let not_idle = hasnt_idle.iter().count();
 
     text.sections[0].value = format!("{}/{}", idle, idle + not_idle);
+}
+
+fn update_fps(
+    time: Res<Time>,
+    mut timer: ResMut<FpsUpdateTimer>,
+    diagnostics: Res<DiagnosticsStore>,
+    item_query: Query<&Children, With<Fps>>,
+    mut text_query: Query<&mut Text>,
+) {
+    timer.0.tick(time.delta());
+    if !timer.0.just_finished() {
+        return;
+    }
+
+    let fps = diagnostics
+        .get(FrameTimeDiagnosticsPlugin::FPS)
+        .and_then(|d| d.smoothed())
+        .unwrap_or(0.0);
+
+    let Ok(children) = item_query.get_single() else {
+        return;
+    };
+
+    let mut text_iter = text_query.iter_many_mut(children);
+    let Some(mut text) = text_iter.fetch_next() else {
+        return;
+    };
+
+    text.sections[0].value = format!("{fps:.1}");
 }

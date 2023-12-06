@@ -1,4 +1,4 @@
-use bevy::{asset::AssetMetaCheck, prelude::*};
+use bevy::{asset::AssetMetaCheck, diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 
 use bevy_nine_slice_ui::NineSlicePlugin;
 use camera::CameraPlugin;
@@ -54,7 +54,7 @@ fn main() {
     // causes Bevy to break.
     app.insert_resource(AssetMetaCheck::Never);
 
-    app.add_plugins(
+    app.add_plugins((
         DefaultPlugins
             .set(ImagePlugin::default_nearest())
             .set(WindowPlugin {
@@ -65,7 +65,8 @@ fn main() {
                 }),
                 ..default()
             }),
-    );
+        FrameTimeDiagnosticsPlugin,
+    ));
 
     app.add_plugins((
         LoadingPlugin,
