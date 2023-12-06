@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{asset::AssetMetaCheck, prelude::*};
 
 use bevy_nine_slice_ui::NineSlicePlugin;
 use camera::CameraPlugin;
@@ -46,6 +46,11 @@ mod worker;
 
 fn main() {
     let mut app = App::new();
+
+    // Workaround for Bevy attempting to load .meta files in wasm builds. On itch,
+    // the CDN servers HTTP 403 errors instead of 404 when files don't exists, which
+    // causes Bevy to break.
+    app.insert_resource(AssetMetaCheck::Never);
 
     app.add_plugins(
         DefaultPlugins
