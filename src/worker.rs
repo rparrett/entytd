@@ -121,7 +121,7 @@ fn init(mut events: EventWriter<SpawnWorkerEvent>) {
 
 fn find_job(
     mut commands: Commands,
-    query: Query<(Entity, &TilePos), (With<Worker>, With<Idle>)>,
+    query: Query<(Entity, &TilePos), (With<Worker>, With<Idle>, Without<PathState>)>,
     mut designations: ResMut<Designations>,
     tilemap_handle: Res<TilemapHandle>,
     tilemaps: Res<Assets<Tilemap>>,
@@ -184,13 +184,9 @@ fn find_job(
             continue;
         };
 
-        info!(
-            "Worker pathfinding complete in {}ms.",
-            now.elapsed().as_secs_f32() * 1000.
-        );
-
         commands
             .entity(entity)
+            .insert(MovingProgress::default())
             .insert(PathState::from(result.0))
             .insert(Job::Dig(goal))
             .remove::<Idle>();
