@@ -37,11 +37,12 @@ fn init(mut commands: Commands, common: Res<CommonAssets>) {
         .spawn(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
-                width: Val::Percent(100.),
-                bottom: Val::Px(5.),
+                flex_direction: FlexDirection::Column,
+                height: Val::Percent(100.),
+                right: Val::Px(5.),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
-                column_gap: Val::Px(10.),
+                row_gap: Val::Px(10.),
                 ..default()
             },
             ..default()
