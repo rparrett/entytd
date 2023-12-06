@@ -192,6 +192,10 @@ fn designate(
         return;
     }
 
+    if designations.0.contains_key(&tile_pos) {
+        return;
+    }
+
     let Ok(tilemap) = tilemap_query.get_single() else {
         return;
     };

@@ -235,22 +235,22 @@ fn update_spawner_ui(
     };
 
     for (transform, _, ui_entity) in &query {
-        let diff = transform.translation.truncate() - camera_transform.translation().truncate();
-
-        let inset = 12.;
+        let inset = 10.;
         let indicator_rect =
             Vec2::new(window.width(), window.height()) / 2. - SPAWNER_UI_SIZE / 2. - inset / 2.;
 
-        let projection =
-            crate::util::project_onto_bounding_rectangle(diff, -indicator_rect, indicator_rect)
-                .unwrap();
+        let camera_pos = camera_transform.translation().truncate();
+
+        let clamped = transform
+            .translation
+            .truncate()
+            .clamp(camera_pos - indicator_rect, camera_pos + indicator_rect);
 
         let Ok((mut container_style, _)) = ui_query.get_mut(ui_entity.0) else {
             continue;
         };
 
-        let world = camera_transform.translation().truncate() + projection.0;
-        let Some(viewport) = camera.world_to_viewport(camera_transform, world.extend(0.)) else {
+        let Some(viewport) = camera.world_to_viewport(camera_transform, clamped.extend(0.)) else {
             continue;
         };
 

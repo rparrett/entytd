@@ -41,7 +41,6 @@ mod radio_button;
 mod spawner;
 mod tilemap;
 mod tool_selector;
-mod util;
 mod waves;
 mod worker;
 
