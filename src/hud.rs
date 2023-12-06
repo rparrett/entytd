@@ -9,6 +9,8 @@ use bevy_nine_slice_ui::NineSliceTexture;
 
 use crate::{
     common_assets::CommonAssets,
+    hit_points::HitPoints,
+    home::Home,
     tilemap::{AtlasHandle, SCALE, TILE_SIZE},
     worker::{Idle, Worker},
     GameState,
@@ -22,7 +24,12 @@ impl Plugin for HudPlugin {
             .add_systems(OnEnter(GameState::Playing), init)
             .add_systems(
                 Update,
-                (update_entity_count, update_idle_workers, update_fps),
+                (
+                    update_entity_count,
+                    update_idle_workers,
+                    update_fps,
+                    update_home_hit_points,
+                ),
             );
     }
 }
@@ -238,4 +245,31 @@ fn update_fps(
     };
 
     text.sections[0].value = format!("{fps:.1}");
+}
+
+fn update_home_hit_points(
+    query: Query<&HitPoints, (With<Home>, Changed<HitPoints>)>,
+    item_query: Query<&Children, With<HomeHitPoints>>,
+    mut text_query: Query<&mut Text>,
+) {
+    if query.is_empty() {
+        return;
+    }
+
+    let (current, max) = query
+        .iter()
+        .fold((0, 0), |sum, hp| (sum.0 + hp.current, sum.1 + hp.max));
+
+    let Ok(children) = item_query.get_single() else {
+        return;
+    };
+
+    let mut text_iter = text_query.iter_many_mut(children);
+    let Some(mut text) = text_iter.fetch_next() else {
+        return;
+    };
+
+    // TODO color
+
+    text.sections[0].value = format!("{current}/{max}");
 }

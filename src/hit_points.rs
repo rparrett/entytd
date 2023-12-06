@@ -7,8 +7,8 @@ impl Plugin for HitPointsPlugin {
 
 #[derive(Component, Debug)]
 pub struct HitPoints {
-    current: u32,
-    max: u32,
+    pub current: u32,
+    pub max: u32,
 }
 impl Default for HitPoints {
     fn default() -> Self {
