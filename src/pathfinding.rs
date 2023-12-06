@@ -4,7 +4,7 @@ use crate::tilemap::{TileKind, TilePos, Tilemap};
 
 pub struct PathfindingPlugin;
 impl Plugin for PathfindingPlugin {
-    fn build(&self, app: &mut App) {}
+    fn build(&self, _app: &mut App) {}
 }
 
 #[derive(Component)]

@@ -3,7 +3,7 @@ use crate::{
     hit_points::HitPoints,
     movement::{MovingProgress, Speed},
     pathfinding::{heuristic, worker_cost_fn, NeighborCostIter, PathState},
-    tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap, TilemapHandle},
+    tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap},
     GameState,
 };
 use bevy::prelude::*;

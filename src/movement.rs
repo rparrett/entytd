@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     pathfinding::PathState,
-    tilemap::{TilePos, Tilemap, TilemapHandle},
+    tilemap::{TilePos, Tilemap},
     GameState,
 };
 

@@ -1,5 +1,3 @@
-use std::ops::SubAssign;
-
 use bevy::prelude::*;
 
 pub struct HitPointsPlugin;

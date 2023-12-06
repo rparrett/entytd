@@ -111,7 +111,6 @@ fn init(mut commands: Commands, common: Res<CommonAssets>) {
 fn update_style(
     mut commands: Commands,
     mut query: Query<(Entity, &RadioButton), (Changed<RadioButton>, With<ToolButton>)>,
-    server: Res<AssetServer>,
     common: Res<CommonAssets>,
 ) {
     for (entity, radio) in query.iter_mut() {

@@ -5,7 +5,7 @@ use crate::{
     hit_points::HitPoints,
     movement::{MovingProgress, Speed},
     pathfinding::{enemy_cost_fn, heuristic, NeighborCostIter, PathState},
-    tilemap::{AtlasHandle, TilePos, Tilemap, TilemapHandle},
+    tilemap::{AtlasHandle, TilePos, Tilemap},
     GameState,
 };
 use pathfinding::prelude::astar;

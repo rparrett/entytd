@@ -4,9 +4,8 @@ use bevy::{
 };
 
 use crate::{
-    cursor::{Cursor, CursorSnapped},
-    loading::LoadingResources,
-    tilemap::{TileKind, TilePos, Tilemap, TilemapHandle},
+    cursor::CursorSnapped,
+    tilemap::{TileKind, TilePos, Tilemap},
     tool_selector::{SelectedTool, Tool},
     GameState,
 };
