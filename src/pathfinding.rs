@@ -27,7 +27,7 @@ impl From<Vec<TilePos>> for PathState {
 }
 impl PathState {
     pub fn finished(&self) -> bool {
-        self.index + 2 > self.path.len()
+        self.index + 1 > self.path.len() - 1
     }
 }
 
