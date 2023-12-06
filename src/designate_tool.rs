@@ -1,4 +1,7 @@
-use bevy::{prelude::*, utils::HashSet};
+use bevy::{
+    prelude::*,
+    utils::{HashMap, HashSet},
+};
 
 use crate::{
     cursor::{Cursor, CursorSnapped},
@@ -15,6 +18,7 @@ pub struct DesignateToolPlugin;
 impl Plugin for DesignateToolPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<DesignationToolState>();
+        app.init_resource::<Designations>();
         app.add_systems(
             Update,
             (move_cursor, show_cursor).run_if(in_state(GameState::Playing)),
@@ -25,10 +29,6 @@ impl Plugin for DesignateToolPlugin {
                 .chain()
                 .run_if(in_state(GameState::Playing)),
         );
-        app.add_systems(
-            Update,
-            init_designations.run_if(in_state(GameState::Loading)),
-        );
         app.add_systems(OnEnter(GameState::Playing), init_cursor);
     }
 }
@@ -37,7 +37,7 @@ impl Plugin for DesignateToolPlugin {
 struct DesignateToolCursor;
 
 #[derive(Copy, Clone)]
-enum DesignationKind {
+pub enum DesignationKind {
     Dig,
     BuildTower,
     Dance,
@@ -47,51 +47,20 @@ enum DesignationKind {
 pub struct Designation {
     pub kind: DesignationKind,
     pub indicator: Entity,
+    pub workers: u32,
 }
 
 #[derive(Component)]
 struct DesignationMarker;
 
-#[derive(Resource)]
-pub struct Designations(pub Vec<Vec<Option<Designation>>>);
+#[derive(Resource, Default)]
+pub struct Designations(pub HashMap<TilePos, Designation>);
 
 #[derive(Resource, Default)]
 struct DesignationToolState {
     active: bool,
     removing: bool,
     touched: HashSet<TilePos>,
-}
-
-fn init_designations(
-    mut commands: Commands,
-    mut loading_resources: ResMut<LoadingResources>,
-    maybe_designations: Option<Res<Designations>>,
-    maybe_tilemap_handle: Option<Res<TilemapHandle>>,
-    tilemaps: Res<Assets<Tilemap>>,
-    mut queued: Local<bool>,
-) {
-    if maybe_designations.is_some() {
-        return;
-    }
-
-    if !*queued {
-        loading_resources.0 += 1;
-        *queued = true;
-    }
-
-    let Some(tilemap_handle) = maybe_tilemap_handle else {
-        return;
-    };
-
-    let Some(tilemap) = tilemaps.get(&tilemap_handle.0) else {
-        return;
-    };
-
-    commands.insert_resource(Designations(vec![
-        vec![None; tilemap.height];
-        tilemap.width
-    ]));
-    loading_resources.0 -= 1;
 }
 
 fn init_cursor(mut commands: Commands) {
@@ -175,9 +144,10 @@ fn update_tool_state(
         };
 
         tool_state.active = true;
-        if designations.0[tile_pos.x][tile_pos.y].is_some() {
+        if designations.0.contains_key(&tile_pos) {
             tool_state.removing = true;
         }
+
         tool_state.touched.clear();
     } else if buttons.just_released(MouseButton::Left) {
         tool_state.active = false;
@@ -217,9 +187,10 @@ fn designate(
     };
 
     if tool_state.removing {
-        if let Some(designation) = designations.0[tile_pos.x][tile_pos.y].take() {
+        if let Some(designation) = designations.0.remove(&tile_pos) {
             commands.entity(designation.indicator).despawn();
         }
+
         return;
     }
 
@@ -254,10 +225,14 @@ fn designate(
         ))
         .id();
 
-    designations.0[tile_pos.x][tile_pos.y] = Some(Designation {
-        kind: DesignationKind::Dig,
-        indicator: id,
-    });
+    designations.0.insert(
+        tile_pos,
+        Designation {
+            kind: DesignationKind::Dig,
+            indicator: id,
+            workers: 0,
+        },
+    );
 
     tool_state.touched.insert(tile_pos);
 }

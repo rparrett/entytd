@@ -122,7 +122,7 @@ fn init(mut events: EventWriter<SpawnWorkerEvent>) {
 fn find_job(
     mut commands: Commands,
     query: Query<(Entity, &TilePos), (With<Worker>, With<Idle>)>,
-    designations: Res<Designations>,
+    mut designations: ResMut<Designations>,
     tilemap_handle: Res<TilemapHandle>,
     tilemaps: Res<Assets<Tilemap>>,
 ) {
@@ -131,45 +131,45 @@ fn find_job(
     };
 
     if query.is_empty() {
-        info!("no idle workers?");
         return;
     }
 
-    let mut potential_jobs = vec![];
-    for x in 0..map.width {
-        for y in 0..map.height {
-            let Some(d) = &designations.0[x][y] else {
-                continue;
-            };
-
-            let pos = TilePos { x, y };
+    let mut potential_jobs = designations
+        .0
+        .iter()
+        .filter_map(|(pos, designation)| {
+            // filter out jobs that already have enough workers.
+            if designation.workers >= 4 {
+                return None;
+            }
 
             // filter out jobs that are definitely unreachable because their
             // immediate neighbors are not walkable.
-            if NeighborCostIter::new(pos, worker_cost_fn(&map))
+            if NeighborCostIter::new(*pos, worker_cost_fn(&map))
                 .next()
                 .is_none()
             {
-                continue;
+                return None;
             }
 
-            potential_jobs.push((pos, d));
-        }
-    }
+            Some((*pos, designation.kind))
+        })
+        .collect::<Vec<_>>();
 
     if potential_jobs.is_empty() {
         return;
     }
 
+    let mut jobs_assigned = vec![];
+
     for (entity, pos) in &query {
         let now = std::time::Instant::now();
 
-        potential_jobs.sort_by_key(|a| heuristic(a.0, *pos));
+        potential_jobs.sort_by_key(|a| u32::MAX - heuristic(a.0, *pos));
 
-        let Some(goal) = potential_jobs.first() else {
+        let Some((goal, designation)) = potential_jobs.pop() else {
             continue;
         };
-        let goal = goal.0;
 
         let Some(result) = astar(
             pos,
@@ -195,8 +195,14 @@ fn find_job(
             .insert(Job::Dig(goal))
             .remove::<Idle>();
 
+        jobs_assigned.push(goal);
+
         // limit the amount of pathfinding we do each frame.
         break;
+    }
+
+    for goal in jobs_assigned {
+        designations.0.get_mut(&goal).unwrap().workers += 1;
     }
 }
 
@@ -250,14 +256,14 @@ fn do_job(
                     commands.entity(entity).insert(Idle);
                     commands.entity(entity).remove::<Job>();
 
-                    // TODO RemoveDesignationEvent?
-                    if let Some(designation) = &designations.0[dig_pos.x][dig_pos.y] {
-                        commands.entity(designation.indicator).despawn()
+                    // // TODO RemoveDesignationEvent?
+
+                    if let Some(designation) = designations.0.remove(dig_pos) {
+                        commands.entity(designation.indicator).despawn();
                     }
-                    designations.0[dig_pos.x][dig_pos.y] = None;
 
                     // TODO surely this stuff belongs elsewhere
-                    let Some(mut tilemap) = tilemaps.get_mut(&tilemap_handle.0) else {
+                    let Some(tilemap) = tilemaps.get_mut(&tilemap_handle.0) else {
                         continue;
                     };
 
