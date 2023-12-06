@@ -17,7 +17,8 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SpawnEnemyEvent>().add_systems(
             Update,
-            (spawn, pathfinding, behavior).run_if(in_state(GameState::Playing)),
+            (spawn, pathfinding, behavior, tick_cooldown, attack)
+                .run_if(in_state(GameState::Playing)),
         );
     }
 }
@@ -116,7 +117,7 @@ fn pathfinding(
     mut commands: Commands,
     query: Query<(Entity, &TilePos, &Behavior), (With<Enemy>, Without<PathState>)>,
     tilemap_query: Query<&Tilemap>,
-    home_query: Query<&TilePos, With<Home>>,
+    home_query: Query<(&TilePos, &HitPoints), With<Home>>,
 ) {
     // TODO spawner should do the pathfinding and cache the result.
     // TODO i would like for enemies to randomly choose a neighbor of
@@ -132,8 +133,11 @@ fn pathfinding(
         };
 
         let mut rng = thread_rng();
-        let goals = home_query.iter().collect::<Vec<_>>();
-        let Some(goal) = goals.choose(&mut rng) else {
+        let goals = home_query
+            .iter()
+            .filter(|(_, hp)| !hp.is_zero())
+            .collect::<Vec<_>>();
+        let Some((goal, _)) = goals.choose(&mut rng) else {
             return;
         };
 
@@ -172,5 +176,47 @@ fn behavior(
         if matches!(*behavior, Behavior::SeekHome) {
             *behavior = Behavior::Attack;
         }
+    }
+}
+
+fn attack(
+    mut commands: Commands,
+    mut query: Query<
+        (Entity, &Behavior, &mut AttackCooldown, &TilePos),
+        (With<Enemy>, Without<PathState>),
+    >,
+    mut home_query: Query<(&mut HitPoints, &TilePos), With<Home>>,
+) {
+    for (entity, behavior, mut cooldown, pos) in &mut query {
+        if !matches!(behavior, Behavior::Attack) {
+            continue;
+        }
+
+        if !cooldown.0.finished() {
+            continue;
+        }
+
+        let Some((mut home_hp, _)) = home_query
+            .iter_mut()
+            .filter(|(_, home_pos)| heuristic(**home_pos, *pos) == 1)
+            .next()
+        else {
+            info!("Enemy could not locate a nearby home.");
+            continue;
+        };
+
+        home_hp.sub(1);
+
+        if home_hp.is_zero() {
+            commands.entity(entity).insert(Behavior::SeekHome);
+        }
+
+        cooldown.0.reset();
+    }
+}
+
+fn tick_cooldown(mut query: Query<&mut AttackCooldown>, time: Res<Time>) {
+    for mut cooldown in &mut query {
+        cooldown.0.tick(time.delta());
     }
 }
