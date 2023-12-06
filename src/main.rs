@@ -7,6 +7,7 @@ use cursor::CursorPlugin;
 use designate_tool::DesignateToolPlugin;
 use enemy::EnemyPlugin;
 use home::HomePlugin;
+use hud::HudPlugin;
 use level::LevelPlugin;
 use loading::LoadingPlugin;
 use map_loader::MapFileLoaderPlugin;
@@ -32,6 +33,7 @@ mod designate_tool;
 mod enemy;
 mod hit_points;
 mod home;
+mod hud;
 mod level;
 mod loading;
 mod map_loader;
@@ -86,6 +88,7 @@ fn main() {
         ToolSelectorPlugin,
         DesignateToolPlugin,
         CursorPlugin,
+        HudPlugin,
     ));
 
     app.add_plugins(NineSlicePlugin::default());
