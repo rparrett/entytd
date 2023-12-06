@@ -62,8 +62,7 @@ fn spawn(
     mut commands: Commands,
     mut events: EventReader<SpawnWorkerEvent>,
     atlas_handle: Res<AtlasHandle>,
-    tilemap_handle: Res<TilemapHandle>,
-    tilemaps: Res<Assets<Tilemap>>,
+    tilemap_query: Query<&Tilemap>,
 ) {
     if events.is_empty() {
         return;
@@ -72,7 +71,7 @@ fn spawn(
     let mut rng = thread_rng();
 
     for _ in events.read() {
-        let Some(tilemap) = tilemaps.get(&tilemap_handle.0) else {
+        let Ok(tilemap) = tilemap_query.get_single() else {
             continue;
         };
 
@@ -123,10 +122,9 @@ fn find_job(
     mut commands: Commands,
     query: Query<(Entity, &TilePos), (With<Worker>, With<Idle>, Without<PathState>)>,
     mut designations: ResMut<Designations>,
-    tilemap_handle: Res<TilemapHandle>,
-    tilemaps: Res<Assets<Tilemap>>,
+    tilemap_query: Query<&Tilemap>,
 ) {
-    let Some(map) = tilemaps.get(&tilemap_handle.0) else {
+    let Ok(map) = tilemap_query.get_single() else {
         return;
     };
 
@@ -209,17 +207,17 @@ fn do_job(
         (With<Worker>, Without<Idle>, Without<PathState>),
     >,
     mut dig_query: Query<&mut HitPoints>,
-    tilemap_query: Query<&mut TileEntities>,
+    mut tilemap_query: Query<(&mut Tilemap, &mut TileEntities)>,
     mut designations: ResMut<Designations>,
-    tilemap_handle: Res<TilemapHandle>,
-    mut tilemaps: ResMut<Assets<Tilemap>>,
     mut tile_query: Query<(&mut TileKind, &mut TextureAtlasSprite)>,
 ) {
     if query.is_empty() {
         return;
     }
 
-    let map_entities = tilemap_query.single();
+    let Ok((mut map, map_entities)) = tilemap_query.get_single_mut() else {
+        return;
+    };
 
     for (entity, _pos, job, mut cooldown) in &mut query {
         // TODO ensure we are actually near the job.
@@ -258,12 +256,7 @@ fn do_job(
                         commands.entity(designation.indicator).despawn();
                     }
 
-                    // TODO surely this stuff belongs elsewhere
-                    let Some(tilemap) = tilemaps.get_mut(&tilemap_handle.0) else {
-                        continue;
-                    };
-
-                    tilemap.tiles[dig_pos.x][dig_pos.y] = TileKind::Dirt;
+                    map.tiles[dig_pos.x][dig_pos.y] = TileKind::Dirt;
 
                     let Some(tile_entity) = map_entities.entities[dig_pos.x][dig_pos.y] else {
                         continue;

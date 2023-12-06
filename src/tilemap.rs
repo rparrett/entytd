@@ -115,7 +115,7 @@ pub struct Tile {
     pub sprite: Option<Entity>,
 }
 
-#[derive(Asset, TypePath)]
+#[derive(Component, Asset, TypePath, Default, Clone)]
 pub struct Tilemap {
     pub tiles: Vec<Vec<TileKind>>,
     pub width: usize,
@@ -156,6 +156,7 @@ pub struct TilePos {
     pub x: usize,
     pub y: usize,
 }
+impl TilePos {}
 impl Into<Vec2> for TilePos {
     fn into(self) -> Vec2 {
         Vec2::new(self.x as f32, self.y as f32)
@@ -226,7 +227,8 @@ pub struct AtlasHandle(pub Handle<TextureAtlas>);
 pub struct TilemapBundle {
     tilemap_handle: Handle<Tilemap>,
     atlas_handle: Handle<TextureAtlas>,
-    tiles: TileEntities,
+    tiles: Tilemap,
+    entities: TileEntities,
 }
 
 fn queue_load(
@@ -386,10 +388,12 @@ fn spawn(
     mut commands: Commands,
     tilemap_handle: Res<TilemapHandle>,
     atlas_handle: Res<AtlasHandle>,
+    tilemaps: Res<Assets<Tilemap>>,
 ) {
     commands.spawn(TilemapBundle {
         tilemap_handle: tilemap_handle.0.clone(),
         atlas_handle: atlas_handle.0.clone(),
+        tiles: tilemaps.get(&tilemap_handle.0).unwrap().clone(),
         ..default()
     });
 }

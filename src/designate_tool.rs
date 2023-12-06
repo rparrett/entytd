@@ -83,8 +83,7 @@ fn move_cursor(
     selected_tool: Res<SelectedTool>,
     cursor_snapped: Res<CursorSnapped>,
     mut query: Query<(&mut Transform, &mut Sprite), With<DesignateToolCursor>>,
-    tilemap_handle: Res<TilemapHandle>,
-    tilemaps: Res<Assets<Tilemap>>,
+    tilemap_query: Query<&Tilemap>,
 ) {
     if !cursor_snapped.is_changed() {
         return;
@@ -102,7 +101,7 @@ fn move_cursor(
         transform.translation.x = snapped.x;
         transform.translation.y = snapped.y;
 
-        let Some(tilemap) = tilemaps.get(&tilemap_handle.0) else {
+        let Ok(tilemap) = tilemap_query.get_single() else {
             return;
         };
 
@@ -163,8 +162,7 @@ fn designate(
     cursor_snapped: Res<CursorSnapped>,
     mut designations: ResMut<Designations>,
     mut tool_state: ResMut<DesignationToolState>,
-    tilemap_handle: Res<TilemapHandle>,
-    tilemaps: Res<Assets<Tilemap>>,
+    tilemap_query: Query<&Tilemap>,
 ) {
     if !tool_state.active {
         return;
@@ -194,7 +192,7 @@ fn designate(
         return;
     }
 
-    let Some(tilemap) = tilemaps.get(&tilemap_handle.0) else {
+    let Ok(tilemap) = tilemap_query.get_single() else {
         return;
     };
 

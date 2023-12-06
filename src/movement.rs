@@ -34,11 +34,10 @@ fn movement(
         &mut MovingProgress,
         &Speed,
     )>,
-    tilemap_handle: Res<TilemapHandle>,
-    tilemaps: Res<Assets<Tilemap>>,
+    tilemap_query: Query<&Tilemap>,
     time: Res<Time>,
 ) {
-    let Some(map) = tilemaps.get(&tilemap_handle.0) else {
+    let Ok(map) = tilemap_query.get_single() else {
         return;
     };
 

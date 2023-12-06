@@ -60,7 +60,7 @@ pub fn worker_cost_fn(map: &Tilemap) -> impl '_ + Fn(TilePos) -> isize {
         // Workers avoid roads, which is where enemies typically are found.
 
         match tile {
-            TileKind::Dirt => 1,
+            TileKind::Dirt | TileKind::StoneTunnel => 1,
             TileKind::Road | TileKind::Bridge | TileKind::Home => 3,
             _ => -1,
         }

@@ -51,11 +51,10 @@ fn spawn(
     mut commands: Commands,
     mut events: EventReader<SpawnEnemyEvent>,
     atlas_handle: Res<AtlasHandle>,
-    tilemap_handle: Res<TilemapHandle>,
-    tilemaps: Res<Assets<Tilemap>>,
+    tilemap_query: Query<&Tilemap>,
 ) {
     for event in events.read() {
-        let Some(tilemap) = tilemaps.get(&tilemap_handle.0) else {
+        let Ok(tilemap) = tilemap_query.get_single() else {
             continue;
         };
 
@@ -87,10 +86,9 @@ fn spawn(
 fn pathfinding(
     mut commands: Commands,
     query: Query<(Entity, &TilePos), (With<Enemy>, Without<PathState>)>,
-    tilemap_handle: Res<TilemapHandle>,
-    tilemaps: Res<Assets<Tilemap>>,
+    tilemap_query: Query<&Tilemap>,
 ) {
-    let Some(map) = tilemaps.get(&tilemap_handle.0) else {
+    let Ok(map) = tilemap_query.get_single() else {
         return;
     };
 
