@@ -248,11 +248,12 @@ fn update_fps(
 }
 
 fn update_home_hit_points(
-    query: Query<&HitPoints, (With<Home>, Changed<HitPoints>)>,
+    query: Query<&HitPoints, With<Home>>,
+    changed_query: Query<(), (With<Home>, Changed<HitPoints>)>,
     item_query: Query<&Children, With<HomeHitPoints>>,
     mut text_query: Query<&mut Text>,
 ) {
-    if query.is_empty() {
+    if changed_query.is_empty() {
         return;
     }
 
