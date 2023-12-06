@@ -226,8 +226,6 @@ fn do_job(
             continue;
         }
 
-        let mut did_work = false;
-
         match job {
             Job::Dig(dig_pos) => {
                 let Some(tile_entity) = map_entities.entities[dig_pos.x][dig_pos.y] else {
@@ -268,13 +266,8 @@ fn do_job(
                     sprite.index = kind.atlas_index();
                 }
 
-                did_work = true;
+                cooldown.0.reset();
             }
-        }
-
-        if did_work {
-            info!("Resetting cooldown.");
-            cooldown.0.reset();
         }
     }
 }
