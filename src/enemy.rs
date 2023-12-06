@@ -27,6 +27,15 @@ pub struct Enemy;
 pub enum EnemyKind {
     #[default]
     Skeleton,
+    Ent,
+}
+impl EnemyKind {
+    pub fn atlas_index(&self) -> usize {
+        match self {
+            Self::Skeleton => 103 * 9 + 36,
+            Self::Ent => 103 * 15 + 38,
+        }
+    }
 }
 
 #[derive(Event)]
@@ -64,7 +73,7 @@ fn spawn(
             EnemyBundle {
                 sheet: SpriteSheetBundle {
                     texture_atlas: atlas_handle.0.clone(),
-                    sprite: TextureAtlasSprite::new(103 * 9 + 36),
+                    sprite: TextureAtlasSprite::new(event.kind.atlas_index()),
                     transform: Transform {
                         translation: world.extend(1.),
                         scale: crate::tilemap::SCALE.extend(1.),

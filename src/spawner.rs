@@ -7,7 +7,7 @@ use serde::Deserialize;
 use crate::{
     common_assets::CommonAssets,
     enemy::{EnemyKind, SpawnEnemyEvent},
-    tilemap::TilePos,
+    tilemap::{AtlasHandle, TilePos, SCALE, TILE_SIZE},
     waves::{WaveStartEvent, Waves},
     GameState,
 };
@@ -36,6 +36,9 @@ pub struct SpawnerUi(Entity);
 
 #[derive(Component)]
 pub struct SpawnerDelayText;
+
+#[derive(Component)]
+pub struct SpawnerPortrait;
 
 #[derive(Component)]
 pub struct SpawnerContainer;
@@ -152,6 +155,7 @@ fn add_spawner_ui(
     mut commands: Commands,
     query: Query<Entity, Added<Spawner>>,
     common: Res<CommonAssets>,
+    atlas_handle: Res<AtlasHandle>,
 ) {
     for entity in &query {
         let ui_entity = commands
@@ -162,8 +166,9 @@ fn add_spawner_ui(
                         position_type: PositionType::Absolute,
                         width: Val::Px(SPAWNER_UI_SIZE.x),
                         height: Val::Px(SPAWNER_UI_SIZE.y),
+                        flex_direction: FlexDirection::Column,
                         justify_content: JustifyContent::Center,
-                        align_items: AlignItems::FlexEnd,
+                        align_items: AlignItems::Center,
                         ..default()
                     },
                     ..default()
@@ -172,6 +177,22 @@ fn add_spawner_ui(
                 SpawnerContainer,
             ))
             .with_children(|parent| {
+                parent.spawn((
+                    AtlasImageBundle {
+                        style: Style {
+                            width: Val::Px(TILE_SIZE.x * SCALE.x),
+                            height: Val::Px(TILE_SIZE.y * SCALE.y),
+                            ..default()
+                        },
+                        texture_atlas: atlas_handle.0.clone(),
+                        texture_atlas_image: UiTextureAtlasImage {
+                            index: 103 * 8,
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    SpawnerPortrait,
+                ));
                 parent.spawn((
                     TextBundle::from_section(
                         "10.1",
@@ -182,7 +203,7 @@ fn add_spawner_ui(
                         },
                     )
                     .with_style(Style {
-                        margin: UiRect::bottom(Val::Px(8.)),
+                        margin: UiRect::top(Val::Px(4.)),
                         ..default()
                     }),
                     SpawnerDelayText,
@@ -197,6 +218,7 @@ fn add_spawner_ui(
 fn update_spawner_ui(
     query: Query<(&Transform, &SpawnerIndex, &SpawnerUi)>,
     mut ui_query: Query<(&mut Style, &Children), With<SpawnerContainer>>,
+    mut ui_image_query: Query<&mut UiTextureAtlasImage, With<SpawnerPortrait>>,
     mut ui_text_query: Query<&mut Text, With<SpawnerDelayText>>,
     spawners: Res<SpawnerStates>,
     windows: Query<&Window, With<PrimaryWindow>>,
@@ -222,6 +244,13 @@ fn update_spawner_ui(
             container_style.display = Display::None;
             continue;
         }
+
+        let mut image_iter = ui_image_query.iter_many_mut(children);
+        let Some(mut image) = image_iter.fetch_next() else {
+            continue;
+        };
+
+        image.index = state.spawn.kind.atlas_index();
 
         text.sections[0].value = format!("{:.1}", state.delay_timer.remaining_secs());
     }

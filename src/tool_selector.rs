@@ -4,6 +4,7 @@ use bevy_nine_slice_ui::NineSliceTexture;
 use crate::{
     common_assets::CommonAssets,
     radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
+    tilemap::{AtlasHandle, SCALE, TILE_SIZE},
     GameState,
 };
 
@@ -19,6 +20,9 @@ impl Plugin for ToolSelectorPlugin {
 #[derive(Component)]
 struct ToolButton;
 
+#[derive(Component)]
+struct ToolPortrait;
+
 #[derive(Component, Default, Clone, Copy)]
 pub enum Tool {
     #[default]
@@ -26,11 +30,20 @@ pub enum Tool {
     BuildTower,
     Dance,
 }
+impl Tool {
+    pub fn atlas_index(&self) -> usize {
+        match self {
+            Self::Dig => 103 * 31 + 1,
+            Self::BuildTower => 103 * 21 + 31,
+            Self::Dance => 103 * 31 + 17,
+        }
+    }
+}
 
 #[derive(Resource, Default)]
 pub struct SelectedTool(pub Tool);
 
-fn init(mut commands: Commands, common: Res<CommonAssets>) {
+fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<AtlasHandle>) {
     let mut tool_button_ids = vec![];
 
     commands
@@ -49,13 +62,22 @@ fn init(mut commands: Commands, common: Res<CommonAssets>) {
         })
         .with_children(|parent| {
             for i in 1..5 {
+                let kind = match i {
+                    1 => Tool::Dig,
+                    2 => Tool::BuildTower,
+                    3 => Tool::BuildTower,
+                    4 => Tool::Dance,
+                    _ => Tool::Dance,
+                };
+
                 let mut button_command = parent.spawn((
                     ButtonBundle {
                         style: Style {
                             width: Val::Px(60.0),
                             height: Val::Px(60.0),
+                            flex_direction: FlexDirection::Column,
                             justify_content: JustifyContent::Center,
-                            align_items: AlignItems::FlexEnd,
+                            align_items: AlignItems::Center,
                             ..default()
                         },
                         ..default()
@@ -63,9 +85,26 @@ fn init(mut commands: Commands, common: Res<CommonAssets>) {
                     NineSliceTexture::from_image(common.ui_nine_slice.clone()),
                     RadioButton { selected: i == 1 },
                     ToolButton,
+                    kind,
                 ));
 
                 button_command.with_children(|parent| {
+                    parent.spawn((
+                        AtlasImageBundle {
+                            style: Style {
+                                width: Val::Px(TILE_SIZE.x * SCALE.x),
+                                height: Val::Px(TILE_SIZE.y * SCALE.y),
+                                ..default()
+                            },
+                            texture_atlas: atlas_handle.0.clone(),
+                            texture_atlas_image: UiTextureAtlasImage {
+                                index: kind.atlas_index(),
+                                ..default()
+                            },
+                            ..default()
+                        },
+                        ToolPortrait,
+                    ));
                     parent.spawn(
                         TextBundle::from_section(
                             format!("{}", i),
@@ -76,18 +115,11 @@ fn init(mut commands: Commands, common: Res<CommonAssets>) {
                             },
                         )
                         .with_style(Style {
-                            margin: UiRect::bottom(Val::Px(8.)),
+                            margin: UiRect::top(Val::Px(4.)),
                             ..default()
                         }),
                     );
                 });
-
-                if i == 1 {
-                    button_command.insert(Tool::Dig);
-                }
-                if i == 2 {
-                    button_command.insert(Tool::BuildTower);
-                }
 
                 let entity = button_command.id();
 
