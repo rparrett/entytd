@@ -161,8 +161,6 @@ fn find_job(
     let mut jobs_assigned = vec![];
 
     for (entity, pos) in &query {
-        let now = std::time::Instant::now();
-
         potential_jobs.sort_by_key(|a| u32::MAX - heuristic(a.0, *pos));
 
         let Some((goal, designation)) = potential_jobs.pop() else {
@@ -175,10 +173,7 @@ fn find_job(
             |p| heuristic(*p, goal),
             |p| NeighborCostIter::new(goal, worker_cost_fn(&map)).any(|n| n.0 == *p),
         ) else {
-            warn!(
-                "Worker unable to find path to goal. ({}ms)",
-                now.elapsed().as_secs_f32() * 1000.
-            );
+            warn!("Worker unable to find path to goal.");
             continue;
         };
 
