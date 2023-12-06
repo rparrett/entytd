@@ -33,7 +33,7 @@ impl EnemyKind {
     pub fn atlas_index(&self) -> usize {
         match self {
             Self::Skeleton => 103 * 9 + 36,
-            Self::Ent => 103 * 15 + 38,
+            Self::Ent => 103 * 15 + 45,
         }
     }
 }
@@ -84,6 +84,7 @@ fn spawn(
                 hit_points: HitPoints::full(event.hp),
                 kind: event.kind,
                 pos: event.pos,
+                speed: Speed(2.),
                 ..default()
             },
             #[cfg(feature = "inspector")]
