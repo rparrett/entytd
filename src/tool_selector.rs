@@ -70,7 +70,7 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                 right: Val::Px(5.),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
-                row_gap: Val::Px(10.),
+                row_gap: Val::Px(5.),
                 ..default()
             },
             ..default()

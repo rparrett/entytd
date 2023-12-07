@@ -90,6 +90,7 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                     left: Val::Px(5.),
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
+                    row_gap: Val::Px(5.),
                     ..default()
                 },
                 ..default()
@@ -102,7 +103,6 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                     NodeBundle {
                         style: Style {
                             width: Val::Percent(100.),
-                            position_type: PositionType::Absolute,
                             flex_direction: FlexDirection::Column,
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::FlexStart,
@@ -127,12 +127,56 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                         atlas_handle.0.clone(),
                         103 * 49 + 78,
                     );
+                });
+
+            parent
+                .spawn((
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Percent(100.),
+                            flex_direction: FlexDirection::Column,
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::FlexStart,
+                            padding: UiRect::all(Val::Px(4.)),
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    NineSliceTexture::from_image(common.ui_nine_slice.clone()),
+                    HudContainer,
+                ))
+                .with_children(|parent| {
+                    init_hud_item::<HomeHitPoints>(
+                        parent,
+                        "0/0".to_string(),
+                        atlas_handle.0.clone(),
+                        103 * 33 + 24,
+                    );
                     init_hud_item::<IdleWorkers>(
                         parent,
                         "0/0".to_string(),
                         atlas_handle.0.clone(),
                         103 * 15 + 24,
                     );
+                });
+
+            parent
+                .spawn((
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Percent(100.),
+                            flex_direction: FlexDirection::Column,
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::FlexStart,
+                            padding: UiRect::all(Val::Px(4.)),
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    NineSliceTexture::from_image(common.ui_nine_slice.clone()),
+                    HudContainer,
+                ))
+                .with_children(|parent| {
                     init_hud_item::<Crystal>(
                         parent,
                         "0".to_string(),
@@ -144,12 +188,6 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                         "0".to_string(),
                         atlas_handle.0.clone(),
                         103 * 25 + 6,
-                    );
-                    init_hud_item::<HomeHitPoints>(
-                        parent,
-                        "0/0".to_string(),
-                        atlas_handle.0.clone(),
-                        103 * 33 + 24,
                     );
                 });
         });
