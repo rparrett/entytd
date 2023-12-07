@@ -5,15 +5,14 @@ use bevy::{
 
 use crate::{
     cursor::CursorSnapped,
-    tilemap::{TilePos, Tilemap},
+    tilemap::{AtlasHandle, TileKind, TilePos, Tilemap},
     tool_selector::{SelectedTool, Tool},
     GameState,
 };
 
 const DESIGNATE_DIG_OK: Color = Color::rgba(0., 1.0, 1.0, 0.2);
-const DESIGNATE_TOWER_OK: Color = Color::rgba(0.8, 0.8, 0.8, 0.2);
 const DESIGNATE_DANCE_OK: Color = Color::rgba(1.0, 0.0, 1.0, 0.2);
-const DESIGNATE_NOT_OK: Color = Color::rgba(1.0, 0.0, 0.0, 0.2);
+const DESIGNATE_NOT_OK: Color = Color::rgba(1.0, 0.0, 0.0, 0.8);
 
 pub struct DesignateToolPlugin;
 impl Plugin for DesignateToolPlugin {
@@ -37,7 +36,7 @@ impl Plugin for DesignateToolPlugin {
 #[derive(Component)]
 struct DesignateToolCursor;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum DesignationKind {
     Dig,
     BuildTower,
@@ -53,11 +52,32 @@ impl From<Tool> for DesignationKind {
     }
 }
 impl DesignationKind {
-    fn color(&self) -> Color {
+    fn ok_color(&self) -> Color {
         match self {
             DesignationKind::Dig => DESIGNATE_DIG_OK,
-            DesignationKind::BuildTower => DESIGNATE_TOWER_OK,
+            DesignationKind::BuildTower => Color::rgb(0.18, 0.21, 0.38),
             DesignationKind::Dance => DESIGNATE_DANCE_OK,
+        }
+    }
+    fn ok_atlas_index(&self) -> usize {
+        match self {
+            DesignationKind::Dig => TileKind::WhitePickaxe.atlas_index(),
+            DesignationKind::BuildTower => TileKind::TowerBlueprint.atlas_index(),
+            DesignationKind::Dance => TileKind::White.atlas_index(),
+        }
+    }
+    fn not_ok_color(&self) -> Color {
+        match self {
+            DesignationKind::Dig => DESIGNATE_NOT_OK,
+            DesignationKind::BuildTower => DESIGNATE_NOT_OK,
+            DesignationKind::Dance => DESIGNATE_NOT_OK,
+        }
+    }
+    fn not_ok_atlas_index(&self) -> usize {
+        match self {
+            DesignationKind::Dig => TileKind::WhiteCircleNo.atlas_index(),
+            DesignationKind::BuildTower => TileKind::WhiteCircleNo.atlas_index(),
+            DesignationKind::Dance => TileKind::WhiteCircleNo.atlas_index(),
         }
     }
 }
@@ -82,16 +102,17 @@ struct DesignationToolState {
     touched: HashSet<TilePos>,
 }
 
-fn init_cursor(mut commands: Commands) {
+fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>) {
     commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Some(crate::tilemap::SCALE * crate::tilemap::TILE_SIZE),
-                color: DESIGNATE_DIG_OK,
+        SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                index: DesignationKind::Dig.not_ok_atlas_index(),
+                color: DesignationKind::Dig.not_ok_color(),
                 ..default()
             },
+            texture_atlas: atlas_handle.0.clone(),
             visibility: Visibility::Hidden,
-            transform: Transform::from_xyz(0., 0., 1.),
+            transform: Transform::from_xyz(0., 0., 1.).with_scale(crate::tilemap::SCALE.extend(1.)),
             ..default()
         },
         DesignateToolCursor,
@@ -101,7 +122,7 @@ fn init_cursor(mut commands: Commands) {
 fn move_cursor(
     selected_tool: Res<SelectedTool>,
     cursor_snapped: Res<CursorSnapped>,
-    mut query: Query<(&mut Transform, &mut Sprite), With<DesignateToolCursor>>,
+    mut query: Query<(&mut Transform, &mut TextureAtlasSprite), With<DesignateToolCursor>>,
     tilemap_query: Query<&Tilemap>,
 ) {
     if !cursor_snapped.is_changed() {
@@ -128,12 +149,20 @@ fn move_cursor(
 
         let designation = DesignationKind::from(selected_tool.0);
 
-        match selected_tool.0 {
-            Tool::Dig if kind.diggable() => sprite.color = designation.color(),
-            Tool::BuildTower if kind.buildable() => sprite.color = designation.color(),
-            Tool::Dance if kind.buildable() => sprite.color = designation.color(),
-            _ => sprite.color = DESIGNATE_NOT_OK,
+        let ok = match selected_tool.0 {
+            Tool::Dig if kind.diggable() => true,
+            Tool::BuildTower if kind.buildable() => true,
+            Tool::Dance if kind.buildable() => true,
+            _ => false,
         };
+
+        if ok {
+            sprite.index = designation.ok_atlas_index();
+            sprite.color = designation.ok_color();
+        } else {
+            sprite.index = designation.not_ok_atlas_index();
+            sprite.color = designation.not_ok_color();
+        }
     }
 }
 
@@ -188,6 +217,7 @@ fn designate(
     mut designations: ResMut<Designations>,
     mut tool_state: ResMut<DesignationToolState>,
     tilemap_query: Query<&Tilemap>,
+    atlas_handle: Res<AtlasHandle>,
 ) {
     if !tool_state.active {
         return;
@@ -243,13 +273,15 @@ fn designate(
 
     let id = commands
         .spawn((
-            SpriteBundle {
-                sprite: Sprite {
-                    custom_size: Some(crate::tilemap::SCALE * crate::tilemap::TILE_SIZE),
-                    color: designation_kind.color(),
+            SpriteSheetBundle {
+                sprite: TextureAtlasSprite {
+                    index: designation_kind.ok_atlas_index(),
+                    color: designation_kind.ok_color(),
                     ..default()
                 },
-                transform: Transform::from_translation(world_pos_snapped.extend(1.)),
+                texture_atlas: atlas_handle.0.clone(),
+                transform: Transform::from_translation(world_pos_snapped.extend(1.))
+                    .with_scale(crate::tilemap::SCALE.extend(1.)),
                 ..default()
             },
             DesignationMarker,

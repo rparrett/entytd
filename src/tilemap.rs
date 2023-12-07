@@ -56,6 +56,9 @@ pub enum TileKind {
     Spawn,
     Tower,
     TowerBlueprint,
+    White,
+    WhitePickaxe,
+    WhiteCircleNo,
 }
 
 pub struct TileNotMappedError;
@@ -127,6 +130,9 @@ impl TileKind {
             Self::Spawn => 103 * 17 + 80,
             Self::Tower => 103 * 22 + 42,
             Self::TowerBlueprint => 103 * 22 + 43,
+            Self::White => 103 * 48 + 52,
+            Self::WhitePickaxe => 103 * 48 + 53,
+            Self::WhiteCircleNo => 103 * 48 + 54,
         }
     }
 }
