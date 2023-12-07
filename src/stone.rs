@@ -95,10 +95,7 @@ fn hit_events(
         );
         let metal = matches!(
             *kind,
-            TileKind::CrystalHidden
-                | TileKind::Crystal
-                | TileKind::CrystalHurt
-                | TileKind::CrystalDying
+            TileKind::MetalHidden | TileKind::Metal | TileKind::MetalHurt | TileKind::MetalDying
         );
 
         if crystal {
