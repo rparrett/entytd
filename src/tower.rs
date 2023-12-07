@@ -184,22 +184,23 @@ fn bullet_movement(
     time: Res<Time>,
 ) {
     for (bullet_entity, bullet, speed, mut transform) in query.iter_mut() {
-        if let Ok((mut hp, enemy)) = enemy_query.get_mut(bullet.target) {
-            let diff = enemy.translation.truncate() - transform.translation.truncate();
-            let dist = diff.length();
-            let dir = diff.normalize();
-            let step = time.delta_seconds() * speed.0 * TILE_SIZE.x * SCALE.x;
+        let Ok((mut hp, enemy)) = enemy_query.get_mut(bullet.target) else {
+            commands.entity(bullet_entity).despawn();
+            continue;
+        };
 
-            if dist > step {
-                transform.translation.x += step * dir.x;
-                transform.translation.y += step * dir.y;
-            } else {
-                hp.sub(bullet.damage);
+        let diff = enemy.translation.truncate() - transform.translation.truncate();
+        let dist = diff.length();
+        let dir = diff.normalize();
+        let step = time.delta_seconds() * speed.0 * TILE_SIZE.x * SCALE.x;
 
-                commands.entity(bullet_entity).despawn_recursive();
-            }
+        if dist > step {
+            transform.translation.x += step * dir.x;
+            transform.translation.y += step * dir.y;
         } else {
-            commands.entity(bullet_entity).despawn_recursive();
+            hp.sub(bullet.damage);
+
+            commands.entity(bullet_entity).despawn();
         }
     }
 }
