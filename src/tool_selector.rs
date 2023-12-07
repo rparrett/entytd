@@ -4,7 +4,7 @@ use bevy_nine_slice_ui::NineSliceTexture;
 use crate::{
     common_assets::CommonAssets,
     radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
-    tilemap::{AtlasHandle, SCALE, TILE_SIZE},
+    tilemap::{AtlasHandle, TileKind, SCALE, TILE_SIZE},
     GameState,
 };
 
@@ -34,7 +34,7 @@ impl Tool {
     pub fn atlas_index(&self) -> usize {
         match self {
             Self::Dig => 103 * 31 + 1,
-            Self::BuildTower => 103 * 21 + 31,
+            Self::BuildTower => TileKind::Tower.atlas_index(),
             Self::Dance => 103 * 31 + 17,
         }
     }

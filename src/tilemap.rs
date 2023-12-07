@@ -55,6 +55,7 @@ pub enum TileKind {
     Road,
     Spawn,
     Tower,
+    TowerBlueprint,
 }
 
 pub struct TileNotMappedError;
@@ -124,7 +125,8 @@ impl TileKind {
             Self::Bridge => 103 * 4 + 0,
             Self::Road => 103 * 1 + 13,
             Self::Spawn => 103 * 17 + 80,
-            Self::Tower => 103 * 21 + 31,
+            Self::Tower => 103 * 22 + 42,
+            Self::TowerBlueprint => 103 * 22 + 43,
         }
     }
 }
