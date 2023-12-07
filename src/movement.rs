@@ -6,6 +6,7 @@ use crate::{
     GameState,
 };
 
+/// This is the speed in "tiles lengths per second."
 #[derive(Component)]
 pub struct Speed(pub f32);
 impl Default for Speed {

@@ -17,7 +17,7 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SpawnEnemyEvent>().add_systems(
             Update,
-            (spawn, pathfinding, behavior, tick_cooldown, attack)
+            (spawn, pathfinding, behavior, tick_cooldown, attack, die)
                 .run_if(in_state(GameState::Playing)),
         );
     }
@@ -212,6 +212,18 @@ fn attack(
         }
 
         cooldown.0.reset();
+    }
+}
+
+fn die(mut commands: Commands, query: Query<(Entity, &HitPoints), With<Enemy>>) {
+    for (entity, hp) in &query {
+        if !hp.is_zero() {
+            continue;
+        }
+
+        // TODO particle spam
+
+        commands.entity(entity).despawn();
     }
 }
 
