@@ -131,6 +131,8 @@ fn hit_events(
                 currency.crystal += 1;
             } else if metal {
                 currency.metal += 1;
+            } else {
+                currency.stone += 1;
             }
 
             if let Some(designation) = designations.0.remove(pos) {

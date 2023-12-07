@@ -30,6 +30,7 @@ impl Plugin for HudPlugin {
                     update_idle_workers,
                     update_fps,
                     update_home_hit_points,
+                    update_stone,
                     update_metal,
                     update_crystal,
                 ),
@@ -48,6 +49,9 @@ pub struct Fps;
 
 #[derive(Component, Default)]
 pub struct IdleWorkers;
+
+#[derive(Component, Default)]
+pub struct Stone;
 
 #[derive(Component, Default)]
 pub struct Crystal;
@@ -177,6 +181,12 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                     HudContainer,
                 ))
                 .with_children(|parent| {
+                    init_hud_item::<Stone>(
+                        parent,
+                        "0".to_string(),
+                        atlas_handle.0.clone(),
+                        103 * 2 + 5,
+                    );
                     init_hud_item::<Crystal>(
                         parent,
                         "0".to_string(),
@@ -345,6 +355,27 @@ fn update_home_hit_points(
     // TODO color
 
     text.sections[0].value = format!("{current}/{max}");
+}
+
+fn update_stone(
+    currency: Res<Currency>,
+    item_query: Query<&Children, With<Stone>>,
+    mut text_query: Query<&mut Text>,
+) {
+    if !currency.is_changed() {
+        return;
+    }
+
+    let Ok(children) = item_query.get_single() else {
+        return;
+    };
+
+    let mut text_iter = text_query.iter_many_mut(children);
+    let Some(mut text) = text_iter.fetch_next() else {
+        return;
+    };
+
+    text.sections[0].value = format!("{}", currency.stone);
 }
 
 fn update_metal(

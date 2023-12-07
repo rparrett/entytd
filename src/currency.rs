@@ -11,4 +11,5 @@ impl Plugin for CurrencyPlugin {
 pub struct Currency {
     pub metal: u32,
     pub crystal: u32,
+    pub stone: u32,
 }
