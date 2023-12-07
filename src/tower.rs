@@ -46,6 +46,8 @@ fn build_tower(
             continue;
         };
 
+        // TODO subtract currency. If not enough currency, abort.
+
         if let Some(entity) = maybe_tile_entity.take() {
             commands.entity(entity).despawn();
         }
