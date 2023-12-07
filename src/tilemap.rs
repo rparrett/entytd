@@ -246,7 +246,6 @@ pub struct TilePos {
     pub x: usize,
     pub y: usize,
 }
-impl TilePos {}
 impl Into<Vec2> for TilePos {
     fn into(self) -> Vec2 {
         Vec2::new(self.x as f32, self.y as f32)
@@ -278,6 +277,7 @@ impl Into<(isize, isize)> for TilePos {
         (self.x as isize, self.y as isize)
     }
 }
+
 #[derive(Resource)]
 pub struct TilemapHandle(pub Handle<Tilemap>);
 

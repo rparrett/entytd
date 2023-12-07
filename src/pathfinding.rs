@@ -33,10 +33,7 @@ impl PathState {
 
 pub fn enemy_cost_fn(map: &Tilemap) -> impl '_ + Fn(TilePos) -> isize {
     move |pos| {
-        let Some(row) = map.tiles.get(pos.x) else {
-            return -1;
-        };
-        let Some(tile) = row.get(pos.y) else {
+        let Some(tile) = map.get(pos) else {
             return -1;
         };
 
@@ -50,10 +47,7 @@ pub fn enemy_cost_fn(map: &Tilemap) -> impl '_ + Fn(TilePos) -> isize {
 
 pub fn worker_cost_fn(map: &Tilemap) -> impl '_ + Fn(TilePos) -> isize {
     move |pos| {
-        let Some(row) = map.tiles.get(pos.x) else {
-            return -1;
-        };
-        let Some(tile) = row.get(pos.y) else {
+        let Some(tile) = map.get(pos) else {
             return -1;
         };
 
