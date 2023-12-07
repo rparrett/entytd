@@ -15,6 +15,7 @@ use movement::MovementPlugin;
 use pathfinding::PathfindingPlugin;
 use radio_button::RadioButtonPlugin;
 use spawner::SpawnerPlugin;
+use stone::StonePlugin;
 use tilemap::TilemapPlugin;
 use tool_selector::ToolSelectorPlugin;
 use waves::WavesPlugin;
@@ -41,6 +42,7 @@ mod movement;
 mod pathfinding;
 mod radio_button;
 mod spawner;
+mod stone;
 mod tilemap;
 mod tool_selector;
 mod waves;
@@ -82,6 +84,7 @@ fn main() {
         CommonAssetsPlugin,
         WorkerPlugin,
         MovementPlugin,
+        StonePlugin,
     ));
 
     app.add_plugins((

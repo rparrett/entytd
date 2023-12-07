@@ -3,7 +3,8 @@ use crate::{
     hit_points::HitPoints,
     movement::{MovingProgress, Speed},
     pathfinding::{heuristic, worker_cost_fn, NeighborCostIter, PathState},
-    tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap},
+    stone::HitStoneEvent,
+    tilemap::{AtlasHandle, TileEntities, TilePos, Tilemap},
     GameState,
 };
 use bevy::prelude::*;
@@ -201,65 +202,54 @@ fn do_job(
         (Entity, &TilePos, &Job, &mut WorkCooldown),
         (With<Worker>, Without<Idle>, Without<PathState>),
     >,
-    mut dig_query: Query<&mut HitPoints>,
-    mut tilemap_query: Query<(&mut Tilemap, &mut TileEntities)>,
-    mut designations: ResMut<Designations>,
-    mut tile_query: Query<(&mut TileKind, &mut TextureAtlasSprite)>,
+    dig_query: Query<&HitPoints>,
+    mut tilemap_query: Query<&TileEntities>,
+    mut events: EventWriter<HitStoneEvent>,
 ) {
     if query.is_empty() {
         return;
     }
 
-    let Ok((mut map, map_entities)) = tilemap_query.get_single_mut() else {
+    let Ok(map_entities) = tilemap_query.get_single_mut() else {
         return;
     };
 
     for (entity, _pos, job, mut cooldown) in &mut query {
         // TODO ensure we are actually near the job.
 
-        if !cooldown.0.finished() {
-            continue;
-        }
-
         match job {
             Job::Dig(dig_pos) => {
                 let Some(tile_entity) = map_entities.entities[dig_pos.x][dig_pos.y] else {
-                    commands.entity(entity).insert(Idle);
-                    commands.entity(entity).remove::<Job>();
                     warn!("Working trying to dig at position without entity.");
-                    continue;
-                };
-
-                let Ok(mut hp) = dig_query.get_mut(tile_entity) else {
                     commands.entity(entity).insert(Idle);
                     commands.entity(entity).remove::<Job>();
-                    warn!("Worker trying dig entity without hitpoints.");
                     continue;
                 };
 
-                hp.sub(1);
+                // TODO maybe also just double check that this is a rock and not just any
+                // random thing with hitpoints.
+
+                let Ok(hp) = dig_query.get(tile_entity) else {
+                    warn!("Working trying to dig at position without HP.");
+                    commands.entity(entity).insert(Idle);
+                    commands.entity(entity).remove::<Job>();
+                    continue;
+                };
 
                 if hp.is_zero() {
                     commands.entity(entity).insert(Idle);
                     commands.entity(entity).remove::<Job>();
-
-                    // // TODO RemoveDesignationEvent?
-
-                    if let Some(designation) = designations.0.remove(dig_pos) {
-                        commands.entity(designation.indicator).despawn();
-                    }
-
-                    map.tiles[dig_pos.x][dig_pos.y] = TileKind::Dirt;
-
-                    let Some(tile_entity) = map_entities.entities[dig_pos.x][dig_pos.y] else {
-                        continue;
-                    };
-                    let Ok((mut kind, mut sprite)) = tile_query.get_mut(tile_entity) else {
-                        continue;
-                    };
-                    *kind = TileKind::Dirt;
-                    sprite.index = kind.atlas_index();
+                    continue;
                 }
+
+                if !cooldown.0.finished() {
+                    continue;
+                }
+
+                events.send(HitStoneEvent {
+                    entity: tile_entity,
+                    damage: 1,
+                });
 
                 cooldown.0.reset();
             }

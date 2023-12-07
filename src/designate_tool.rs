@@ -5,13 +5,13 @@ use bevy::{
 
 use crate::{
     cursor::CursorSnapped,
-    tilemap::{TileKind, TilePos, Tilemap},
+    tilemap::{TilePos, Tilemap},
     tool_selector::{SelectedTool, Tool},
     GameState,
 };
 
-const DESIGNATE_OK: Color = Color::rgba(0., 1.0, 1.0, 0.5);
-const DESIGNATE_NOT_OK: Color = Color::rgba(1.0, 0.0, 0.0, 0.5);
+const DESIGNATE_OK: Color = Color::rgba(0., 1.0, 1.0, 0.2);
+const DESIGNATE_NOT_OK: Color = Color::rgba(1.0, 0.0, 0.0, 0.2);
 
 pub struct DesignateToolPlugin;
 impl Plugin for DesignateToolPlugin {
@@ -104,8 +104,10 @@ fn move_cursor(
             return;
         };
 
-        match (selected_tool.0, &tilemap.tiles[tile_pos.x][tile_pos.y]) {
-            (Tool::Dig, TileKind::Stone) => sprite.color = DESIGNATE_OK,
+        let kind = tilemap.tiles[tile_pos.x][tile_pos.y];
+
+        match selected_tool.0 {
+            Tool::Dig if kind.diggable() => sprite.color = DESIGNATE_OK,
             _ => sprite.color = DESIGNATE_NOT_OK,
         };
     }
@@ -199,8 +201,10 @@ fn designate(
         return;
     };
 
-    let ok = match (selected_tool.0, &tilemap.tiles[tile_pos.x][tile_pos.y]) {
-        (Tool::Dig, TileKind::Stone) => true,
+    let kind = tilemap.tiles[tile_pos.x][tile_pos.y];
+
+    let ok = match selected_tool.0 {
+        Tool::Dig if kind.diggable() => true,
         _ => false,
     };
 
@@ -214,7 +218,7 @@ fn designate(
             SpriteBundle {
                 sprite: Sprite {
                     custom_size: Some(crate::tilemap::SCALE * crate::tilemap::TILE_SIZE),
-                    color: Color::AQUAMARINE.with_a(0.5),
+                    color: DESIGNATE_OK,
                     ..default()
                 },
                 transform: Transform::from_translation(world_pos_snapped.extend(1.)),

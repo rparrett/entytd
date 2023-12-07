@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 pub struct HitPointsPlugin;
 impl Plugin for HitPointsPlugin {
-    fn build(&self, app: &mut App) {}
+    fn build(&self, _app: &mut App) {}
 }
 
 #[derive(Component, Debug)]
@@ -27,5 +27,8 @@ impl HitPoints {
     }
     pub fn is_zero(&self) -> bool {
         self.current == 0
+    }
+    pub fn fraction(&self) -> f32 {
+        return self.current as f32 / self.max as f32;
     }
 }

@@ -27,7 +27,7 @@ impl Plugin for TilemapPlugin {
 pub const SCALE: Vec2 = Vec2::splat(2.);
 pub const TILE_SIZE: Vec2 = Vec2::splat(12.);
 
-#[derive(Reflect, Component, Clone, Copy)]
+#[derive(Reflect, Debug, Component, Clone, Copy)]
 pub enum TileKind {
     Empty,
     Stone,
@@ -66,6 +66,8 @@ impl TryFrom<[u8; 3]> for TileKind {
             [0, 0, 0] => Ok(TileKind::Empty),
             [10, 10, 10] => Ok(Self::Dirt),
             [255, 255, 255] => Ok(TileKind::Stone),
+            [235, 235, 235] => Ok(TileKind::MetalHidden),
+            [225, 225, 225] => Ok(TileKind::CrystalHidden),
             [200, 0, 0] => Ok(Self::Mountain),
             [255, 0, 0] => Ok(Self::Peak),
             [150, 0, 0] => Ok(Self::Volcano),
@@ -102,13 +104,13 @@ impl TileKind {
             Self::StoneHurt => 212,
             Self::StoneDying => 213,
             Self::CrystalHidden => 211,
-            Self::CrystalHurt => 211,
-            Self::CrystalDying => 211,
-            Self::Crystal => 211,
+            Self::Crystal => 214,
+            Self::CrystalHurt => 215,
+            Self::CrystalDying => 216,
             Self::MetalHidden => 211,
-            Self::MetalHurt => 211,
-            Self::MetalDying => 211,
-            Self::Metal => 211,
+            Self::Metal => 217,
+            Self::MetalHurt => 218,
+            Self::MetalDying => 219,
             Self::Wall => 309,
             Self::Mountain => 103 * 34 + 15,
             Self::Peak => 103 * 34 + 17,
@@ -122,6 +124,25 @@ impl TileKind {
             Self::Road => 103 * 1 + 13,
             Self::Spawn => 103 * 17 + 80,
         }
+    }
+}
+
+impl TileKind {
+    pub fn diggable(&self) -> bool {
+        matches!(
+            self,
+            TileKind::Stone
+                | TileKind::StoneDying
+                | TileKind::StoneHurt
+                | TileKind::Crystal
+                | TileKind::CrystalHidden
+                | TileKind::CrystalHurt
+                | TileKind::CrystalDying
+                | TileKind::Metal
+                | TileKind::MetalHidden
+                | TileKind::MetalHurt
+                | TileKind::MetalDying
+        )
     }
 }
 
@@ -377,7 +398,7 @@ pub fn process_loaded_maps(
                         TileKind::Home | TileKind::HomeTwo => {
                             command.insert((
                                 Home,
-                                HitPoints::full(20),
+                                HitPoints::full(30),
                                 #[cfg(feature = "inspector")]
                                 Name::new("HomeTile"),
                             ));
@@ -387,6 +408,13 @@ pub fn process_loaded_maps(
                                 HitPoints::full(4),
                                 #[cfg(feature = "inspector")]
                                 Name::new("StoneTile"),
+                            ));
+                        }
+                        TileKind::CrystalHidden | TileKind::MetalHidden => {
+                            command.insert((
+                                HitPoints::full(12),
+                                #[cfg(feature = "inspector")]
+                                Name::new("ResourceTile"),
                             ));
                         }
                         _ => {}
