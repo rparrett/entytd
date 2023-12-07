@@ -3,6 +3,7 @@ use bevy::{asset::AssetMetaCheck, diagnostic::FrameTimeDiagnosticsPlugin, prelud
 use bevy_nine_slice_ui::NineSlicePlugin;
 use camera::CameraPlugin;
 use common_assets::CommonAssetsPlugin;
+use currency::CurrencyPlugin;
 use cursor::CursorPlugin;
 use designate_tool::DesignateToolPlugin;
 use enemy::EnemyPlugin;
@@ -29,6 +30,7 @@ use {
 
 mod camera;
 mod common_assets;
+mod currency;
 mod cursor;
 mod designate_tool;
 mod enemy;
@@ -85,6 +87,7 @@ fn main() {
         WorkerPlugin,
         MovementPlugin,
         StonePlugin,
+        CurrencyPlugin,
     ));
 
     app.add_plugins((

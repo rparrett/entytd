@@ -9,6 +9,7 @@ use bevy_nine_slice_ui::NineSliceTexture;
 
 use crate::{
     common_assets::CommonAssets,
+    currency::Currency,
     hit_points::HitPoints,
     home::Home,
     tilemap::{AtlasHandle, SCALE, TILE_SIZE},
@@ -29,6 +30,8 @@ impl Plugin for HudPlugin {
                     update_idle_workers,
                     update_fps,
                     update_home_hit_points,
+                    update_metal,
+                    update_crystal,
                 ),
             );
     }
@@ -112,18 +115,49 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                     HudContainer,
                 ))
                 .with_children(|parent| {
-                    init_hud_item::<EntityCount>(parent, atlas_handle.0.clone(), 103 * 47 + 101);
-                    init_hud_item::<Fps>(parent, atlas_handle.0.clone(), 103 * 49 + 78);
-                    init_hud_item::<IdleWorkers>(parent, atlas_handle.0.clone(), 103 * 15 + 24);
-                    init_hud_item::<Crystal>(parent, atlas_handle.0.clone(), 103 * 24 + 0);
-                    init_hud_item::<Metal>(parent, atlas_handle.0.clone(), 103 * 25 + 6);
-                    init_hud_item::<HomeHitPoints>(parent, atlas_handle.0.clone(), 103 * 33 + 24);
+                    init_hud_item::<EntityCount>(
+                        parent,
+                        "0".to_string(),
+                        atlas_handle.0.clone(),
+                        103 * 47 + 101,
+                    );
+                    init_hud_item::<Fps>(
+                        parent,
+                        "0".to_string(),
+                        atlas_handle.0.clone(),
+                        103 * 49 + 78,
+                    );
+                    init_hud_item::<IdleWorkers>(
+                        parent,
+                        "0/0".to_string(),
+                        atlas_handle.0.clone(),
+                        103 * 15 + 24,
+                    );
+                    init_hud_item::<Crystal>(
+                        parent,
+                        "0".to_string(),
+                        atlas_handle.0.clone(),
+                        103 * 24 + 0,
+                    );
+                    init_hud_item::<Metal>(
+                        parent,
+                        "0".to_string(),
+                        atlas_handle.0.clone(),
+                        103 * 25 + 6,
+                    );
+                    init_hud_item::<HomeHitPoints>(
+                        parent,
+                        "0/0".to_string(),
+                        atlas_handle.0.clone(),
+                        103 * 33 + 24,
+                    );
                 });
         });
 }
 
 fn init_hud_item<M: Component + Default>(
     commands: &mut ChildBuilder,
+    text: String,
     texture_atlas: Handle<TextureAtlas>,
     atlas_index: usize,
 ) {
@@ -157,7 +191,7 @@ fn init_hud_item<M: Component + Default>(
                 ..default()
             });
             parent.spawn(TextBundle::from_section(
-                "10.1",
+                text,
                 TextStyle {
                     font_size: 18.0,
                     color: Color::rgb(0.9, 0.9, 0.9),
@@ -273,4 +307,46 @@ fn update_home_hit_points(
     // TODO color
 
     text.sections[0].value = format!("{current}/{max}");
+}
+
+fn update_metal(
+    currency: Res<Currency>,
+    item_query: Query<&Children, With<Metal>>,
+    mut text_query: Query<&mut Text>,
+) {
+    if !currency.is_changed() {
+        return;
+    }
+
+    let Ok(children) = item_query.get_single() else {
+        return;
+    };
+
+    let mut text_iter = text_query.iter_many_mut(children);
+    let Some(mut text) = text_iter.fetch_next() else {
+        return;
+    };
+
+    text.sections[0].value = format!("{}", currency.metal);
+}
+
+fn update_crystal(
+    currency: Res<Currency>,
+    item_query: Query<&Children, With<Crystal>>,
+    mut text_query: Query<&mut Text>,
+) {
+    if !currency.is_changed() {
+        return;
+    }
+
+    let Ok(children) = item_query.get_single() else {
+        return;
+    };
+
+    let mut text_iter = text_query.iter_many_mut(children);
+    let Some(mut text) = text_iter.fetch_next() else {
+        return;
+    };
+
+    text.sections[0].value = format!("{}", currency.crystal);
 }

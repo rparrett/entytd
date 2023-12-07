@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    currency::Currency,
     designate_tool::Designations,
     hit_points::HitPoints,
     tilemap::{TileEntities, TileKind, TilePos, Tilemap},
@@ -66,6 +67,7 @@ fn hit_events(
     )>,
     mut designations: ResMut<Designations>,
     mut tilemap_query: Query<(&mut Tilemap, &TileEntities)>,
+    mut currency: ResMut<Currency>,
 ) {
     for event in reader.read() {
         let Ok((mut map, entities)) = tilemap_query.get_single_mut() else {
@@ -125,7 +127,11 @@ fn hit_events(
         map.tiles[pos.x][pos.y] = *kind;
 
         if hp.is_zero() {
-            // TODO give resources
+            if crystal {
+                currency.crystal += 1;
+            } else if metal {
+                currency.metal += 1;
+            }
 
             if let Some(designation) = designations.0.remove(pos) {
                 commands.entity(designation.indicator).despawn();
