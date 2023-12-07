@@ -19,6 +19,7 @@ use spawner::SpawnerPlugin;
 use stone::StonePlugin;
 use tilemap::TilemapPlugin;
 use tool_selector::ToolSelectorPlugin;
+use tower::TowerPlugin;
 use waves::WavesPlugin;
 use worker::WorkerPlugin;
 
@@ -47,6 +48,7 @@ mod spawner;
 mod stone;
 mod tilemap;
 mod tool_selector;
+mod tower;
 mod waves;
 mod worker;
 
@@ -89,6 +91,7 @@ fn main() {
         StonePlugin,
         CurrencyPlugin,
     ));
+    app.add_plugins(TowerPlugin);
 
     app.add_plugins((
         RadioButtonPlugin,

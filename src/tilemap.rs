@@ -54,6 +54,7 @@ pub enum TileKind {
     Bridge,
     Road,
     Spawn,
+    Tower,
 }
 
 pub struct TileNotMappedError;
@@ -123,6 +124,7 @@ impl TileKind {
             Self::Bridge => 103 * 4 + 0,
             Self::Road => 103 * 1 + 13,
             Self::Spawn => 103 * 17 + 80,
+            Self::Tower => 103 * 21 + 31,
         }
     }
 }
@@ -184,11 +186,59 @@ impl Tilemap {
             y: pos.y.round() as usize,
         }
     }
+
+    pub fn new(width: usize, height: usize) -> Self {
+        let map = Self {
+            tiles: vec![vec![TileKind::Empty; height]; width],
+            width,
+            height,
+        };
+
+        map
+    }
+
+    pub fn new_random(width: usize, height: usize) -> Self {
+        let mut rng = thread_rng();
+
+        let mut map = Self::new(width, height);
+
+        for x in 0..width {
+            for y in 0..height {
+                let kind: TileKind = rng.gen();
+
+                map.tiles[x][y] = kind;
+            }
+        }
+
+        map
+    }
+
+    pub fn get(&self, pos: TilePos) -> Option<&TileKind> {
+        let col = self.tiles.get(pos.x)?;
+        col.get(pos.y)
+    }
+
+    pub fn get_mut(&mut self, pos: TilePos) -> Option<&mut TileKind> {
+        let col = self.tiles.get_mut(pos.x)?;
+        col.get_mut(pos.y)
+    }
 }
 
+// TODO argh why is this not just a hashmap
 #[derive(Component, Default)]
 pub struct TileEntities {
     pub entities: Vec<Vec<Option<Entity>>>,
+}
+impl TileEntities {
+    pub fn get(&self, pos: TilePos) -> Option<&Option<Entity>> {
+        let col = self.entities.get(pos.x)?;
+        col.get(pos.y)
+    }
+
+    pub fn get_mut(&mut self, pos: TilePos) -> Option<&mut Option<Entity>> {
+        let col = self.entities.get_mut(pos.x)?;
+        col.get_mut(pos.y)
+    }
 }
 
 #[derive(Reflect, Component, Debug, Clone, Copy, Default, Hash, Eq, PartialEq, Ord, PartialOrd)]
@@ -228,35 +278,6 @@ impl Into<(isize, isize)> for TilePos {
         (self.x as isize, self.y as isize)
     }
 }
-
-impl Tilemap {
-    pub fn new(width: usize, height: usize) -> Self {
-        let map = Self {
-            tiles: vec![vec![TileKind::Empty; height]; width],
-            width,
-            height,
-        };
-
-        map
-    }
-
-    pub fn new_random(width: usize, height: usize) -> Self {
-        let mut rng = thread_rng();
-
-        let mut map = Self::new(width, height);
-
-        for x in 0..width {
-            for y in 0..height {
-                let kind: TileKind = rng.gen();
-
-                map.tiles[x][y] = kind;
-            }
-        }
-
-        map
-    }
-}
-
 #[derive(Resource)]
 pub struct TilemapHandle(pub Handle<Tilemap>);
 

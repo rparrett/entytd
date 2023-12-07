@@ -1,10 +1,11 @@
 use crate::{
-    designate_tool::Designations,
+    designate_tool::{DesignationKind, Designations},
     hit_points::HitPoints,
     movement::{MovingProgress, Speed},
     pathfinding::{heuristic, worker_cost_fn, NeighborCostIter, PathState},
     stone::HitStoneEvent,
-    tilemap::{AtlasHandle, TileEntities, TilePos, Tilemap},
+    tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap},
+    tower::BuildTowerEvent,
     GameState,
 };
 use bevy::prelude::*;
@@ -35,6 +36,7 @@ pub struct Idle;
 #[derive(Component)]
 pub enum Job {
     Dig(TilePos),
+    Build { hit_points: HitPoints, pos: TilePos },
 }
 
 #[derive(Component)]
@@ -178,12 +180,25 @@ fn find_job(
             continue;
         };
 
-        commands
-            .entity(entity)
+        let mut command = commands.entity(entity);
+
+        command
             .insert(MovingProgress::default())
             .insert(PathState::from(result.0))
-            .insert(Job::Dig(goal))
             .remove::<Idle>();
+
+        match designation {
+            DesignationKind::Dig => {
+                command.insert(Job::Dig(goal));
+            }
+            DesignationKind::BuildTower => {
+                command.insert(Job::Build {
+                    hit_points: HitPoints::full(10),
+                    pos: goal,
+                });
+            }
+            _ => {}
+        }
 
         jobs_assigned.push(goal);
 
@@ -199,12 +214,14 @@ fn find_job(
 fn do_job(
     mut commands: Commands,
     mut query: Query<
-        (Entity, &TilePos, &Job, &mut WorkCooldown),
+        (Entity, &TilePos, &mut Job, &mut WorkCooldown),
         (With<Worker>, Without<Idle>, Without<PathState>),
     >,
     dig_query: Query<&HitPoints>,
+    tile_kind_query: Query<&TileKind>,
     mut tilemap_query: Query<&TileEntities>,
     mut events: EventWriter<HitStoneEvent>,
+    mut tower_events: EventWriter<BuildTowerEvent>,
 ) {
     if query.is_empty() {
         return;
@@ -214,15 +231,14 @@ fn do_job(
         return;
     };
 
-    for (entity, _pos, job, mut cooldown) in &mut query {
+    for (entity, _pos, mut job, mut cooldown) in &mut query {
         // TODO ensure we are actually near the job.
 
-        match job {
+        match &mut *job {
             Job::Dig(dig_pos) => {
                 let Some(tile_entity) = map_entities.entities[dig_pos.x][dig_pos.y] else {
                     warn!("Working trying to dig at position without entity.");
-                    commands.entity(entity).insert(Idle);
-                    commands.entity(entity).remove::<Job>();
+                    commands.entity(entity).insert(Idle).remove::<Job>();
                     continue;
                 };
 
@@ -231,14 +247,12 @@ fn do_job(
 
                 let Ok(hp) = dig_query.get(tile_entity) else {
                     warn!("Working trying to dig at position without HP.");
-                    commands.entity(entity).insert(Idle);
-                    commands.entity(entity).remove::<Job>();
+                    commands.entity(entity).insert(Idle).remove::<Job>();
                     continue;
                 };
 
                 if hp.is_zero() {
-                    commands.entity(entity).insert(Idle);
-                    commands.entity(entity).remove::<Job>();
+                    commands.entity(entity).insert(Idle).remove::<Job>();
                     continue;
                 }
 
@@ -250,6 +264,45 @@ fn do_job(
                     entity: tile_entity,
                     damage: 1,
                 });
+
+                cooldown.0.reset();
+            }
+            Job::Build { hit_points, pos } => {
+                let Some(tile_entity) = map_entities.entities[pos.x][pos.y] else {
+                    warn!("Working trying to build at position without entity.");
+                    commands.entity(entity).insert(Idle).remove::<Job>();
+                    continue;
+                };
+
+                // TODO maybe also just double check that this is a rock and not just any
+                // random thing with hitpoints.
+
+                let Ok(kind) = tile_kind_query.get(tile_entity) else {
+                    warn!("Working trying to build at position without tile kind.");
+                    commands.entity(entity).insert(Idle).remove::<Job>();
+                    continue;
+                };
+
+                if !kind.buildable() {
+                    warn!("Working trying to build at position without tile kind.");
+                    commands.entity(entity).insert(Idle).remove::<Job>();
+                    continue;
+                }
+
+                if hit_points.is_zero() {
+                    commands.entity(entity).insert(Idle).remove::<Job>();
+                    continue;
+                }
+
+                if !cooldown.0.finished() {
+                    continue;
+                }
+
+                hit_points.sub(1);
+
+                if hit_points.is_zero() {
+                    tower_events.send(BuildTowerEvent(*pos));
+                }
 
                 cooldown.0.reset();
             }
