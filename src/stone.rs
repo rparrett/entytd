@@ -34,10 +34,10 @@ impl From<&HitPoints> for StoneHealth {
         if value.is_zero() {
             return Self::Dead;
         }
-        let percent = value.fraction();
-        if percent <= 0.25 {
+        let fraction = value.fraction();
+        if fraction <= 0.25 {
             return Self::Dying;
-        } else if percent < 1.0 {
+        } else if fraction < 1.0 {
             return Self::Hurt;
         } else {
             return Self::Full;
