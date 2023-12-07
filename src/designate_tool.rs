@@ -10,7 +10,9 @@ use crate::{
     GameState,
 };
 
-const DESIGNATE_OK: Color = Color::rgba(0., 1.0, 1.0, 0.2);
+const DESIGNATE_DIG_OK: Color = Color::rgba(0., 1.0, 1.0, 0.2);
+const DESIGNATE_TOWER_OK: Color = Color::rgba(0.8, 0.8, 0.8, 0.2);
+const DESIGNATE_DANCE_OK: Color = Color::rgba(1.0, 0.0, 1.0, 0.2);
 const DESIGNATE_NOT_OK: Color = Color::rgba(1.0, 0.0, 0.0, 0.2);
 
 pub struct DesignateToolPlugin;
@@ -41,6 +43,24 @@ pub enum DesignationKind {
     BuildTower,
     Dance,
 }
+impl From<Tool> for DesignationKind {
+    fn from(value: Tool) -> Self {
+        match value {
+            Tool::BuildTower => DesignationKind::BuildTower,
+            Tool::Dig => DesignationKind::Dig,
+            Tool::Dance => DesignationKind::Dance,
+        }
+    }
+}
+impl DesignationKind {
+    fn color(&self) -> Color {
+        match self {
+            DesignationKind::Dig => DESIGNATE_DIG_OK,
+            DesignationKind::BuildTower => DESIGNATE_TOWER_OK,
+            DesignationKind::Dance => DESIGNATE_DANCE_OK,
+        }
+    }
+}
 
 #[derive(Clone)]
 pub struct Designation {
@@ -67,7 +87,7 @@ fn init_cursor(mut commands: Commands) {
         SpriteBundle {
             sprite: Sprite {
                 custom_size: Some(crate::tilemap::SCALE * crate::tilemap::TILE_SIZE),
-                color: DESIGNATE_OK,
+                color: DESIGNATE_DIG_OK,
                 ..default()
             },
             visibility: Visibility::Hidden,
@@ -106,8 +126,12 @@ fn move_cursor(
 
         let kind = tilemap.tiles[tile_pos.x][tile_pos.y];
 
+        let designation = DesignationKind::from(selected_tool.0);
+
         match selected_tool.0 {
-            Tool::Dig if kind.diggable() => sprite.color = DESIGNATE_OK,
+            Tool::Dig if kind.diggable() => sprite.color = designation.color(),
+            Tool::BuildTower if kind.buildable() => sprite.color = designation.color(),
+            Tool::Dance if kind.buildable() => sprite.color = designation.color(),
             _ => sprite.color = DESIGNATE_NOT_OK,
         };
     }
@@ -128,7 +152,7 @@ fn show_cursor(
     *visibility = match selected_tool.0 {
         Tool::Dig => Visibility::Visible,
         Tool::BuildTower => Visibility::Visible,
-        _ => Visibility::Hidden,
+        Tool::Dance => Visibility::Visible,
     };
 }
 
@@ -205,6 +229,8 @@ fn designate(
 
     let ok = match selected_tool.0 {
         Tool::Dig if kind.diggable() => true,
+        Tool::BuildTower if kind.buildable() => true,
+        Tool::Dance if kind.buildable() => true,
         _ => false,
     };
 
@@ -213,12 +239,14 @@ fn designate(
         return;
     }
 
+    let designation_kind = DesignationKind::from(selected_tool.0);
+
     let id = commands
         .spawn((
             SpriteBundle {
                 sprite: Sprite {
                     custom_size: Some(crate::tilemap::SCALE * crate::tilemap::TILE_SIZE),
-                    color: DESIGNATE_OK,
+                    color: designation_kind.color(),
                     ..default()
                 },
                 transform: Transform::from_translation(world_pos_snapped.extend(1.)),
@@ -233,7 +261,7 @@ fn designate(
     designations.0.insert(
         tile_pos,
         Designation {
-            kind: DesignationKind::Dig,
+            kind: designation_kind,
             indicator: id,
             workers: 0,
         },

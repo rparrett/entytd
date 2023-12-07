@@ -144,6 +144,9 @@ impl TileKind {
                 | TileKind::MetalDying
         )
     }
+    pub fn buildable(&self) -> bool {
+        matches!(self, TileKind::Dirt)
+    }
 }
 
 #[derive(Clone)]

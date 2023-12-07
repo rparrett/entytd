@@ -23,7 +23,7 @@ struct ToolButton;
 #[derive(Component)]
 struct ToolPortrait;
 
-#[derive(Component, Default, Clone, Copy)]
+#[derive(Component, Default, Debug, Clone, Copy)]
 pub enum Tool {
     #[default]
     Dig,
