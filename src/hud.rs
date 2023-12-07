@@ -187,17 +187,17 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                         atlas_handle.0.clone(),
                         103 * 2 + 5,
                     );
-                    init_hud_item::<Crystal>(
-                        parent,
-                        "0".to_string(),
-                        atlas_handle.0.clone(),
-                        103 * 24 + 0,
-                    );
                     init_hud_item::<Metal>(
                         parent,
                         "0".to_string(),
                         atlas_handle.0.clone(),
                         103 * 25 + 6,
+                    );
+                    init_hud_item::<Crystal>(
+                        parent,
+                        "0".to_string(),
+                        atlas_handle.0.clone(),
+                        103 * 24 + 0,
                     );
                 });
         });
