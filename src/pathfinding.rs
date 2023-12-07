@@ -72,7 +72,7 @@ pub fn heuristic(a: TilePos, b: TilePos) -> u32 {
     (absdiff.x + absdiff.y) as u32
 }
 
-const NEIGHBORS: [(isize, isize); 4] = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+pub const NEIGHBORS: [(isize, isize); 4] = [(1, 0), (-1, 0), (0, 1), (0, -1)];
 
 pub struct NeighborCostIter<F> {
     pos: TilePos,

@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     designate_tool::Designations,
     hit_points::HitPoints,
-    tilemap::{TileKind, TilePos, Tilemap},
+    tilemap::{TileEntities, TileKind, TilePos, Tilemap},
     GameState,
 };
 
@@ -11,7 +11,11 @@ pub struct StonePlugin;
 impl Plugin for StonePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<HitStoneEvent>()
-            .add_systems(Update, process_events.run_if(in_state(GameState::Playing)));
+            .add_event::<RevealStoneEvent>()
+            .add_systems(
+                Update,
+                (hit_events, reveal_events).run_if(in_state(GameState::Playing)),
+            );
     }
 }
 
@@ -47,10 +51,13 @@ pub struct HitStoneEvent {
     pub damage: u32,
 }
 
-fn process_events(
+#[derive(Event)]
+pub struct RevealStoneEvent(Entity);
+
+fn hit_events(
     mut commands: Commands,
     mut reader: EventReader<HitStoneEvent>,
-    //mut writer: EventWriter<HitStoneEvent>,
+    mut writer: EventWriter<RevealStoneEvent>,
     mut query: Query<(
         &mut HitPoints,
         &TilePos,
@@ -58,10 +65,10 @@ fn process_events(
         &mut TextureAtlasSprite,
     )>,
     mut designations: ResMut<Designations>,
-    mut tilemap_query: Query<&mut Tilemap>,
+    mut tilemap_query: Query<(&mut Tilemap, &TileEntities)>,
 ) {
     for event in reader.read() {
-        let Ok(mut map) = tilemap_query.get_single_mut() else {
+        let Ok((mut map, entities)) = tilemap_query.get_single_mut() else {
             return;
         };
 
@@ -121,11 +128,54 @@ fn process_events(
         map.tiles[pos.x][pos.y] = *kind;
 
         if hp.is_zero() {
+            // TODO give resources
+
             if let Some(designation) = designations.0.remove(pos) {
                 commands.entity(designation.indicator).despawn();
             }
-        }
 
-        // TODO give resources
+            for n in &crate::pathfinding::NEIGHBORS {
+                let x = pos.x as isize + n.0;
+                let Ok(x) = usize::try_from(x) else {
+                    continue;
+                };
+                let y = pos.y as isize + n.1;
+                let Ok(y) = usize::try_from(y) else {
+                    continue;
+                };
+                if x > map.width - 1 || y > map.height - 1 {
+                    continue;
+                }
+
+                let Some(entity) = entities.entities[x][y] else {
+                    continue;
+                };
+
+                let kind = map.tiles[x][y];
+
+                if matches!(kind, TileKind::CrystalHidden | TileKind::MetalHidden) {
+                    writer.send(RevealStoneEvent(entity));
+                }
+            }
+        }
+    }
+}
+
+fn reveal_events(
+    mut reader: EventReader<RevealStoneEvent>,
+    mut query: Query<(&mut TileKind, &mut TextureAtlasSprite)>,
+) {
+    for event in reader.read() {
+        let Ok((mut kind, mut sprite)) = query.get_mut(event.0) else {
+            continue;
+        };
+
+        *kind = match *kind {
+            TileKind::CrystalHidden => TileKind::Crystal,
+            TileKind::MetalHidden => TileKind::Metal,
+            _ => continue,
+        };
+
+        sprite.index = kind.atlas_index();
     }
 }
