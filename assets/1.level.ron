@@ -3,17 +3,17 @@ LevelConfig (
     waves: [
         Wave (
             spawns: [Spawn (
-                delay: 15.,
+                delay: 30.,
                 spawner: 0,
                 num: 4,
                 interval: 2.,
-                hp: 1,
+                hp: 2,
                 kind: Ent
             )]
         ),
         Wave (
             spawns: [Spawn (
-                delay: 15.,
+                delay: 20.,
                 spawner: 0,
                 num: 4,
                 interval: 2.,
@@ -23,7 +23,7 @@ LevelConfig (
         ),
         Wave (
             spawns: [Spawn (
-                delay: 15.,
+                delay: 20.,
                 spawner: 1,
                 num: 4,
                 interval: 2.,
@@ -34,17 +34,17 @@ LevelConfig (
         Wave (
             spawns: [
                 Spawn (
-                    delay: 15.,
+                    delay: 20.,
                     spawner: 0,
-                    num: 4,
+                    num: 6,
                     interval: 2.,
                     hp: 2,
                     kind: Skeleton
                 ),
                 Spawn (
-                    delay: 15.,
+                    delay: 20.,
                     spawner: 1,
-                    num: 4,
+                    num: 6,
                     interval: 2.,
                     hp: 2,
                     kind: Skeleton
@@ -54,7 +54,7 @@ LevelConfig (
         Wave (
             spawns: [
                 Spawn (
-                    delay: 15.,
+                    delay: 20.,
                     spawner: 1,
                     num: 4,
                     interval: 2.,
@@ -62,9 +62,49 @@ LevelConfig (
                     kind: Ent
                 ),
                 Spawn (
-                    delay: 15.,
+                    delay: 20.,
+                    spawner: 1,
+                    num: 6,
+                    interval: 2.,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+            ]
+        ),
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 20.,
                     spawner: 1,
                     num: 4,
+                    interval: 2.,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 20.,
+                    spawner: 1,
+                    num: 8,
+                    interval: 2.,
+                    hp: 2,
+                    kind: Ent
+                ),
+            ]
+        ),
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 20.,
+                    spawner: 1,
+                    num: 8,
+                    interval: 2.,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 20.,
+                    spawner: 1,
+                    num: 8,
                     interval: 2.,
                     hp: 2,
                     kind: Skeleton
