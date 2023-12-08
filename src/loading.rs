@@ -7,9 +7,9 @@ use bevy_pipelines_ready::{PipelinesReady, PipelinesReadyPlugin};
 use strum::IntoEnumIterator;
 
 use crate::{
-    common_assets::CommonAssets,
     enemy::EnemyKind,
     tilemap::{AtlasHandle, TileKind},
+    ui::UiAssets,
     util::cleanup,
     GameState,
 };
@@ -80,7 +80,7 @@ fn wait(
 fn init_loading_scene(
     mut commands: Commands,
     maybe_atlas_handle: Option<Res<AtlasHandle>>,
-    common: Res<CommonAssets>,
+    common: Res<UiAssets>,
     mut done: Local<bool>,
 ) {
     if *done {
@@ -104,7 +104,7 @@ fn init_loading_scene(
                 },
                 ..default()
             },
-            NineSliceTexture::from_image(common.ui_nine_slice.clone()),
+            NineSliceTexture::from_image(common.nine_slice.clone()),
             LoadingScene,
         ))
         .with_children(|parent| {

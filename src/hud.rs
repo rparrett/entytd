@@ -7,13 +7,13 @@ use bevy::{
 use bevy_nine_slice_ui::NineSliceTexture;
 
 use crate::{
-    common_assets::CommonAssets,
     currency::Currency,
     designate_tool::DesignationKind,
     hit_points::HitPoints,
     home::Home,
     tilemap::{AtlasHandle, SCALE, TILE_SIZE},
     tool_selector::SelectedTool,
+    ui::UiAssets,
     worker::{Idle, Worker},
     GameState,
 };
@@ -83,7 +83,7 @@ impl Default for FpsUpdateTimer {
     }
 }
 
-fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<AtlasHandle>) {
+fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHandle>) {
     commands
         .spawn((
             NodeBundle {
@@ -116,7 +116,7 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                         },
                         ..default()
                     },
-                    NineSliceTexture::from_image(common.ui_nine_slice.clone()),
+                    NineSliceTexture::from_image(common.nine_slice.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -147,7 +147,7 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                         },
                         ..default()
                     },
-                    NineSliceTexture::from_image(common.ui_nine_slice.clone()),
+                    NineSliceTexture::from_image(common.nine_slice.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -178,7 +178,7 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                         },
                         ..default()
                     },
-                    NineSliceTexture::from_image(common.ui_nine_slice.clone()),
+                    NineSliceTexture::from_image(common.nine_slice.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {

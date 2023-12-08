@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use bevy_nine_slice_ui::NineSliceTexture;
 
 use crate::{
-    common_assets::CommonAssets,
     radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
     tilemap::{AtlasHandle, TileKind, SCALE, TILE_SIZE},
+    ui::UiAssets,
     GameState,
 };
 
@@ -57,7 +57,7 @@ impl Tool {
 #[derive(Resource, Default)]
 pub struct SelectedTool(pub Tool);
 
-fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<AtlasHandle>) {
+fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHandle>) {
     let mut tool_button_ids = vec![];
 
     commands
@@ -90,7 +90,7 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                         },
                         ..default()
                     },
-                    NineSliceTexture::from_image(common.ui_nine_slice.clone()),
+                    NineSliceTexture::from_image(common.nine_slice.clone()),
                     RadioButton { selected: i == 1 },
                     ToolButton,
                     kind,
@@ -153,13 +153,13 @@ fn update_style(
         (&RadioButton, &mut NineSliceTexture),
         (Changed<RadioButton>, With<ToolButton>),
     >,
-    common: Res<CommonAssets>,
+    common: Res<UiAssets>,
 ) {
     for (radio, mut texture) in query.iter_mut() {
         if radio.selected {
-            *texture = NineSliceTexture::from_image(common.ui_nine_slice_selected.clone());
+            *texture = NineSliceTexture::from_image(common.nine_slice_selected.clone());
         } else {
-            *texture = NineSliceTexture::from_image(common.ui_nine_slice.clone());
+            *texture = NineSliceTexture::from_image(common.nine_slice.clone());
         }
     }
 }

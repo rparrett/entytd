@@ -2,7 +2,6 @@ use bevy::{asset::AssetMetaCheck, diagnostic::FrameTimeDiagnosticsPlugin, prelud
 
 use bevy_nine_slice_ui::NineSlicePlugin;
 use camera::CameraPlugin;
-use common_assets::CommonAssetsPlugin;
 use currency::CurrencyPlugin;
 use cursor::CursorPlugin;
 use designate_tool::DesignateToolPlugin;
@@ -14,11 +13,11 @@ use loading::LoadingPlugin;
 use main_menu::MainMenuPlugin;
 use map_loader::MapFileLoaderPlugin;
 use movement::MovementPlugin;
-use music::MusicPlugin;
 use particle::ParticlePlugin;
 use pathfinding::PathfindingPlugin;
 use radio_button::RadioButtonPlugin;
 use save::SavePlugin;
+use sound::MusicPlugin;
 use spawner::SpawnerPlugin;
 use stone::StonePlugin;
 use tilemap::TilemapPlugin;
@@ -35,7 +34,6 @@ use {
 };
 
 mod camera;
-mod common_assets;
 mod currency;
 mod cursor;
 mod designate_tool;
@@ -49,12 +47,12 @@ mod loading;
 mod main_menu;
 mod map_loader;
 mod movement;
-mod music;
 mod particle;
 mod pathfinding;
 mod radio_button;
 mod save;
 mod settings;
+mod sound;
 mod spawner;
 mod stone;
 mod tilemap;
@@ -106,7 +104,6 @@ fn main() {
         EnemyPlugin,
         LevelPlugin,
         PathfindingPlugin,
-        CommonAssetsPlugin,
         WorkerPlugin,
         MovementPlugin,
         StonePlugin,

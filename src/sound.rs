@@ -1,11 +1,24 @@
 use bevy::{audio::Volume, prelude::*};
 
-use crate::{common_assets::Sounds, settings::MusicSetting, GameState};
+use crate::{settings::MusicSetting, GameState};
 
 pub struct MusicPlugin;
 impl Plugin for MusicPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnExit(GameState::Loading), start_music);
+        app.init_resource::<SoundAssets>()
+            .add_systems(OnExit(GameState::Loading), start_music);
+    }
+}
+
+#[derive(Resource)]
+pub struct SoundAssets {
+    pub bgm: Handle<AudioSource>,
+}
+impl FromWorld for SoundAssets {
+    fn from_world(world: &mut World) -> Self {
+        let asset_server = world.resource::<AssetServer>();
+        let bgm = asset_server.load("bgm.ogg");
+        SoundAssets { bgm }
     }
 }
 
@@ -15,7 +28,7 @@ pub struct MusicController;
 fn start_music(
     mut commands: Commands,
     music_setting: Res<MusicSetting>,
-    audio_assets: Res<Sounds>,
+    audio_assets: Res<SoundAssets>,
 ) {
     commands.spawn((
         AudioBundle {

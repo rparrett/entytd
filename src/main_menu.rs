@@ -1,7 +1,7 @@
 use crate::{
-    common_assets::{CommonAssets, Sounds},
-    music::MusicController,
     settings::{DifficultySetting, MusicSetting, ParticlesSetting, SfxSetting},
+    sound::{MusicController, SoundAssets},
+    ui::UiAssets,
     GameState,
 };
 use bevy::{
@@ -65,7 +65,7 @@ fn setup_menu(
     music: Res<MusicSetting>,
     difficulty: Res<DifficultySetting>,
     particles: Res<ParticlesSetting>,
-    common: Res<CommonAssets>,
+    common: Res<UiAssets>,
 ) {
     let button_style = Style {
         width: Val::Px(250.0),
@@ -103,7 +103,7 @@ fn setup_menu(
                 },
                 ..default()
             },
-            NineSliceTexture::from_image(common.ui_nine_slice_container.clone()),
+            NineSliceTexture::from_image(common.nine_slice_container.clone()),
             MainMenuScene,
         ))
         .id();
@@ -126,7 +126,7 @@ fn setup_menu(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceTexture::from_image(common.ui_nine_slice.clone()),
+            NineSliceTexture::from_image(common.nine_slice.clone()),
             PlayButton,
         ))
         .with_children(|parent| {
@@ -167,7 +167,7 @@ fn setup_menu(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceTexture::from_image(common.ui_nine_slice.clone()),
+            NineSliceTexture::from_image(common.nine_slice.clone()),
             ParticlesSettingButton,
         ))
         .with_children(|parent| {
@@ -184,7 +184,7 @@ fn setup_menu(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceTexture::from_image(common.ui_nine_slice.clone()),
+            NineSliceTexture::from_image(common.nine_slice.clone()),
             DifficultySettingButton,
         ))
         .with_children(|parent| {
@@ -201,7 +201,7 @@ fn setup_menu(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceTexture::from_image(common.ui_nine_slice.clone()),
+            NineSliceTexture::from_image(common.nine_slice.clone()),
             SfxSettingButton,
         ))
         .with_children(|parent| {
@@ -218,7 +218,7 @@ fn setup_menu(
                 style: button_style,
                 ..default()
             },
-            NineSliceTexture::from_image(common.ui_nine_slice.clone()),
+            NineSliceTexture::from_image(common.nine_slice.clone()),
             MusicSettingButton,
         ))
         .with_children(|parent| {
@@ -331,7 +331,7 @@ fn particles_button(
     }
 }
 
-fn sfx_volume(mut commands: Commands, sfx_setting: Res<SfxSetting>, game_audio: Res<Sounds>) {
+fn sfx_volume(mut commands: Commands, sfx_setting: Res<SfxSetting>, game_audio: Res<SoundAssets>) {
     // Do not run when SfxSetting is first added by SavePlugin
     if !sfx_setting.is_changed() || sfx_setting.is_added() {
         return;
