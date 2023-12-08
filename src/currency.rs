@@ -21,6 +21,7 @@ impl Currency {
         stone: 0,
     };
 
+    #[allow(unused)]
     pub fn metal(metal: u32) -> Self {
         Self {
             metal,
@@ -28,6 +29,7 @@ impl Currency {
             stone: 0,
         }
     }
+    #[allow(unused)]
     pub fn crytal(crystal: u32) -> Self {
         Self {
             metal: 0,
@@ -35,6 +37,7 @@ impl Currency {
             stone: 0,
         }
     }
+    #[allow(unused)]
     pub fn stone(stone: u32) -> Self {
         Self {
             metal: 0,
