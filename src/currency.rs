@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-use crate::GameState;
-
 pub struct CurrencyPlugin;
 impl Plugin for CurrencyPlugin {
     fn build(&self, app: &mut App) {
@@ -10,7 +8,7 @@ impl Plugin for CurrencyPlugin {
 }
 
 pub struct NotEnoughCurrencyError;
-#[derive(Resource, Debug, Default)]
+#[derive(Resource, Debug, Default, Eq, PartialEq)]
 pub struct Currency {
     pub metal: u32,
     pub crystal: u32,

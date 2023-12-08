@@ -81,7 +81,7 @@ impl DesignationKind {
             }
         }
     }
-    fn price(&self) -> Currency {
+    pub fn price(&self) -> Currency {
         match self {
             DesignationKind::BuildTower => Currency {
                 metal: 1,

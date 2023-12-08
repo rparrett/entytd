@@ -9,9 +9,11 @@ use bevy_nine_slice_ui::NineSliceTexture;
 use crate::{
     common_assets::CommonAssets,
     currency::Currency,
+    designate_tool::DesignationKind,
     hit_points::HitPoints,
     home::Home,
     tilemap::{AtlasHandle, SCALE, TILE_SIZE},
+    tool_selector::SelectedTool,
     worker::{Idle, Worker},
     GameState,
 };
@@ -360,8 +362,9 @@ fn update_stone(
     currency: Res<Currency>,
     item_query: Query<&Children, With<Stone>>,
     mut text_query: Query<&mut Text>,
+    selected_tool: Res<SelectedTool>,
 ) {
-    if !currency.is_changed() {
+    if !currency.is_changed() || selected_tool.is_changed() {
         return;
     }
 
@@ -375,12 +378,35 @@ fn update_stone(
     };
 
     text.sections[0].value = format!("{}", currency.stone);
+
+    if text.sections.len() <= 1 {
+        text.sections.push(TextSection {
+            value: "".to_string(),
+            style: TextStyle {
+                font_size: 16.0,
+                ..default()
+            },
+        })
+    } else {
+        let price = DesignationKind::from(selected_tool.0).price();
+        if price.stone > 0 {
+            text.sections[1].value = format!("-{}", price.stone);
+            text.sections[1].style.color = if currency.stone >= price.stone {
+                Color::rgb(0.0, 0.9, 0.0)
+            } else {
+                Color::rgb(0.9, 0.0, 0.0)
+            };
+        } else {
+            text.sections[1].value.clear();
+        }
+    }
 }
 
 fn update_metal(
     currency: Res<Currency>,
     item_query: Query<&Children, With<Metal>>,
     mut text_query: Query<&mut Text>,
+    selected_tool: Res<SelectedTool>,
 ) {
     if !currency.is_changed() {
         return;
@@ -396,12 +422,35 @@ fn update_metal(
     };
 
     text.sections[0].value = format!("{}", currency.metal);
+
+    if text.sections.len() <= 1 {
+        text.sections.push(TextSection {
+            value: "".to_string(),
+            style: TextStyle {
+                font_size: 16.0,
+                ..default()
+            },
+        })
+    } else {
+        let price = DesignationKind::from(selected_tool.0).price();
+        if price.metal > 0 {
+            text.sections[1].value = format!("-{}", price.metal);
+            text.sections[1].style.color = if currency.metal >= price.metal {
+                Color::rgb(0.0, 0.9, 0.0)
+            } else {
+                Color::rgb(0.9, 0.0, 0.0)
+            };
+        } else {
+            text.sections[1].value.clear();
+        }
+    }
 }
 
 fn update_crystal(
     currency: Res<Currency>,
     item_query: Query<&Children, With<Crystal>>,
     mut text_query: Query<&mut Text>,
+    selected_tool: Res<SelectedTool>,
 ) {
     if !currency.is_changed() {
         return;
@@ -417,4 +466,26 @@ fn update_crystal(
     };
 
     text.sections[0].value = format!("{}", currency.crystal);
+
+    if text.sections.len() <= 1 {
+        text.sections.push(TextSection {
+            value: "".to_string(),
+            style: TextStyle {
+                font_size: 16.0,
+                ..default()
+            },
+        })
+    } else {
+        let price = DesignationKind::from(selected_tool.0).price();
+        if price.crystal > 0 {
+            text.sections[1].value = format!("-{}", price.crystal);
+            text.sections[1].style.color = if currency.crystal >= price.crystal {
+                Color::rgb(0.0, 0.9, 0.0)
+            } else {
+                Color::rgb(0.9, 0.0, 0.0)
+            };
+        } else {
+            text.sections[1].value.clear();
+        }
+    }
 }
