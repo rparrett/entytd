@@ -75,6 +75,7 @@ pub enum TileKind {
     DirtPathNEW,
     DirtPathNSEW,
     Stump,
+    HomeDead,
 }
 
 pub struct TileNotMappedError;
@@ -156,6 +157,7 @@ impl TileKind {
             Self::Forest => 103 * 34 + 2,
             Self::Home => 103 * 33 + 24,
             Self::HomeTwo => 103 * 33 + 23,
+            Self::HomeDead => 103 * 33 + 22,
             Self::Dirt => 103 * 5 + 1,
             Self::Bridge => 103 * 4 + 0,
             Self::Road => 103 * 1 + 13,
