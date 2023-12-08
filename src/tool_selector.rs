@@ -49,7 +49,6 @@ impl Tool {
         match val {
             1 => Tool::Dig,
             2 => Tool::BuildTower,
-            3 => Tool::Dance,
             _ => Tool::Dance,
         }
     }

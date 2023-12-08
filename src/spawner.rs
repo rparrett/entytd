@@ -99,7 +99,7 @@ fn spawn(
     mut events: EventWriter<SpawnEnemyEvent>,
     spawners: Query<(&TilePos, &SpawnerIndex)>,
 ) {
-    if states.states.len() == 0 {
+    if states.states.is_empty() {
         return;
     }
 
@@ -121,7 +121,7 @@ fn spawn(
             };
 
             events.send(SpawnEnemyEvent {
-                pos: pos.clone(),
+                pos: *pos,
                 kind: state.spawn.kind,
                 hp: state.spawn.hp,
             });

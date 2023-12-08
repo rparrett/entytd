@@ -29,6 +29,6 @@ impl HitPoints {
         self.current == 0
     }
     pub fn fraction(&self) -> f32 {
-        return self.current as f32 / self.max as f32;
+        self.current as f32 / self.max as f32
     }
 }

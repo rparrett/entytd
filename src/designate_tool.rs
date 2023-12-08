@@ -68,16 +68,16 @@ impl DesignationKind {
     }
     fn not_ok_color(&self) -> Color {
         match self {
-            DesignationKind::Dig => DESIGNATE_NOT_OK,
-            DesignationKind::BuildTower => DESIGNATE_NOT_OK,
-            DesignationKind::Dance => DESIGNATE_NOT_OK,
+            DesignationKind::Dig | DesignationKind::BuildTower | DesignationKind::Dance => {
+                DESIGNATE_NOT_OK
+            }
         }
     }
     fn not_ok_atlas_index(&self) -> usize {
         match self {
-            DesignationKind::Dig => TileKind::WhiteCircleNo.atlas_index(),
-            DesignationKind::BuildTower => TileKind::WhiteCircleNo.atlas_index(),
-            DesignationKind::Dance => TileKind::WhiteCircleNo.atlas_index(),
+            DesignationKind::Dig | DesignationKind::BuildTower | DesignationKind::Dance => {
+                TileKind::WhiteCircleNo.atlas_index()
+            }
         }
     }
 }
@@ -179,9 +179,7 @@ fn show_cursor(
     };
 
     *visibility = match selected_tool.0 {
-        Tool::Dig => Visibility::Visible,
-        Tool::BuildTower => Visibility::Visible,
-        Tool::Dance => Visibility::Visible,
+        Tool::Dig | Tool::BuildTower | Tool::Dance => Visibility::Visible,
     };
 }
 

@@ -25,7 +25,7 @@ impl Plugin for WorkerPlugin {
     }
 }
 
-const WORKER_SPRITES: [usize; 2] = [103 * 14 + 0, 103 * 15 + 0];
+const WORKER_SPRITES: [usize; 2] = [103 * 14, 103 * 15];
 
 #[derive(Component, Default)]
 pub struct Worker;
@@ -146,12 +146,7 @@ fn find_job(
 
             // filter out jobs that are definitely unreachable because their
             // immediate neighbors are not walkable.
-            if NeighborCostIter::new(*pos, worker_cost_fn(&map))
-                .next()
-                .is_none()
-            {
-                return None;
-            }
+            NeighborCostIter::new(*pos, worker_cost_fn(map)).next()?;
 
             Some((*pos, designation.kind))
         })
@@ -172,9 +167,9 @@ fn find_job(
 
         let Some(result) = astar(
             pos,
-            |p| NeighborCostIter::new(*p, worker_cost_fn(&map)),
+            |p| NeighborCostIter::new(*p, worker_cost_fn(map)),
             |p| heuristic(*p, goal),
-            |p| NeighborCostIter::new(goal, worker_cost_fn(&map)).any(|n| n.0 == *p),
+            |p| NeighborCostIter::new(goal, worker_cost_fn(map)).any(|n| n.0 == *p),
         ) else {
             warn!("Worker unable to find path to goal.");
             continue;

@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use bevy::{
-    core::FrameCount,
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     prelude::*,
 };
@@ -197,7 +196,7 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
                         parent,
                         "0".to_string(),
                         atlas_handle.0.clone(),
-                        103 * 24 + 0,
+                        103 * 24,
                     );
                 });
         });

@@ -163,7 +163,7 @@ fn build_tower(
                     },
                     ..default()
                 },
-                pos: event.0.clone(),
+                pos: event.0,
                 ..default()
             })
             .id();

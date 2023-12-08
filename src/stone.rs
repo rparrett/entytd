@@ -40,9 +40,9 @@ impl From<&HitPoints> for StoneHealth {
             return Self::Dying;
         } else if fraction < 1.0 {
             return Self::Hurt;
-        } else {
-            return Self::Full;
         }
+
+        Self::Full
     }
 }
 

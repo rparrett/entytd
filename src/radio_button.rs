@@ -61,12 +61,9 @@ fn radio_button_system(
     >,
 ) {
     for (mut radio, interaction) in interaction_query.iter_mut() {
-        match *interaction {
-            Interaction::Pressed => {
-                info!("selecting a button");
-                radio.selected = true;
-            }
-            _ => {}
+        if *interaction == Interaction::Pressed {
+            info!("selecting a button");
+            radio.selected = true;
         }
     }
 }

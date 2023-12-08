@@ -144,14 +144,14 @@ fn pathfinding(
         // choose a random neighbor of the goal and path directly to it,
         // so when enemies are attacking it feels a bit swarmier.
         let neighbors =
-            NeighborCostIter::new(**goal, enemy_cost_fn(&map, *kind)).collect::<Vec<_>>();
+            NeighborCostIter::new(**goal, enemy_cost_fn(map, *kind)).collect::<Vec<_>>();
         let Some((goal, _)) = neighbors.choose(&mut rng) else {
             return;
         };
 
         let Some(result) = astar(
             pos,
-            |p| NeighborCostIter::new(*p, enemy_cost_fn(&map, *kind)),
+            |p| NeighborCostIter::new(*p, enemy_cost_fn(map, *kind)),
             |p| heuristic(*p, *goal),
             |p| *p == *goal,
         ) else {
@@ -199,8 +199,7 @@ fn attack(
 
         let Some((mut home_hp, _)) = home_query
             .iter_mut()
-            .filter(|(_, home_pos)| heuristic(**home_pos, *pos) == 1)
-            .next()
+            .find(|(_, home_pos)| heuristic(**home_pos, *pos) == 1)
         else {
             info!("Enemy could not locate a nearby home.");
             continue;

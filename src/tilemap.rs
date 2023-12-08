@@ -1,8 +1,4 @@
 use bevy::prelude::*;
-use rand::{
-    distributions::{Distribution, Standard},
-    thread_rng, Rng,
-};
 
 use crate::{
     hit_points::HitPoints,
@@ -130,30 +126,17 @@ impl TryFrom<[u8; 3]> for TileKind {
     }
 }
 
-impl Distribution<TileKind> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> TileKind {
-        match rng.gen_range(0..=4) {
-            0 => TileKind::Empty,
-            1 => TileKind::Stone,
-            2 => TileKind::StoneHurt,
-            3 => TileKind::StoneDying,
-            _ => TileKind::Wall,
-        }
-    }
-}
 impl TileKind {
     pub fn atlas_index(&self) -> usize {
         match self {
             Self::Empty => 16,
             Self::StoneTunnel => 210,
-            Self::Stone => 211,
+            Self::Stone | Self::CrystalHidden | Self::MetalHidden => 211,
             Self::StoneHurt => 212,
             Self::StoneDying => 213,
-            Self::CrystalHidden => 211,
             Self::Crystal => 214,
             Self::CrystalHurt => 215,
             Self::CrystalDying => 216,
-            Self::MetalHidden => 211,
             Self::Metal => 217,
             Self::MetalHurt => 218,
             Self::MetalDying => 219,
@@ -167,15 +150,15 @@ impl TileKind {
             Self::HomeTwo => 103 * 33 + 23,
             Self::HomeDead => 103 * 33 + 22,
             Self::Dirt => 103 * 5 + 1,
-            Self::Bridge => 103 * 4 + 0,
-            Self::Road => 103 * 1 + 13,
+            Self::Bridge => 103 * 4,
+            Self::Road => 103 + 13,
             Self::Spawn => 103 * 17 + 80,
             Self::Tower => 103 * 22 + 42,
             Self::TowerBlueprint => 103 * 22 + 43,
             Self::White => 103 * 48 + 52,
             Self::WhitePickaxe => 103 * 48 + 53,
             Self::WhiteCircleNo => 103 * 48 + 54,
-            Self::DirtPathNSA => 103 * 11 + 0,
+            Self::DirtPathNSA => 103 * 11,
             Self::DirtPathNSB => 103 * 11 + 1,
             Self::DirtPathEWA => 103 * 11 + 2,
             Self::DirtPathEWB => 103 * 11 + 3,
@@ -191,7 +174,7 @@ impl TileKind {
             Self::GrassA => 103 * 9 + 3,
             Self::GrassB => 103 * 9 + 4,
             Self::Stump => 103 * 10 + 4,
-            Self::BonesA => 103 * 38 + 0,
+            Self::BonesA => 103 * 38,
             Self::BonesB => 103 * 38 + 1,
             Self::BonesC => 103 * 38 + 2,
             Self::BonesD => 103 * 38 + 3,
@@ -258,29 +241,11 @@ impl Tilemap {
     }
 
     pub fn new(width: usize, height: usize) -> Self {
-        let map = Self {
+        Self {
             tiles: vec![vec![TileKind::Empty; height]; width],
             width,
             height,
-        };
-
-        map
-    }
-
-    pub fn new_random(width: usize, height: usize) -> Self {
-        let mut rng = thread_rng();
-
-        let mut map = Self::new(width, height);
-
-        for x in 0..width {
-            for y in 0..height {
-                let kind: TileKind = rng.gen();
-
-                map.tiles[x][y] = kind;
-            }
         }
-
-        map
     }
 
     pub fn get(&self, pos: TilePos) -> Option<&TileKind> {
@@ -300,6 +265,7 @@ pub struct TileEntities {
     pub entities: Vec<Vec<Option<Entity>>>,
 }
 impl TileEntities {
+    #[allow(unused)]
     pub fn get(&self, pos: TilePos) -> Option<&Option<Entity>> {
         let col = self.entities.get(pos.x)?;
         col.get(pos.y)
@@ -337,8 +303,8 @@ impl From<(isize, isize)> for TilePos {
 impl From<(usize, usize)> for TilePos {
     fn from(value: (usize, usize)) -> Self {
         TilePos {
-            x: value.0 as usize,
-            y: value.1 as usize,
+            x: value.0,
+            y: value.1,
         }
     }
 }
