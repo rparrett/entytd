@@ -364,7 +364,7 @@ fn update_stone(
     mut text_query: Query<&mut Text>,
     selected_tool: Res<SelectedTool>,
 ) {
-    if !currency.is_changed() || selected_tool.is_changed() {
+    if !currency.is_changed() && !selected_tool.is_changed() {
         return;
     }
 
@@ -408,7 +408,7 @@ fn update_metal(
     mut text_query: Query<&mut Text>,
     selected_tool: Res<SelectedTool>,
 ) {
-    if !currency.is_changed() {
+    if !currency.is_changed() && !selected_tool.is_changed() {
         return;
     }
 
@@ -452,7 +452,7 @@ fn update_crystal(
     mut text_query: Query<&mut Text>,
     selected_tool: Res<SelectedTool>,
 ) {
-    if !currency.is_changed() {
+    if !currency.is_changed() && !selected_tool.is_changed() {
         return;
     }
 
