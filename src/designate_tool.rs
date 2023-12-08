@@ -55,7 +55,7 @@ impl DesignationKind {
     fn ok_color(&self) -> Color {
         match self {
             DesignationKind::Dig => DESIGNATE_DIG_OK,
-            DesignationKind::BuildTower => Color::rgb(0.18, 0.21, 0.38),
+            DesignationKind::BuildTower => Color::rgb_u8(82, 94, 173),
             DesignationKind::Dance => DESIGNATE_DANCE_OK,
         }
     }
