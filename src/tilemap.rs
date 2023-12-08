@@ -76,6 +76,10 @@ pub enum TileKind {
     DirtPathNSEW,
     Stump,
     HomeDead,
+    BonesA,
+    BonesB,
+    BonesC,
+    BonesD,
 }
 
 pub struct TileNotMappedError;
@@ -117,6 +121,10 @@ impl TryFrom<[u8; 3]> for TileKind {
             [255, 180, 110] => Ok(Self::DirtPathNEW),
             [255, 180, 120] => Ok(Self::DirtPathNSEW),
             [100, 100, 50] => Ok(Self::Stump),
+            [255, 100, 0] => Ok(Self::BonesA),
+            [255, 110, 0] => Ok(Self::BonesB),
+            [255, 120, 0] => Ok(Self::BonesC),
+            [255, 130, 0] => Ok(Self::BonesD),
             _ => Err(TileNotMappedError),
         }
     }
@@ -183,6 +191,10 @@ impl TileKind {
             Self::GrassA => 103 * 9 + 3,
             Self::GrassB => 103 * 9 + 4,
             Self::Stump => 103 * 10 + 4,
+            Self::BonesA => 103 * 38 + 0,
+            Self::BonesB => 103 * 38 + 1,
+            Self::BonesC => 103 * 38 + 2,
+            Self::BonesD => 103 * 38 + 3,
         }
     }
 }
