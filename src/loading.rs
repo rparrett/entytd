@@ -71,9 +71,9 @@ fn wait(
     let pipelines = pipelines.get() >= EXPECTED_PIPELINES;
 
     if assets && resources && pipelines {
-        info!("Advancing to GameState::Playing");
+        info!("Advancing to GameState::MainMenu");
 
-        next_state.set(GameState::Playing);
+        next_state.set(GameState::MainMenu);
     }
 }
 

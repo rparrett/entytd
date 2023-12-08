@@ -4,7 +4,8 @@ use crate::{
     currency::Currency,
     designate_tool::Designations,
     hit_points::HitPoints,
-    particle::{ParticleBundle, ParticleKind, ParticleSettings},
+    particle::{ParticleBundle, ParticleKind},
+    settings::ParticlesSetting,
     tilemap::{TileEntities, TileKind, TilePos, Tilemap},
     GameState,
 };
@@ -69,7 +70,7 @@ fn hit_events(
     mut designations: ResMut<Designations>,
     mut tilemap_query: Query<(&mut Tilemap, &TileEntities)>,
     mut currency: ResMut<Currency>,
-    particle_settings: Res<ParticleSettings>,
+    particle_settings: Res<ParticlesSetting>,
 ) {
     for event in reader.read() {
         let Ok((mut map, entities)) = tilemap_query.get_single_mut() else {

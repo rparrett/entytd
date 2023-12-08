@@ -3,6 +3,7 @@ use rand::{rngs::SmallRng, Rng, SeedableRng};
 
 use crate::{
     layer,
+    settings::ParticlesSetting,
     tilemap::{AtlasHandle, SCALE},
     GameState,
 };
@@ -11,7 +12,7 @@ pub struct ParticlePlugin;
 impl Plugin for ParticlePlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ParticleRng>()
-            .init_resource::<ParticleSettings>()
+            .init_resource::<ParticlesSetting>()
             .add_systems(
                 Update,
                 update_particles.run_if(in_state(GameState::Playing)),
@@ -42,30 +43,6 @@ impl ParticleKind {
             Self::Bone => Color::rgb(0.87, 0.82, 0.76),
             Self::Home => Color::rgb(0.66, 0.38, 0.12),
             Self::Wood => Color::rgb(0.46, 0.25, 0.03),
-        }
-    }
-}
-
-#[derive(Resource, Default)]
-pub enum ParticleSettings {
-    #[default]
-    Lots,
-    Low,
-    None,
-}
-impl ParticleSettings {
-    pub const fn hit_amt(&self) -> usize {
-        match self {
-            Self::Lots => 12,
-            Self::Low => 6,
-            Self::None => 0,
-        }
-    }
-    pub const fn kill_amt(&self) -> usize {
-        match self {
-            Self::Lots => 40,
-            Self::Low => 20,
-            Self::None => 0,
         }
     }
 }

@@ -11,11 +11,14 @@ use home::HomePlugin;
 use hud::HudPlugin;
 use level::LevelPlugin;
 use loading::LoadingPlugin;
+use main_menu::MainMenuPlugin;
 use map_loader::MapFileLoaderPlugin;
 use movement::MovementPlugin;
+use music::MusicPlugin;
 use particle::ParticlePlugin;
 use pathfinding::PathfindingPlugin;
 use radio_button::RadioButtonPlugin;
+use save::SavePlugin;
 use spawner::SpawnerPlugin;
 use stone::StonePlugin;
 use tilemap::TilemapPlugin;
@@ -42,11 +45,15 @@ mod hud;
 mod layer;
 mod level;
 mod loading;
+mod main_menu;
 mod map_loader;
 mod movement;
+mod music;
 mod particle;
 mod pathfinding;
 mod radio_button;
+mod save;
+mod settings;
 mod spawner;
 mod stone;
 mod tilemap;
@@ -60,6 +67,7 @@ mod worker;
 enum GameState {
     #[default]
     Loading,
+    MainMenu,
     Playing,
 }
 
@@ -102,7 +110,7 @@ fn main() {
         StonePlugin,
         CurrencyPlugin,
     ));
-    app.add_plugins((TowerPlugin, ParticlePlugin));
+    app.add_plugins((TowerPlugin, ParticlePlugin, SavePlugin, MusicPlugin));
 
     app.add_plugins((
         RadioButtonPlugin,
@@ -110,6 +118,7 @@ fn main() {
         DesignateToolPlugin,
         CursorPlugin,
         HudPlugin,
+        MainMenuPlugin,
     ));
 
     app.add_plugins(NineSlicePlugin::default());

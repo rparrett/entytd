@@ -6,7 +6,8 @@ use crate::{
     hit_points::HitPoints,
     layer,
     movement::Speed,
-    particle::{ParticleBundle, ParticleKind, ParticleSettings},
+    particle::{ParticleBundle, ParticleKind},
+    settings::ParticlesSetting,
     tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap, SCALE, TILE_SIZE},
     GameState,
 };
@@ -187,7 +188,7 @@ fn bullet_movement(
         (With<Enemy>, Without<Bullet>),
     >,
     time: Res<Time>,
-    particle_settings: Res<ParticleSettings>,
+    particle_settings: Res<ParticlesSetting>,
 ) {
     for (bullet_entity, bullet, speed, mut transform) in query.iter_mut() {
         let Ok((mut hp, enemy, enemy_kind)) = enemy_query.get_mut(bullet.target) else {

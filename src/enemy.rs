@@ -6,8 +6,9 @@ use crate::{
     hit_points::HitPoints,
     home::Home,
     movement::{MovingProgress, Speed},
-    particle::{ParticleBundle, ParticleKind, ParticleSettings},
+    particle::{ParticleBundle, ParticleKind},
     pathfinding::{enemy_cost_fn, heuristic, NeighborCostIter, PathState},
+    settings::ParticlesSetting,
     tilemap::{AtlasHandle, TilePos, Tilemap},
     GameState,
 };
@@ -189,7 +190,7 @@ fn attack(
     >,
     mut home_query: Query<(&mut HitPoints, &TilePos), With<Home>>,
     tilemap_query: Query<&Tilemap>,
-    particle_settings: Res<ParticleSettings>,
+    particle_settings: Res<ParticlesSetting>,
 ) {
     for (entity, behavior, mut cooldown, pos) in &mut query {
         if !matches!(behavior, Behavior::Attack) {
