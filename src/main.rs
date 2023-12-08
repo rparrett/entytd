@@ -38,6 +38,7 @@ mod enemy;
 mod hit_points;
 mod home;
 mod hud;
+mod layer;
 mod level;
 mod loading;
 mod map_loader;

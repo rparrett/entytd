@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use crate::{
     hit_points::HitPoints,
     home::Home,
+    layer,
     level::{LevelConfig, LevelHandle},
     loading::LoadingAssets,
     spawner::{Spawner, SpawnerIndex},
@@ -433,7 +434,9 @@ pub fn process_loaded_maps(
                             sprite: TextureAtlasSprite::new(tile.atlas_index()),
                             transform: Transform {
                                 scale: SCALE.extend(1.),
-                                translation: map.pos_to_world(TilePos { x, y }).extend(0.),
+                                translation: map
+                                    .pos_to_world(TilePos { x, y })
+                                    .extend(layer::BACKGROUND),
                                 ..default()
                             },
                             ..default()

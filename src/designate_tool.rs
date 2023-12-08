@@ -6,6 +6,7 @@ use bevy::{
 use crate::{
     currency::Currency,
     cursor::CursorSnapped,
+    layer,
     tilemap::{AtlasHandle, TileKind, TilePos, Tilemap},
     tool_selector::{SelectedTool, Tool},
     GameState,
@@ -123,7 +124,8 @@ fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>) {
             },
             texture_atlas: atlas_handle.0.clone(),
             visibility: Visibility::Hidden,
-            transform: Transform::from_xyz(0., 0., 1.).with_scale(crate::tilemap::SCALE.extend(1.)),
+            transform: Transform::from_xyz(0., 0., layer::CURSOR)
+                .with_scale(crate::tilemap::SCALE.extend(1.)),
             ..default()
         },
         DesignateToolCursor,
@@ -299,7 +301,7 @@ fn designate(
                     ..default()
                 },
                 texture_atlas: atlas_handle.0.clone(),
-                transform: Transform::from_translation(world_pos_snapped.extend(1.))
+                transform: Transform::from_translation(world_pos_snapped.extend(layer::BLUEPRINT))
                     .with_scale(crate::tilemap::SCALE.extend(1.)),
                 ..default()
             },

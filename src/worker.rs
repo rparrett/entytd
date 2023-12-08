@@ -1,6 +1,7 @@
 use crate::{
     designate_tool::{DesignationKind, Designations},
     hit_points::HitPoints,
+    layer,
     movement::{MovingProgress, Speed},
     pathfinding::{heuristic, worker_cost_fn, NeighborCostIter, PathState},
     stone::HitStoneEvent,
@@ -98,7 +99,7 @@ fn spawn(
                         ..default()
                     },
                     transform: Transform {
-                        translation: world.extend(1.),
+                        translation: world.extend(layer::MOBS),
                         scale: crate::tilemap::SCALE.extend(1.),
                         ..default()
                     },

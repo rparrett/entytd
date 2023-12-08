@@ -4,6 +4,7 @@ use crate::{
     designate_tool::Designations,
     enemy::Enemy,
     hit_points::HitPoints,
+    layer,
     movement::Speed,
     tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap, SCALE, TILE_SIZE},
     GameState,
@@ -100,7 +101,7 @@ fn attack(
                     sprite: TextureAtlasSprite::new(103 * 49 + 52),
                     transform: Transform {
                         scale: SCALE.extend(1.),
-                        translation: pos.extend(2.),
+                        translation: pos.extend(layer::BULLET),
                         ..default()
                     },
                     ..default()
@@ -131,7 +132,7 @@ fn build_tower(
             continue;
         };
 
-        let world = tilemap.pos_to_world(event.0).extend(0.);
+        let world = tilemap.pos_to_world(event.0).extend(layer::BACKGROUND);
 
         let Some(tile_kind) = tilemap.get_mut(event.0) else {
             continue;
