@@ -55,7 +55,7 @@ LevelConfig (
             spawns: [
                 Spawn (
                     delay: 20.,
-                    spawner: 1,
+                    spawner: 0,
                     num: 4,
                     interval: 2.,
                     hp: 2,
@@ -75,7 +75,7 @@ LevelConfig (
             spawns: [
                 Spawn (
                     delay: 20.,
-                    spawner: 1,
+                    spawner: 0,
                     num: 4,
                     interval: 2.,
                     hp: 2,
@@ -95,7 +95,7 @@ LevelConfig (
             spawns: [
                 Spawn (
                     delay: 20.,
-                    spawner: 1,
+                    spawner: 0,
                     num: 8,
                     interval: 2.,
                     hp: 2,
@@ -108,6 +108,46 @@ LevelConfig (
                     interval: 2.,
                     hp: 2,
                     kind: Skeleton
+                ),
+            ]
+        ),
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 20.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 1.,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 20.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 1.,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+            ]
+        ),
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 20.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 1.,
+                    hp: 3,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 20.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 1.,
+                    hp: 2,
+                    kind: Ent
                 ),
             ]
         ),
