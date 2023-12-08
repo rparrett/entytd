@@ -23,8 +23,8 @@ pub fn update(
     window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     let x = keys.any_pressed([KeyCode::Right, KeyCode::D]) as i8
-        - keys.any_pressed([KeyCode::Left, KeyCode::A]) as i8;
-    let y = keys.any_pressed([KeyCode::Up, KeyCode::W]) as i8
+        - keys.any_pressed([KeyCode::Left, KeyCode::A, KeyCode::Q]) as i8;
+    let y = keys.any_pressed([KeyCode::Up, KeyCode::W, KeyCode::Z]) as i8
         - keys.any_pressed([KeyCode::Down, KeyCode::S]) as i8;
     let dir = Vec2::new(x as f32, y as f32).normalize_or_zero();
 
