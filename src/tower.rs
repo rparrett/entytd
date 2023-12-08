@@ -146,8 +146,8 @@ fn build_tower(
             continue;
         };
 
-        // TODO subtract currency. If not enough currency, abort.
-
+        // TODO we could probably just insert the bundle onto the existing tile
+        // entity.
         if let Some(entity) = maybe_tile_entity.take() {
             commands.entity(entity).despawn();
         }
