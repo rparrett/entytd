@@ -23,7 +23,7 @@ impl Plugin for DesignateToolPlugin {
         app.init_resource::<Designations>();
         app.add_systems(
             Update,
-            (move_cursor, show_cursor).run_if(in_state(GameState::Playing)),
+            (update_cursor, show_cursor).run_if(in_state(GameState::Playing)),
         );
         app.add_systems(
             Update,
@@ -132,7 +132,7 @@ fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>) {
     ));
 }
 
-fn move_cursor(
+fn update_cursor(
     selected_tool: Res<SelectedTool>,
     cursor_snapped: Res<CursorSnapped>,
     mut query: Query<(&mut Transform, &mut TextureAtlasSprite), With<DesignateToolCursor>>,
