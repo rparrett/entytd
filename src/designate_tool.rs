@@ -139,7 +139,7 @@ fn update_cursor(
     tilemap_query: Query<&Tilemap>,
     currency: Res<Currency>,
 ) {
-    if !cursor_snapped.is_changed() && !currency.is_changed() {
+    if !cursor_snapped.is_changed() && !currency.is_changed() && !selected_tool.is_changed() {
         return;
     }
 
