@@ -4,6 +4,7 @@ use crate::{
     currency::Currency,
     designate_tool::Designations,
     hit_points::HitPoints,
+    particle::{ParticleBundle, ParticleKind, ParticleSettings},
     tilemap::{TileEntities, TileKind, TilePos, Tilemap},
     GameState,
 };
@@ -68,6 +69,7 @@ fn hit_events(
     mut designations: ResMut<Designations>,
     mut tilemap_query: Query<(&mut Tilemap, &TileEntities)>,
     mut currency: ResMut<Currency>,
+    particle_settings: Res<ParticleSettings>,
 ) {
     for event in reader.read() {
         let Ok((mut map, entities)) = tilemap_query.get_single_mut() else {
@@ -82,9 +84,21 @@ fn hit_events(
             continue;
         }
 
-        // TODO sound if dmg > 1
-
         hp.sub(event.damage);
+
+        // TODO sound
+        // TODO obey particle settings
+        let amt = if hp.is_zero() {
+            particle_settings.kill_amt()
+        } else {
+            particle_settings.hit_amt()
+        };
+        for _ in 0..amt {
+            commands.spawn(ParticleBundle::new(
+                ParticleKind::Stone,
+                map.pos_to_world(*pos),
+            ));
+        }
 
         let health = StoneHealth::from(&*hp);
 

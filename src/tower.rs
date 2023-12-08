@@ -2,10 +2,11 @@ use bevy::prelude::*;
 
 use crate::{
     designate_tool::Designations,
-    enemy::Enemy,
+    enemy::{Enemy, EnemyKind},
     hit_points::HitPoints,
     layer,
     movement::Speed,
+    particle::{ParticleBundle, ParticleKind, ParticleSettings},
     tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap, SCALE, TILE_SIZE},
     GameState,
 };
@@ -181,11 +182,15 @@ fn build_tower(
 fn bullet_movement(
     mut commands: Commands,
     mut query: Query<(Entity, &Bullet, &Speed, &mut Transform)>,
-    mut enemy_query: Query<(&mut HitPoints, &Transform), (With<Enemy>, Without<Bullet>)>,
+    mut enemy_query: Query<
+        (&mut HitPoints, &Transform, &EnemyKind),
+        (With<Enemy>, Without<Bullet>),
+    >,
     time: Res<Time>,
+    particle_settings: Res<ParticleSettings>,
 ) {
     for (bullet_entity, bullet, speed, mut transform) in query.iter_mut() {
-        let Ok((mut hp, enemy)) = enemy_query.get_mut(bullet.target) else {
+        let Ok((mut hp, enemy, enemy_kind)) = enemy_query.get_mut(bullet.target) else {
             commands.entity(bullet_entity).despawn();
             continue;
         };
@@ -200,6 +205,26 @@ fn bullet_movement(
             transform.translation.y += step * dir.y;
         } else {
             hp.sub(bullet.damage);
+
+            // TODO sound
+            let amt = if hp.is_zero() {
+                particle_settings.kill_amt() / 2
+            } else {
+                particle_settings.hit_amt() / 2
+            };
+            for _ in 0..amt {
+                commands.spawn(ParticleBundle::new(
+                    match enemy_kind {
+                        EnemyKind::Ent => ParticleKind::Wood,
+                        EnemyKind::Skeleton => ParticleKind::Bone,
+                    },
+                    enemy.translation.truncate(),
+                ));
+                commands.spawn(ParticleBundle::new(
+                    ParticleKind::Stone,
+                    enemy.translation.truncate(),
+                ));
+            }
 
             commands.entity(bullet_entity).despawn();
         }

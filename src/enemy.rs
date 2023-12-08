@@ -6,6 +6,7 @@ use crate::{
     hit_points::HitPoints,
     home::Home,
     movement::{MovingProgress, Speed},
+    particle::{ParticleBundle, ParticleKind, ParticleSettings},
     pathfinding::{enemy_cost_fn, heuristic, NeighborCostIter, PathState},
     tilemap::{AtlasHandle, TilePos, Tilemap},
     GameState,
@@ -187,6 +188,8 @@ fn attack(
         (With<Enemy>, Without<PathState>),
     >,
     mut home_query: Query<(&mut HitPoints, &TilePos), With<Home>>,
+    tilemap_query: Query<&Tilemap>,
+    particle_settings: Res<ParticleSettings>,
 ) {
     for (entity, behavior, mut cooldown, pos) in &mut query {
         if !matches!(behavior, Behavior::Attack) {
@@ -197,7 +200,7 @@ fn attack(
             continue;
         }
 
-        let Some((mut home_hp, _)) = home_query
+        let Some((mut home_hp, home_pos)) = home_query
             .iter_mut()
             .find(|(_, home_pos)| heuristic(**home_pos, *pos) == 1)
         else {
@@ -205,7 +208,27 @@ fn attack(
             continue;
         };
 
+        if home_hp.is_zero() {
+            continue;
+        }
+
+        let Ok(map) = tilemap_query.get_single() else {
+            continue;
+        };
+
         home_hp.sub(1);
+
+        let amt = if home_hp.is_zero() {
+            particle_settings.kill_amt()
+        } else {
+            particle_settings.hit_amt()
+        };
+        for _ in 0..amt {
+            commands.spawn(ParticleBundle::new(
+                ParticleKind::Home,
+                map.pos_to_world(*home_pos),
+            ));
+        }
 
         if home_hp.is_zero() {
             commands.entity(entity).insert(Behavior::SeekHome);

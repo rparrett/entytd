@@ -7,9 +7,9 @@ edition = "2021"
 bevy_common_assets = { version = "0.8.0", features = ["ron"] }
 bevy_nine_slice_ui = { git = "https://github.com/rparrett/bevy_nine_slice_ui", branch = "bevyjam4" }
 #bevy_nine_slice_ui = { git = "https://github.com/Lommix/bevy_nine_slice_ui", version = "0.4.0" }
+rand = { version = "0.8.5", features = ["small_rng"] }
 image = "*"
 pathfinding = "4.4.0"
-rand = "0.8.5"
 serde = "*"
 
 [features]
@@ -61,4 +61,4 @@ opt-level = 1
 
 # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
 [profile.dev.package."*"]
-opt-level = 2
+opt-level = 1

@@ -13,6 +13,7 @@ use level::LevelPlugin;
 use loading::LoadingPlugin;
 use map_loader::MapFileLoaderPlugin;
 use movement::MovementPlugin;
+use particle::ParticlePlugin;
 use pathfinding::PathfindingPlugin;
 use radio_button::RadioButtonPlugin;
 use spawner::SpawnerPlugin;
@@ -43,6 +44,7 @@ mod level;
 mod loading;
 mod map_loader;
 mod movement;
+mod particle;
 mod pathfinding;
 mod radio_button;
 mod spawner;
@@ -52,6 +54,13 @@ mod tool_selector;
 mod tower;
 mod waves;
 mod worker;
+
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
+enum GameState {
+    #[default]
+    Loading,
+    Playing,
+}
 
 fn main() {
     let mut app = App::new();
@@ -92,7 +101,7 @@ fn main() {
         StonePlugin,
         CurrencyPlugin,
     ));
-    app.add_plugins(TowerPlugin);
+    app.add_plugins((TowerPlugin, ParticlePlugin));
 
     app.add_plugins((
         RadioButtonPlugin,
@@ -112,11 +121,4 @@ fn main() {
     app.insert_resource(Msaa::Off).add_state::<GameState>();
 
     app.run();
-}
-
-#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
-enum GameState {
-    #[default]
-    Loading,
-    Playing,
 }
