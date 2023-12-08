@@ -52,6 +52,7 @@ mod stone;
 mod tilemap;
 mod tool_selector;
 mod tower;
+mod util;
 mod waves;
 mod worker;
 

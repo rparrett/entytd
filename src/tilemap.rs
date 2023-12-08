@@ -1,5 +1,3 @@
-use bevy::prelude::*;
-
 use crate::{
     hit_points::HitPoints,
     home::Home,
@@ -9,6 +7,8 @@ use crate::{
     spawner::{Spawner, SpawnerIndex},
     GameState,
 };
+use bevy::prelude::*;
+use strum_macros::EnumIter;
 
 pub struct TilemapPlugin;
 impl Plugin for TilemapPlugin {
@@ -24,7 +24,7 @@ impl Plugin for TilemapPlugin {
 pub const SCALE: Vec2 = Vec2::splat(2.);
 pub const TILE_SIZE: Vec2 = Vec2::splat(12.);
 
-#[derive(Reflect, Debug, Component, Clone, Copy)]
+#[derive(Reflect, Debug, Component, Clone, Copy, EnumIter)]
 pub enum TileKind {
     Empty,
     Stone,

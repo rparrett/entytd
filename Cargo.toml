@@ -11,6 +11,9 @@ rand = { version = "0.8.5", features = ["small_rng"] }
 image = "*"
 pathfinding = "4.4.0"
 serde = "*"
+bevy_pipelines_ready = "0.2.0"
+strum = "0.25.0"
+strum_macros = "0.25"
 
 [features]
 inspector = ["bevy-inspector-egui"]
