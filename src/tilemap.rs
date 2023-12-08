@@ -74,6 +74,7 @@ pub enum TileKind {
     DirtPathNSE,
     DirtPathNEW,
     DirtPathNSEW,
+    Stump,
 }
 
 pub struct TileNotMappedError;
@@ -114,6 +115,7 @@ impl TryFrom<[u8; 3]> for TileKind {
             [255, 180, 100] => Ok(Self::DirtPathNSE),
             [255, 180, 110] => Ok(Self::DirtPathNEW),
             [255, 180, 120] => Ok(Self::DirtPathNSEW),
+            [100, 100, 50] => Ok(Self::Stump),
             _ => Err(TileNotMappedError),
         }
     }
@@ -178,6 +180,7 @@ impl TileKind {
             Self::DirtPathNSEW => 103 * 11 + 12,
             Self::GrassA => 103 * 9 + 3,
             Self::GrassB => 103 * 9 + 4,
+            Self::Stump => 103 * 10 + 4,
         }
     }
 }
