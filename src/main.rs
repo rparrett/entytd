@@ -24,6 +24,7 @@ use stone::StonePlugin;
 use tilemap::TilemapPlugin;
 use tool_selector::ToolSelectorPlugin;
 use tower::TowerPlugin;
+use ui::UiPlugin;
 use waves::WavesPlugin;
 use worker::WorkerPlugin;
 
@@ -59,6 +60,7 @@ mod stone;
 mod tilemap;
 mod tool_selector;
 mod tower;
+mod ui;
 mod util;
 mod waves;
 mod worker;
@@ -119,6 +121,7 @@ fn main() {
         CursorPlugin,
         HudPlugin,
         MainMenuPlugin,
+        UiPlugin,
     ));
 
     app.add_plugins(NineSlicePlugin::default());

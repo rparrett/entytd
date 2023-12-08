@@ -27,6 +27,7 @@ pub struct CommonAssets {
     pub ui_nine_slice: Handle<Image>,
     pub ui_nine_slice_selected: Handle<Image>,
     pub ui_nine_slice_container: Handle<Image>,
+    pub ui_nine_slice_hovered: Handle<Image>,
 }
 impl FromWorld for CommonAssets {
     fn from_world(world: &mut World) -> Self {
@@ -34,11 +35,13 @@ impl FromWorld for CommonAssets {
 
         let ui_nine_slice = asset_server.load("ui_nine_slice.png");
         let ui_nine_slice_selected = asset_server.load("ui_nine_slice_selected.png");
+        let ui_nine_slice_hovered = asset_server.load("ui_nine_slice_hovered.png");
         let ui_nine_slice_container = asset_server.load("ui_nine_slice_container.png");
 
         let mut loading_assets = world.resource_mut::<LoadingAssets>();
 
         loading_assets.0.push(ui_nine_slice.clone().into());
+        loading_assets.0.push(ui_nine_slice_hovered.clone().into());
         loading_assets.0.push(ui_nine_slice_selected.clone().into());
         loading_assets
             .0
@@ -47,6 +50,7 @@ impl FromWorld for CommonAssets {
         CommonAssets {
             ui_nine_slice,
             ui_nine_slice_selected,
+            ui_nine_slice_hovered,
             ui_nine_slice_container,
         }
     }

@@ -149,19 +149,17 @@ fn init(mut commands: Commands, common: Res<CommonAssets>, atlas_handle: Res<Atl
 }
 
 fn update_style(
-    mut commands: Commands,
-    mut query: Query<(Entity, &RadioButton), (Changed<RadioButton>, With<ToolButton>)>,
+    mut query: Query<
+        (&RadioButton, &mut NineSliceTexture),
+        (Changed<RadioButton>, With<ToolButton>),
+    >,
     common: Res<CommonAssets>,
 ) {
-    for (entity, radio) in query.iter_mut() {
+    for (radio, mut texture) in query.iter_mut() {
         if radio.selected {
-            commands.entity(entity).insert(NineSliceTexture::from_image(
-                common.ui_nine_slice_selected.clone(),
-            ));
+            *texture = NineSliceTexture::from_image(common.ui_nine_slice_selected.clone());
         } else {
-            commands
-                .entity(entity)
-                .insert(NineSliceTexture::from_image(common.ui_nine_slice.clone()));
+            *texture = NineSliceTexture::from_image(common.ui_nine_slice.clone());
         }
     }
 }
