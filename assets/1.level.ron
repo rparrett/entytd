@@ -51,5 +51,25 @@ LevelConfig (
                 ),
             ]
         ),
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 15.,
+                    spawner: 1,
+                    num: 4,
+                    interval: 2.,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 15.,
+                    spawner: 1,
+                    num: 4,
+                    interval: 2.,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+            ]
+        ),
     ]
 )

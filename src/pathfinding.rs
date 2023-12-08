@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::tilemap::{TileKind, TilePos, Tilemap};
+use crate::{
+    enemy::EnemyKind,
+    tilemap::{TileKind, TilePos, Tilemap},
+};
 
 pub struct PathfindingPlugin;
 impl Plugin for PathfindingPlugin {
@@ -31,15 +34,34 @@ impl PathState {
     }
 }
 
-pub fn enemy_cost_fn(map: &Tilemap) -> impl '_ + Fn(TilePos) -> isize {
+pub fn enemy_cost_fn(map: &Tilemap, kind: EnemyKind) -> impl '_ + Fn(TilePos) -> isize {
     move |pos| {
         let Some(tile) = map.get(pos) else {
             return -1;
         };
 
-        match tile {
-            TileKind::Dirt => 3,
-            TileKind::Road | TileKind::Bridge | TileKind::Spawn => 1,
+        match (tile, kind) {
+            (TileKind::Dirt, _) => 5,
+            (TileKind::Forest, EnemyKind::Ent) => 1,
+            (
+                TileKind::Road
+                | TileKind::Bridge
+                | TileKind::Spawn
+                | TileKind::DirtPathNSA
+                | TileKind::DirtPathNSB
+                | TileKind::DirtPathEWA
+                | TileKind::DirtPathEWB
+                | TileKind::DirtPathSW
+                | TileKind::DirtPathNW
+                | TileKind::DirtPathSE
+                | TileKind::DirtPathNE
+                | TileKind::DirtPathNSW
+                | TileKind::DirtPathSEW
+                | TileKind::DirtPathNSE
+                | TileKind::DirtPathNEW
+                | TileKind::DirtPathNSEW,
+                _,
+            ) => 1,
             _ => -1,
         }
     }
@@ -54,8 +76,22 @@ pub fn worker_cost_fn(map: &Tilemap) -> impl '_ + Fn(TilePos) -> isize {
         // Workers avoid roads, which is where enemies typically are found.
 
         match tile {
-            TileKind::Dirt | TileKind::StoneTunnel => 1,
-            TileKind::Road | TileKind::Bridge | TileKind::Home => 3,
+            TileKind::Dirt
+            | TileKind::StoneTunnel
+            | TileKind::DirtPathNSA
+            | TileKind::DirtPathNSB
+            | TileKind::DirtPathEWA
+            | TileKind::DirtPathEWB
+            | TileKind::DirtPathSW
+            | TileKind::DirtPathNW
+            | TileKind::DirtPathSE
+            | TileKind::DirtPathNE
+            | TileKind::DirtPathNSW
+            | TileKind::DirtPathSEW
+            | TileKind::DirtPathNSE
+            | TileKind::DirtPathNEW
+            | TileKind::DirtPathNSEW => 1,
+            TileKind::Road | TileKind::Bridge | TileKind::Home | TileKind::HomeTwo => 3,
             _ => -1,
         }
     }

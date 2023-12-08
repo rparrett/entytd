@@ -115,7 +115,7 @@ fn spawn(
 
 fn pathfinding(
     mut commands: Commands,
-    query: Query<(Entity, &TilePos, &Behavior), (With<Enemy>, Without<PathState>)>,
+    query: Query<(Entity, &TilePos, &Behavior, &EnemyKind), (With<Enemy>, Without<PathState>)>,
     tilemap_query: Query<&Tilemap>,
     home_query: Query<(&TilePos, &HitPoints), With<Home>>,
 ) {
@@ -123,7 +123,7 @@ fn pathfinding(
     // TODO i would like for enemies to randomly choose a neighbor of
     // the goal to park in.
 
-    for (entity, pos, behavior) in &query {
+    for (entity, pos, behavior, kind) in &query {
         if !matches!(behavior, Behavior::SeekHome) {
             continue;
         }
@@ -143,14 +143,15 @@ fn pathfinding(
 
         // choose a random neighbor of the goal and path directly to it,
         // so when enemies are attacking it feels a bit swarmier.
-        let neighbors = NeighborCostIter::new(**goal, enemy_cost_fn(&map)).collect::<Vec<_>>();
+        let neighbors =
+            NeighborCostIter::new(**goal, enemy_cost_fn(&map, *kind)).collect::<Vec<_>>();
         let Some((goal, _)) = neighbors.choose(&mut rng) else {
             return;
         };
 
         let Some(result) = astar(
             pos,
-            |p| NeighborCostIter::new(*p, enemy_cost_fn(&map)),
+            |p| NeighborCostIter::new(*p, enemy_cost_fn(&map, *kind)),
             |p| heuristic(*p, *goal),
             |p| *p == *goal,
         ) else {
