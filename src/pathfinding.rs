@@ -95,7 +95,8 @@ pub fn worker_cost_fn(map: &Tilemap) -> impl '_ + Fn(TilePos) -> isize {
             | TileKind::Bridge
             | TileKind::Home
             | TileKind::HomeTwo
-            | TileKind::HomeDead => 3,
+            | TileKind::HomeDead
+            | TileKind::Tower => 5,
             _ => -1,
         }
     }
