@@ -4,6 +4,7 @@ use bevy::{
 };
 
 use crate::{
+    currency::Currency,
     cursor::CursorSnapped,
     tilemap::{AtlasHandle, TileKind, TilePos, Tilemap},
     tool_selector::{SelectedTool, Tool},
@@ -80,6 +81,16 @@ impl DesignationKind {
             }
         }
     }
+    fn price(&self) -> Currency {
+        match self {
+            DesignationKind::BuildTower => Currency {
+                metal: 1,
+                stone: 10,
+                crystal: 0,
+            },
+            _ => Currency::ZERO,
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -124,6 +135,7 @@ fn move_cursor(
     cursor_snapped: Res<CursorSnapped>,
     mut query: Query<(&mut Transform, &mut TextureAtlasSprite), With<DesignateToolCursor>>,
     tilemap_query: Query<&Tilemap>,
+    currency: Res<Currency>,
 ) {
     if !cursor_snapped.is_changed() {
         return;
@@ -156,7 +168,11 @@ fn move_cursor(
             _ => false,
         };
 
-        if ok {
+        let has_money = currency.has(&designation.price());
+
+        // TODO separate cursor for the no-money situation
+
+        if ok && has_money {
             sprite.index = designation.ok_atlas_index();
             sprite.color = designation.ok_color();
         } else {
@@ -216,6 +232,7 @@ fn designate(
     mut tool_state: ResMut<DesignationToolState>,
     tilemap_query: Query<&Tilemap>,
     atlas_handle: Res<AtlasHandle>,
+    mut currency: ResMut<Currency>,
 ) {
     if !tool_state.active {
         return;
@@ -268,6 +285,10 @@ fn designate(
     }
 
     let designation_kind = DesignationKind::from(selected_tool.0);
+    if currency.try_sub(&designation_kind.price()).is_err() {
+        // TODO sound
+        return;
+    }
 
     let id = commands
         .spawn((
