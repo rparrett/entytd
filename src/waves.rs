@@ -27,6 +27,9 @@ impl Waves {
         self.current += 1;
         self.current()
     }
+    pub fn reset(&mut self) {
+        self.current = 0;
+    }
 }
 impl From<Vec<Wave>> for Waves {
     fn from(waves: Vec<Wave>) -> Self {

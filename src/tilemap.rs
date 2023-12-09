@@ -17,7 +17,8 @@ impl Plugin for TilemapPlugin {
             .register_type::<TilePos>()
             .add_systems(Update, queue_load.run_if(in_state(GameState::Loading)))
             .add_systems(Update, process_loaded_maps)
-            .add_systems(OnEnter(GameState::Playing), spawn);
+            .add_systems(OnEnter(GameState::Playing), spawn)
+            .add_systems(OnExit(GameState::GameOver), cleanup);
     }
 }
 
@@ -504,4 +505,10 @@ fn spawn(
         tiles: tilemaps.get(&tilemap_handle.0).unwrap().clone(),
         ..default()
     });
+}
+
+fn cleanup(mut commands: Commands, query: Query<Entity, Or<(With<TileKind>, With<Tilemap>)>>) {
+    for entity in &query {
+        commands.entity(entity).despawn();
+    }
 }

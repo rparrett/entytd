@@ -32,6 +32,7 @@ impl Plugin for DesignateToolPlugin {
                 .run_if(in_state(GameState::Playing)),
         );
         app.add_systems(OnEnter(GameState::Playing), init_cursor);
+        app.add_systems(OnExit(GameState::GameOver), cleanup);
     }
 }
 
@@ -321,4 +322,15 @@ fn designate(
     );
 
     tool_state.touched.insert(tile_pos);
+}
+
+fn cleanup(
+    mut commands: Commands,
+    query: Query<Entity, Or<(With<DesignationMarker>, With<DesignateToolCursor>)>>,
+    mut designations: ResMut<Designations>,
+) {
+    for entity in &query {
+        commands.entity(entity).despawn();
+    }
+    designations.0.clear();
 }

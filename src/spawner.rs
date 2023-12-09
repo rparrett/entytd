@@ -23,7 +23,8 @@ impl Plugin for SpawnerPlugin {
             .add_systems(
                 Update,
                 (add_spawner_ui, update_spawner_ui).run_if(in_state(GameState::Playing)),
-            );
+            )
+            .add_systems(OnExit(GameState::GameOver), cleanup);
     }
 }
 
@@ -58,7 +59,7 @@ pub struct Spawn {
 
 #[derive(Resource, Default)]
 pub struct SpawnerStates {
-    states: Vec<SpawnerState>,
+    pub states: Vec<SpawnerState>,
 }
 impl From<&Vec<Spawn>> for SpawnerStates {
     fn from(value: &Vec<Spawn>) -> Self {
@@ -285,5 +286,26 @@ fn update_spawner_ui(
 
         container_style.left = Val::Px(viewport.x - SPAWNER_UI_SIZE.x / 2.);
         container_style.top = Val::Px(viewport.y - SPAWNER_UI_SIZE.y / 2.);
+    }
+}
+
+fn cleanup(
+    mut commands: Commands,
+    query: Query<Entity, Or<(With<Spawner>, With<SpawnerContainer>)>>,
+    mut waves: ResMut<Waves>,
+    mut states: ResMut<SpawnerStates>,
+) {
+    for entity in &query {
+        commands.entity(entity).despawn_recursive();
+    }
+
+    states.states.clear();
+
+    waves.reset();
+
+    if let Some(wave) = waves.current() {
+        for spawn in wave.spawns.iter().cloned() {
+            states.states.push(spawn.into());
+        }
     }
 }

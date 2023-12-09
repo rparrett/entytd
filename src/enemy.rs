@@ -10,6 +10,7 @@ use crate::{
     pathfinding::{enemy_cost_fn, heuristic, NeighborCostIter, PathState},
     settings::ParticlesSetting,
     tilemap::{AtlasHandle, TilePos, Tilemap},
+    util::cleanup,
     GameState,
 };
 use pathfinding::prelude::astar;
@@ -17,11 +18,13 @@ use pathfinding::prelude::astar;
 pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnEnemyEvent>().add_systems(
-            Update,
-            (spawn, pathfinding, behavior, tick_cooldown, attack, die)
-                .run_if(in_state(GameState::Playing)),
-        );
+        app.add_event::<SpawnEnemyEvent>()
+            .add_systems(
+                Update,
+                (spawn, pathfinding, behavior, tick_cooldown, attack, die)
+                    .run_if(in_state(GameState::Playing)),
+            )
+            .add_systems(OnExit(GameState::GameOver), cleanup::<Enemy>);
     }
 }
 

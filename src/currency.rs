@@ -1,9 +1,12 @@
 use bevy::prelude::*;
 
+use crate::GameState;
+
 pub struct CurrencyPlugin;
 impl Plugin for CurrencyPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Currency>();
+        app.add_systems(OnExit(GameState::GameOver), cleanup);
     }
 }
 
@@ -58,4 +61,8 @@ impl Currency {
 
         Err(NotEnoughCurrencyError)
     }
+}
+
+fn cleanup(mut commands: Commands) {
+    commands.insert_resource(Currency::default());
 }

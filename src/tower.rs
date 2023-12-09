@@ -9,16 +9,22 @@ use crate::{
     particle::{ParticleBundle, ParticleKind},
     settings::ParticlesSetting,
     tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap, SCALE, TILE_SIZE},
+    util::cleanup,
     GameState,
 };
 
 pub struct TowerPlugin;
 impl Plugin for TowerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<BuildTowerEvent>().add_systems(
-            Update,
-            (build_tower, attack, bullet_movement).run_if(in_state(GameState::Playing)),
-        );
+        app.add_event::<BuildTowerEvent>()
+            .add_systems(
+                Update,
+                (build_tower, attack, bullet_movement).run_if(in_state(GameState::Playing)),
+            )
+            .add_systems(
+                OnExit(GameState::GameOver),
+                (cleanup::<Tower>, cleanup::<Bullet>),
+            );
     }
 }
 

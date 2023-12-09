@@ -22,7 +22,8 @@ impl Plugin for WorkerPlugin {
             .add_systems(
                 Update,
                 (find_job, do_job, tick_cooldown).run_if(in_state(GameState::Playing)),
-            );
+            )
+            .add_systems(OnExit(GameState::GameOver), cleanup);
     }
 }
 
@@ -318,5 +319,11 @@ fn do_job(
 fn tick_cooldown(mut query: Query<&mut WorkCooldown>, time: Res<Time>) {
     for mut cooldown in &mut query {
         cooldown.0.tick(time.delta());
+    }
+}
+
+fn cleanup(mut commands: Commands, query: Query<Entity, With<Worker>>) {
+    for entity in &query {
+        commands.entity(entity).despawn();
     }
 }

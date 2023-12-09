@@ -35,9 +35,13 @@ impl Plugin for HudPlugin {
                     update_metal,
                     update_crystal,
                 ),
-            );
+            )
+            .add_systems(OnExit(GameState::GameOver), cleanup);
     }
 }
+
+#[derive(Component)]
+pub struct HudRoot;
 
 #[derive(Component)]
 pub struct HudContainer;
@@ -100,7 +104,8 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                 },
                 ..default()
             },
-            Name::new("HudContainer"),
+            HudRoot,
+            Name::new("HudRoot"),
         ))
         .with_children(|parent| {
             parent
@@ -487,5 +492,11 @@ fn update_crystal(
         } else {
             text.sections[1].value.clear();
         }
+    }
+}
+
+fn cleanup(mut commands: Commands, query: Query<Entity, With<HudRoot>>) {
+    for entity in &query {
+        commands.entity(entity).despawn_recursive();
     }
 }

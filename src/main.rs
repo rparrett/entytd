@@ -6,6 +6,8 @@ use currency::CurrencyPlugin;
 use cursor::CursorPlugin;
 use designate_tool::DesignateToolPlugin;
 use enemy::EnemyPlugin;
+use game::GamePlugin;
+use game_over::GameOverPlugin;
 use home::HomePlugin;
 use hud::HudPlugin;
 use level::LevelPlugin;
@@ -38,6 +40,8 @@ mod currency;
 mod cursor;
 mod designate_tool;
 mod enemy;
+mod game;
+mod game_over;
 mod hit_points;
 mod home;
 mod hud;
@@ -69,6 +73,7 @@ enum GameState {
     Loading,
     MainMenu,
     Playing,
+    GameOver,
 }
 
 fn main() {
@@ -109,7 +114,14 @@ fn main() {
         StonePlugin,
         CurrencyPlugin,
     ));
-    app.add_plugins((TowerPlugin, ParticlePlugin, SavePlugin, MusicPlugin));
+    app.add_plugins((
+        TowerPlugin,
+        ParticlePlugin,
+        SavePlugin,
+        MusicPlugin,
+        GameOverPlugin,
+        GamePlugin,
+    ));
 
     app.add_plugins((
         RadioButtonPlugin,

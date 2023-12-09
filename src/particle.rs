@@ -15,7 +15,7 @@ impl Plugin for ParticlePlugin {
             .init_resource::<ParticlesSetting>()
             .add_systems(
                 Update,
-                update_particles.run_if(in_state(GameState::Playing)),
+                update_particles.run_if(not(in_state(GameState::Loading))),
             );
     }
 }

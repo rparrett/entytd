@@ -5,6 +5,7 @@ use crate::{
     radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
     tilemap::{AtlasHandle, TileKind, SCALE, TILE_SIZE},
     ui::UiAssets,
+    util::cleanup,
     GameState,
 };
 
@@ -13,9 +14,13 @@ impl Plugin for ToolSelectorPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<SelectedTool>()
             .add_systems(OnEnter(GameState::Playing), init)
-            .add_systems(Update, (update_style, select_tool, keyboard));
+            .add_systems(Update, (update_style, select_tool, keyboard))
+            .add_systems(OnExit(GameState::GameOver), cleanup::<ToolContainer>);
     }
 }
+
+#[derive(Component)]
+struct ToolContainer;
 
 #[derive(Component)]
 struct ToolButton;
@@ -61,19 +66,22 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
     let mut tool_button_ids = vec![];
 
     commands
-        .spawn(NodeBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                flex_direction: FlexDirection::Column,
-                height: Val::Percent(100.),
-                right: Val::Px(5.),
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
-                row_gap: Val::Px(5.),
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    flex_direction: FlexDirection::Column,
+                    height: Val::Percent(100.),
+                    right: Val::Px(5.),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    row_gap: Val::Px(5.),
+                    ..default()
+                },
                 ..default()
             },
-            ..default()
-        })
+            ToolContainer,
+        ))
         .with_children(|parent| {
             for i in 1..4 {
                 let kind = Tool::from_index(i);
