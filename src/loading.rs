@@ -80,7 +80,7 @@ fn wait(
 fn init_loading_scene(
     mut commands: Commands,
     maybe_atlas_handle: Option<Res<AtlasHandle>>,
-    common: Res<UiAssets>,
+    ui_assets: Res<UiAssets>,
     mut done: Local<bool>,
 ) {
     if *done {
@@ -104,7 +104,7 @@ fn init_loading_scene(
                 },
                 ..default()
             },
-            NineSliceTexture::from_image(common.nine_slice.clone()),
+            NineSliceTexture::from_image(ui_assets.nine_slice.clone()),
             LoadingScene,
         ))
         .with_children(|parent| {

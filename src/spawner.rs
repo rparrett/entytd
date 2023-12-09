@@ -155,7 +155,7 @@ fn init(waves: Res<Waves>, mut states: ResMut<SpawnerStates>) {
 fn add_spawner_ui(
     mut commands: Commands,
     query: Query<Entity, Added<Spawner>>,
-    common: Res<UiAssets>,
+    ui_assets: Res<UiAssets>,
     atlas_handle: Res<AtlasHandle>,
 ) {
     for entity in &query {
@@ -174,7 +174,7 @@ fn add_spawner_ui(
                     },
                     ..default()
                 },
-                NineSliceTexture::from_image(common.nine_slice.clone()),
+                NineSliceTexture::from_image(ui_assets.nine_slice.clone()),
                 SpawnerContainer,
             ))
             .with_children(|parent| {

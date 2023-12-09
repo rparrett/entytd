@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 use bevy_nine_slice_ui::NineSliceTexture;
 
-use crate::{game::Won, ui::UiAssets, util::cleanup, GameState};
-
-const BUTTON_TEXT: Color = Color::rgb(0.9, 0.9, 0.9);
-const TITLE_TEXT: Color = Color::rgb(0.9, 0.9, 0.9);
+use crate::{
+    game::Won,
+    ui::{UiAssets, BUTTON_TEXT, TITLE_TEXT},
+    util::cleanup,
+    GameState,
+};
 
 pub struct GameOverPlugin;
 impl Plugin for GameOverPlugin {

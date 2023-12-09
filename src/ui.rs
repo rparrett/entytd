@@ -3,6 +3,9 @@ use bevy_nine_slice_ui::NineSliceTexture;
 
 use crate::{loading::LoadingAssets, radio_button::RadioButton};
 
+pub const BUTTON_TEXT: Color = Color::rgb(0.9, 0.9, 0.9);
+pub const TITLE_TEXT: Color = Color::rgb(0.9, 0.9, 0.9);
+
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
