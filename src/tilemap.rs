@@ -476,7 +476,7 @@ pub fn process_loaded_maps(
                         }
                         TileKind::CrystalHidden | TileKind::MetalHidden => {
                             command.insert((
-                                HitPoints::full(24),
+                                HitPoints::full(40),
                                 #[cfg(feature = "inspector")]
                                 Name::new("ResourceTile"),
                             ));
