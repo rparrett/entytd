@@ -94,7 +94,7 @@ impl DesignationKind {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Designation {
     pub kind: DesignationKind,
     pub indicator: Entity,

@@ -149,7 +149,7 @@ fn find_job(
             // immediate neighbors are not walkable.
             NeighborCostIter::new(*pos, worker_cost_fn(map)).next()?;
 
-            Some((*pos, designation.kind))
+            Some((*pos, designation))
         })
         .collect::<Vec<_>>();
 
@@ -160,7 +160,16 @@ fn find_job(
     let mut jobs_assigned = vec![];
 
     for (entity, pos) in &query {
-        potential_jobs.sort_by_key(|a| u32::MAX - heuristic(a.0, *pos));
+        // Sort higher priority jobs to the end of the array.
+        // First, if there's a tower designated with no workers assigned, do that.
+        // Then, choose the closest job.
+        potential_jobs.sort_by_key(|a| {
+            let dist = u32::MAX - heuristic(a.0, *pos);
+            let tower_with_no_workers =
+                matches!(a.1.kind, DesignationKind::BuildTower) && a.1.workers < 1;
+
+            (tower_with_no_workers, dist)
+        });
 
         let Some((goal, designation)) = potential_jobs.pop() else {
             continue;
@@ -183,7 +192,7 @@ fn find_job(
             .insert(PathState::from(result.0))
             .remove::<Idle>();
 
-        match designation {
+        match designation.kind {
             DesignationKind::Dig => {
                 command.insert(Job::Dig(goal));
             }
