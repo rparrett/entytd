@@ -87,22 +87,6 @@ fn hit_events(
 
         hp.sub(event.damage);
 
-        // TODO sound
-        // TODO obey particle settings
-        let amt = if hp.is_zero() {
-            particle_settings.kill_amt()
-        } else {
-            particle_settings.hit_amt()
-        };
-        for _ in 0..amt {
-            commands.spawn(ParticleBundle::new(
-                ParticleKind::Stone,
-                map.pos_to_world(*pos),
-            ));
-        }
-
-        let health = StoneHealth::from(&*hp);
-
         let crystal = matches!(
             *kind,
             TileKind::CrystalHidden
@@ -114,6 +98,33 @@ fn hit_events(
             *kind,
             TileKind::MetalHidden | TileKind::Metal | TileKind::MetalHurt | TileKind::MetalDying
         );
+
+        // TODO sound
+        let amt = if hp.is_zero() {
+            particle_settings.kill_amt() / 2
+        } else {
+            particle_settings.hit_amt() / 2
+        };
+        for _ in 0..amt {
+            commands.spawn(ParticleBundle::new(
+                ParticleKind::Stone,
+                map.pos_to_world(*pos),
+            ));
+        }
+        for _ in 0..amt {
+            commands.spawn(ParticleBundle::new(
+                if crystal {
+                    ParticleKind::Crystal
+                } else if metal {
+                    ParticleKind::Metal
+                } else {
+                    ParticleKind::Stone
+                },
+                map.pos_to_world(*pos),
+            ));
+        }
+
+        let health = StoneHealth::from(&*hp);
 
         if crystal {
             *kind = match health {
