@@ -208,11 +208,12 @@ fn attack(
             .iter_mut()
             .find(|(_, home_pos)| heuristic(**home_pos, *pos) == 1)
         else {
-            info!("Enemy could not locate a nearby home.");
+            warn!("Enemy could not locate a nearby home.");
             continue;
         };
 
         if home_hp.is_zero() {
+            commands.entity(entity).insert(Behavior::SeekHome);
             continue;
         }
 
