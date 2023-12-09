@@ -188,10 +188,7 @@ fn find_job(
 
         let mut command = commands.entity(entity);
 
-        command
-            .insert(MovingProgress::default())
-            .insert(PathState::from(result.0))
-            .remove::<Idle>();
+        command.insert(PathState::from(result.0)).remove::<Idle>();
 
         match designation.kind {
             DesignationKind::Dig => {

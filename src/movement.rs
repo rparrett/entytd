@@ -45,6 +45,7 @@ fn movement(
     for (entity, mut transform, mut tile_pos, mut path_state, mut animation, speed) in &mut query {
         if path_state.finished() {
             commands.entity(entity).remove::<PathState>();
+            animation.0 = 0.;
             continue;
         }
 
@@ -81,6 +82,7 @@ fn movement(
         if path_state.finished() {
             *tile_pos = next;
             commands.entity(entity).remove::<PathState>();
+            animation.0 = 0.;
         } else {
             *tile_pos = current;
         }
