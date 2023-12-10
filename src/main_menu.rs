@@ -351,6 +351,6 @@ fn music_volume(
     }
 
     if let Ok(sink) = music_query.get_single() {
-        sink.set_volume(**music_setting as f32 / 100.)
+        sink.set_volume(**music_setting as f32 / 100.);
     }
 }

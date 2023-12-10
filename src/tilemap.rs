@@ -284,14 +284,19 @@ pub struct TilePos {
     pub x: usize,
     pub y: usize,
 }
-impl Into<Vec2> for TilePos {
-    fn into(self) -> Vec2 {
-        Vec2::new(self.x as f32, self.y as f32)
+impl From<TilePos> for Vec2 {
+    fn from(value: TilePos) -> Self {
+        Vec2::new(value.x as f32, value.y as f32)
     }
 }
-impl Into<IVec2> for TilePos {
-    fn into(self) -> IVec2 {
-        IVec2::new(self.x as i32, self.y as i32)
+impl From<TilePos> for IVec2 {
+    fn from(value: TilePos) -> Self {
+        IVec2::new(value.x as i32, value.y as i32)
+    }
+}
+impl From<TilePos> for (isize, isize) {
+    fn from(value: TilePos) -> Self {
+        (value.x as isize, value.y as isize)
     }
 }
 impl From<(isize, isize)> for TilePos {
@@ -308,11 +313,6 @@ impl From<(usize, usize)> for TilePos {
             x: value.0,
             y: value.1,
         }
-    }
-}
-impl Into<(isize, isize)> for TilePos {
-    fn into(self) -> (isize, isize) {
-        (self.x as isize, self.y as isize)
     }
 }
 

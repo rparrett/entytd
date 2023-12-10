@@ -391,7 +391,7 @@ fn update_stone(
                 font_size: 16.0,
                 ..default()
             },
-        })
+        });
     } else {
         let price = DesignationKind::from(selected_tool.0).price();
         if price.stone > 0 {
@@ -435,7 +435,7 @@ fn update_metal(
                 font_size: 16.0,
                 ..default()
             },
-        })
+        });
     } else {
         let price = DesignationKind::from(selected_tool.0).price();
         if price.metal > 0 {
@@ -479,7 +479,7 @@ fn update_crystal(
                 font_size: 16.0,
                 ..default()
             },
-        })
+        });
     } else {
         let price = DesignationKind::from(selected_tool.0).price();
         if price.crystal > 0 {
