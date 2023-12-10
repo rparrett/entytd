@@ -19,11 +19,13 @@ pub struct WorkerPlugin;
 impl Plugin for WorkerPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SpawnWorkerEvent>()
+            .init_resource::<WorkerSortTimer>()
             .add_systems(Update, spawn.run_if(in_state(GameState::Playing)))
             .add_systems(OnEnter(GameState::Playing), init)
             .add_systems(
                 Update,
-                (find_job, do_job, tick_cooldown).run_if(in_state(GameState::Playing)),
+                (find_job, do_job, tick_cooldown, sort_workers)
+                    .run_if(in_state(GameState::Playing)),
             )
             .add_systems(OnExit(GameState::GameOver), cleanup);
     }
@@ -65,6 +67,14 @@ pub struct WorkerBundle {
 #[derive(Event)]
 pub struct SpawnWorkerEvent;
 
+#[derive(Resource)]
+pub struct WorkerSortTimer(Timer);
+impl Default for WorkerSortTimer {
+    fn default() -> Self {
+        WorkerSortTimer(Timer::from_seconds(2., TimerMode::Repeating))
+    }
+}
+
 fn spawn(
     mut commands: Commands,
     mut events: EventReader<SpawnWorkerEvent>,
@@ -102,7 +112,9 @@ fn spawn(
                         ..default()
                     },
                     transform: Transform {
-                        translation: world.extend(layer::MOBS),
+                        // Give workers a random z value so their display order is stable as
+                        // entities are added/removed from the view/world.
+                        translation: world.extend(layer::MOBS + rng.gen::<f32>()),
                         scale: crate::tilemap::SCALE.extend(1.),
                         ..default()
                     },
@@ -326,6 +338,25 @@ fn do_job(
 fn tick_cooldown(mut query: Query<&mut WorkCooldown>, time: Res<Time>) {
     for mut cooldown in &mut query {
         cooldown.0.tick(time.delta());
+    }
+}
+
+/// Randomize worker z order every couple seconds so that it's possible to
+/// tell that there is more than one worker standing on a particular tile.
+fn sort_workers(
+    mut query: Query<&mut Transform, With<Worker>>,
+    mut timer: ResMut<WorkerSortTimer>,
+    time: Res<Time>,
+) {
+    timer.0.tick(time.delta());
+    if !timer.0.just_finished() {
+        return;
+    }
+
+    let mut rng = thread_rng();
+
+    for mut translation in &mut query {
+        translation.translation.z = layer::MOBS + rng.gen::<f32>();
     }
 }
 
