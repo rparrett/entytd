@@ -365,7 +365,7 @@ fn cleanup(
     mut designations: ResMut<Designations>,
 ) {
     for entity in &query {
-        commands.entity(entity).despawn();
+        commands.entity(entity).despawn_recursive();
     }
     designations.0.clear();
 }
