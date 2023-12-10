@@ -6,6 +6,7 @@ use crate::{
     hit_points::HitPoints,
     particle::{ParticleBundle, ParticleKind},
     settings::ParticlesSetting,
+    spawner::SpawningPaused,
     tilemap::{TileEntities, TileKind, TilePos, Tilemap},
     GameState,
 };
@@ -71,6 +72,7 @@ fn hit_events(
     mut tilemap_query: Query<(&mut Tilemap, &TileEntities)>,
     mut currency: ResMut<Currency>,
     particle_settings: Res<ParticlesSetting>,
+    mut spawning_paused: ResMut<SpawningPaused>,
 ) {
     for event in reader.read() {
         let Ok((mut map, entities)) = tilemap_query.get_single_mut() else {
@@ -159,6 +161,10 @@ fn hit_events(
                 currency.metal += 1;
             } else {
                 currency.stone += 1;
+            }
+
+            if spawning_paused.0 && (currency.metal > 0 || currency.stone > 4) {
+                spawning_paused.0 = false;
             }
 
             if let Some(designation) = designations.0.remove(pos) {

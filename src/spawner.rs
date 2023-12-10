@@ -21,7 +21,11 @@ impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<WaveStartEvent>()
             .init_resource::<SpawnerStates>()
-            .add_systems(Update, (init, spawn).run_if(in_state(GameState::Playing)))
+            .init_resource::<SpawningPaused>()
+            .add_systems(
+                Update,
+                (init, spawn, first_wave_audio).run_if(in_state(GameState::Playing)),
+            )
             .add_systems(
                 Update,
                 (add_spawner_ui, update_spawner_ui).run_if(in_state(GameState::Playing)),
@@ -48,6 +52,14 @@ pub struct SpawnerContainer;
 
 #[derive(Component)]
 pub struct SpawnerIndex(pub usize);
+
+#[derive(Resource)]
+pub struct SpawningPaused(pub bool);
+impl Default for SpawningPaused {
+    fn default() -> Self {
+        Self(true)
+    }
+}
 
 #[derive(Deserialize, Clone)]
 pub struct Spawn {
@@ -102,9 +114,14 @@ fn spawn(
     mut waves: ResMut<Waves>,
     mut events: EventWriter<SpawnEnemyEvent>,
     spawners: Query<(&TilePos, &SpawnerIndex)>,
+    paused: Res<SpawningPaused>,
     sound_assets: Res<SoundAssets>,
     sfx_setting: Res<SfxSetting>,
 ) {
+    if paused.0 {
+        return;
+    }
+
     if states.states.is_empty() {
         return;
     }
@@ -237,6 +254,7 @@ fn update_spawner_ui(
     spawners: Res<SpawnerStates>,
     windows: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
+    spawning_paused: Res<SpawningPaused>,
 ) {
     for (_, index, ui_entity) in &query {
         let Ok((mut container_style, children)) = ui_query.get_mut(ui_entity.0) else {
@@ -252,7 +270,7 @@ fn update_spawner_ui(
             continue;
         };
 
-        if state.remaining > 0 && !state.delay_timer.finished() {
+        if !spawning_paused.0 && state.remaining > 0 && !state.delay_timer.finished() {
             container_style.display = Display::Flex;
         } else {
             container_style.display = Display::None;
@@ -302,11 +320,27 @@ fn update_spawner_ui(
     }
 }
 
+fn first_wave_audio(
+    mut commands: Commands,
+    paused: Res<SpawningPaused>,
+    sfx_setting: Res<SfxSetting>,
+    sound_assets: Res<SoundAssets>,
+) {
+    if paused.is_changed() && !paused.0 {
+        commands.spawn(AudioBundle {
+            source: sound_assets.wave.clone(),
+            settings: PlaybackSettings::DESPAWN
+                .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+        });
+    }
+}
+
 fn cleanup(
     mut commands: Commands,
     query: Query<Entity, Or<(With<Spawner>, With<SpawnerContainer>)>>,
     mut waves: ResMut<Waves>,
     mut states: ResMut<SpawnerStates>,
+    mut paused: ResMut<SpawningPaused>,
 ) {
     for entity in &query {
         commands.entity(entity).despawn_recursive();
@@ -321,4 +355,6 @@ fn cleanup(
             states.states.push(spawn.into());
         }
     }
+
+    paused.0 = true;
 }
