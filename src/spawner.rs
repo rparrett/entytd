@@ -1,11 +1,13 @@
 use std::time::Duration;
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{audio::Volume, prelude::*, window::PrimaryWindow};
 use bevy_nine_slice_ui::NineSliceTexture;
 use serde::Deserialize;
 
 use crate::{
     enemy::{EnemyKind, SpawnEnemyEvent},
+    settings::SfxSetting,
+    sound::SoundAssets,
     tilemap::{AtlasHandle, TilePos, SCALE, TILE_SIZE},
     ui::UiAssets,
     waves::{WaveStartEvent, Waves},
@@ -94,11 +96,14 @@ impl From<Spawn> for SpawnerState {
 }
 
 fn spawn(
+    mut commands: Commands,
     mut states: ResMut<SpawnerStates>,
     time: Res<Time>,
     mut waves: ResMut<Waves>,
     mut events: EventWriter<SpawnEnemyEvent>,
     spawners: Query<(&TilePos, &SpawnerIndex)>,
+    sound_assets: Res<SoundAssets>,
+    sfx_setting: Res<SfxSetting>,
 ) {
     if states.states.is_empty() {
         return;
@@ -134,7 +139,15 @@ fn spawn(
     let none_remaining = states.states.iter().all(|s| s.remaining == 0);
     if none_remaining {
         info!("Wave {}: All spawners have finished.", waves.current);
-        let _ = waves.advance();
+        let next = waves.advance();
+
+        if next.is_some() {
+            commands.spawn(AudioBundle {
+                source: sound_assets.wave.clone(),
+                settings: PlaybackSettings::DESPAWN
+                    .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+            });
+        }
     }
 }
 
