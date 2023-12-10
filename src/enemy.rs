@@ -110,6 +110,7 @@ fn spawn(
         let hp = match *difficulty {
             DifficultySetting::Hard => event.hp,
             DifficultySetting::Normal => ((event.hp as f32 * 0.75).floor() as u32).max(1),
+            DifficultySetting::Impossible => ((event.hp as f32 * 1.25).floor() as u32).max(1),
         };
 
         commands.spawn((
