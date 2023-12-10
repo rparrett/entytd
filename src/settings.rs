@@ -23,14 +23,12 @@ pub enum DifficultySetting {
     #[default]
     Normal,
     Hard,
-    Extra,
 }
 impl DifficultySetting {
     pub fn next(&self) -> Self {
         match self {
             Self::Normal => Self::Hard,
-            Self::Hard => Self::Extra,
-            Self::Extra => Self::Normal,
+            Self::Hard => Self::Normal,
         }
     }
 }
@@ -42,7 +40,6 @@ impl Display for DifficultySetting {
             match self {
                 Self::Normal => "Normal",
                 Self::Hard => "Hard",
-                Self::Extra => "Extra",
             }
         )
     }

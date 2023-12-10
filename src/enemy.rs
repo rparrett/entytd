@@ -8,7 +8,7 @@ use crate::{
     movement::{MovingProgress, Speed},
     particle::{ParticleBundle, ParticleKind},
     pathfinding::{enemy_cost_fn, heuristic, NeighborCostIter, PathState},
-    settings::ParticlesSetting,
+    settings::{DifficultySetting, ParticlesSetting},
     tilemap::{AtlasHandle, TilePos, Tilemap},
     util::cleanup,
     GameState,
@@ -98,6 +98,7 @@ fn spawn(
     mut events: EventReader<SpawnEnemyEvent>,
     atlas_handle: Res<AtlasHandle>,
     tilemap_query: Query<&Tilemap>,
+    difficulty: Res<DifficultySetting>,
 ) {
     for event in events.read() {
         let Ok(tilemap) = tilemap_query.get_single() else {
@@ -105,6 +106,11 @@ fn spawn(
         };
 
         let world = tilemap.pos_to_world(event.pos);
+
+        let hp = match *difficulty {
+            DifficultySetting::Hard => event.hp,
+            DifficultySetting::Normal => ((event.hp as f32 * 0.75).floor() as u32).max(1),
+        };
 
         commands.spawn((
             EnemyBundle {
@@ -118,7 +124,7 @@ fn spawn(
                     },
                     ..default()
                 },
-                hit_points: HitPoints::full(event.hp),
+                hit_points: HitPoints::full(hp),
                 kind: event.kind,
                 pos: event.pos,
                 speed: Speed(2.),
