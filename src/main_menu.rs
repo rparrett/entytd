@@ -333,6 +333,7 @@ fn init_background(
     mut commands: Commands,
     atlas_handle: Res<AtlasHandle>,
     asset_server: Res<AssetServer>,
+    mut camera_query: Query<&mut Transform, With<Camera2d>>,
 ) {
     // TODO preload
     let tilemap_handle = asset_server.load("menu.map.png");
@@ -342,6 +343,11 @@ fn init_background(
         atlas_handle: atlas_handle.0.clone(),
         ..default()
     });
+
+    for mut transform in &mut camera_query {
+        transform.translation.x = 0.0;
+        transform.translation.y = 0.0;
+    }
 }
 
 fn cleanup_background(mut commands: Commands, query: Query<(Entity, &TileEntities)>) {
