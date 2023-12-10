@@ -51,6 +51,7 @@ pub fn load_system(mut commands: Commands) {
         commands.insert_resource(save_file.sfx);
         commands.insert_resource(save_file.music);
         commands.insert_resource(save_file.particles);
+        commands.insert_resource(save_file.difficulty);
     }
     #[cfg(target_arch = "wasm32")]
     {
@@ -82,6 +83,7 @@ pub fn load_system(mut commands: Commands) {
         commands.insert_resource(save_file.sfx);
         commands.insert_resource(save_file.music);
         commands.insert_resource(save_file.particles);
+        commands.insert_resource(save_file.difficulty);
     }
 }
 
