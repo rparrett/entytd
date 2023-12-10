@@ -6,7 +6,8 @@ pub struct MusicPlugin;
 impl Plugin for MusicPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<SoundAssets>()
-            .add_systems(OnExit(GameState::Loading), start_music);
+            .add_systems(OnExit(GameState::Loading), start_music)
+            .add_systems(Update, fade_music.run_if(not(in_state(GameState::Loading))));
     }
 }
 
@@ -29,17 +30,56 @@ impl FromWorld for SoundAssets {
 #[derive(Component)]
 pub struct MusicController;
 
+/// Music fades in over this amount of seconds.
+#[derive(Component)]
+pub struct MusicFade {
+    seconds: f32,
+    remaining: f32,
+}
+impl Default for MusicFade {
+    fn default() -> Self {
+        let seconds = 4.;
+        let remaining = seconds;
+        Self { seconds, remaining }
+    }
+}
+
 fn start_music(
     mut commands: Commands,
     music_setting: Res<MusicSetting>,
     audio_assets: Res<SoundAssets>,
 ) {
+    let initial_volume = if **music_setting == 0 {
+        0.0
+    } else {
+        f32::EPSILON
+    };
+
     commands.spawn((
         AudioBundle {
             source: audio_assets.bgm.clone(),
-            settings: PlaybackSettings::LOOP
-                .with_volume(Volume::new_absolute(**music_setting as f32 / 100.)),
+            settings: PlaybackSettings::LOOP.with_volume(Volume::new_absolute(initial_volume)),
         },
         MusicController,
+        MusicFade::default(),
     ));
+}
+
+fn fade_music(
+    mut commands: Commands,
+    mut query: Query<(Entity, &AudioSink, &mut MusicFade), With<MusicController>>,
+    music_setting: Res<MusicSetting>,
+    time: Res<Time>,
+) {
+    if let Ok((entity, sink, mut fade)) = query.get_single_mut() {
+        fade.remaining -= time.delta_seconds();
+
+        let progress = (1.0 - fade.remaining / fade.seconds).min(1.);
+
+        sink.set_volume(progress * **music_setting as f32 / 100.);
+
+        if progress >= 1.0 {
+            commands.entity(entity).remove::<MusicFade>();
+        }
+    }
 }
