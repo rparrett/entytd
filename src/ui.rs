@@ -20,6 +20,7 @@ pub struct UiAssets {
     pub nine_slice_selected: Handle<Image>,
     pub nine_slice_container: Handle<Image>,
     pub nine_slice_hovered: Handle<Image>,
+    pub range_indicator_24: Handle<Image>,
 }
 impl FromWorld for UiAssets {
     fn from_world(world: &mut World) -> Self {
@@ -29,6 +30,7 @@ impl FromWorld for UiAssets {
         let nine_slice_selected = asset_server.load("ui_nine_slice_selected.png");
         let nine_slice_hovered = asset_server.load("ui_nine_slice_hovered.png");
         let nine_slice_container = asset_server.load("ui_nine_slice_container.png");
+        let range_indicator_24 = asset_server.load("range_indicator_24.png");
 
         let mut loading_assets = world.resource_mut::<LoadingAssets>();
 
@@ -36,12 +38,14 @@ impl FromWorld for UiAssets {
         loading_assets.0.push(nine_slice_hovered.clone().into());
         loading_assets.0.push(nine_slice_selected.clone().into());
         loading_assets.0.push(nine_slice_container.clone().into());
+        loading_assets.0.push(range_indicator_24.clone().into());
 
         UiAssets {
             nine_slice,
             nine_slice_selected,
             nine_slice_hovered,
             nine_slice_container,
+            range_indicator_24,
         }
     }
 }

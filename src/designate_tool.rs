@@ -9,6 +9,7 @@ use crate::{
     layer,
     tilemap::{AtlasHandle, TileKind, TilePos, Tilemap},
     tool_selector::{SelectedTool, Tool},
+    ui::UiAssets,
     GameState,
 };
 
@@ -38,6 +39,9 @@ impl Plugin for DesignateToolPlugin {
 
 #[derive(Component)]
 struct DesignateToolCursor;
+
+#[derive(Component)]
+struct DesignateToolRange;
 
 #[derive(Copy, Clone, Debug)]
 pub enum DesignationKind {
@@ -115,28 +119,44 @@ struct DesignationToolState {
     touched: HashSet<TilePos>,
 }
 
-fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>) {
-    commands.spawn((
-        SpriteSheetBundle {
-            sprite: TextureAtlasSprite {
-                index: DesignationKind::Dig.not_ok_atlas_index(),
-                color: DesignationKind::Dig.not_ok_color(),
+fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>, ui_assets: Res<UiAssets>) {
+    commands
+        .spawn((
+            SpriteSheetBundle {
+                sprite: TextureAtlasSprite {
+                    index: DesignationKind::Dig.not_ok_atlas_index(),
+                    color: DesignationKind::Dig.not_ok_color(),
+                    ..default()
+                },
+                texture_atlas: atlas_handle.0.clone(),
+                visibility: Visibility::Hidden,
+                transform: Transform::from_xyz(0., 0., layer::CURSOR)
+                    .with_scale(crate::tilemap::SCALE.extend(1.)),
                 ..default()
             },
-            texture_atlas: atlas_handle.0.clone(),
-            visibility: Visibility::Hidden,
-            transform: Transform::from_xyz(0., 0., layer::CURSOR)
-                .with_scale(crate::tilemap::SCALE.extend(1.)),
-            ..default()
-        },
-        DesignateToolCursor,
-    ));
+            DesignateToolCursor,
+        ))
+        .with_children(|parent| {
+            parent.spawn((
+                SpriteBundle {
+                    sprite: Sprite {
+                        color: DesignationKind::BuildTower.ok_color(),
+                        ..default()
+                    },
+                    texture: ui_assets.range_indicator_24.clone(),
+                    visibility: Visibility::Inherited,
+                    ..default()
+                },
+                DesignateToolRange,
+            ));
+        });
 }
 
 fn update_cursor(
     selected_tool: Res<SelectedTool>,
     cursor_snapped: Res<CursorSnapped>,
     mut query: Query<(&mut Transform, &mut TextureAtlasSprite), With<DesignateToolCursor>>,
+    mut range_query: Query<&mut Visibility, With<DesignateToolRange>>,
     tilemap_query: Query<&Tilemap>,
     currency: Res<Currency>,
 ) {
@@ -173,7 +193,7 @@ fn update_cursor(
 
         let has_money = currency.has(&designation.price());
 
-        // TODO separate cursor for the no-money situation
+        // TODO separate cursor for the no-money situation?
 
         if ok && has_money {
             sprite.index = designation.ok_atlas_index();
@@ -181,6 +201,17 @@ fn update_cursor(
         } else {
             sprite.index = designation.not_ok_atlas_index();
             sprite.color = designation.not_ok_color();
+        }
+
+        for mut visibility in &mut range_query {
+            match selected_tool.0 {
+                Tool::BuildTower if ok && has_money => {
+                    *visibility = Visibility::Inherited;
+                }
+                _ => {
+                    *visibility = Visibility::Hidden;
+                }
+            }
         }
     }
 }
