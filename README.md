@@ -6,7 +6,7 @@ For Bevy Jam #4. [vTODO](https://github.com/rparrett/entytd/tree/vTODO) is the v
 
 ## Acknowledgements
 
-`bgm-hzsmith.ogg` is an original composition by [@hzsmith](https://hzsmith.itch.io/) for this project.
+`bgm-hzsmith.ogg` is a new original composition by [@hzsmith](https://hzsmith.itch.io/) for this project.
 
 `pickaxe.ogg` is licensed CC BY 4.0 by [bigal13 on freesound.org](https://freesound.org/people/bigal13/sounds/654499/). It was trimmed, filtered, made mono, and volume-adjusted.
 
