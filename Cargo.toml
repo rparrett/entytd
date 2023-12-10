@@ -59,6 +59,10 @@ match_same_arms = "warn"
 semicolon_if_nothing_returned = "warn"
 map_flatten = "warn"
 
+# Dependencies for WASM only.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+web-sys = { version = "*", features = ["console", "Window", "Storage"] }
+
 # Enable only a small amount of optimization in debug mode
 [profile.dev]
 opt-level = 1
