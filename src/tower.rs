@@ -222,8 +222,14 @@ fn bullet_movement(
             for _ in 0..amt {
                 commands.spawn(ParticleBundle::new(
                     match enemy_kind {
-                        EnemyKind::Ent => ParticleKind::Wood,
-                        EnemyKind::Skeleton => ParticleKind::Bone,
+                        EnemyKind::Ent | EnemyKind::EntTwo | EnemyKind::EntThree => {
+                            ParticleKind::Wood
+                        }
+                        EnemyKind::EntFour => ParticleKind::Purple,
+                        EnemyKind::Skeleton
+                        | EnemyKind::SkeletonTwo
+                        | EnemyKind::SkeletonThree
+                        | EnemyKind::SkeletonFour => ParticleKind::Bone,
                     },
                     enemy.translation.truncate(),
                 ));

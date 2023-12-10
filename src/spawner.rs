@@ -133,7 +133,7 @@ fn spawn(
 
     let none_remaining = states.states.iter().all(|s| s.remaining == 0);
     if none_remaining {
-        info!("All spawners have finished.");
+        info!("Wave {}: All spawners have finished.", waves.current);
         let _ = waves.advance();
     }
 }

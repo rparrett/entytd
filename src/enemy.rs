@@ -35,13 +35,25 @@ pub struct Enemy;
 pub enum EnemyKind {
     #[default]
     Skeleton,
+    SkeletonTwo,
+    SkeletonThree,
+    SkeletonFour,
     Ent,
+    EntTwo,
+    EntThree,
+    EntFour,
 }
 impl EnemyKind {
     pub fn atlas_index(&self) -> usize {
         match self {
             Self::Skeleton => 103 * 9 + 36,
+            Self::SkeletonTwo => 103 * 9 + 37,
+            Self::SkeletonThree => 103 * 9 + 38,
+            Self::SkeletonFour => 103 * 9 + 42,
             Self::Ent => 103 * 15 + 45,
+            Self::EntTwo => 103 * 15 + 52,
+            Self::EntThree => 103 * 15 + 53,
+            Self::EntFour => 103 * 15 + 54,
         }
     }
 }

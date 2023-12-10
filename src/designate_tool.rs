@@ -87,7 +87,7 @@ impl DesignationKind {
         match self {
             DesignationKind::BuildTower => Currency {
                 metal: 1,
-                stone: 10,
+                stone: 15,
                 crystal: 0,
             },
             _ => Currency::ZERO,

@@ -37,6 +37,7 @@ pub enum ParticleKind {
     Bone,
     Crystal,
     Metal,
+    Purple,
 }
 impl ParticleKind {
     fn color(&self) -> Color {
@@ -47,6 +48,7 @@ impl ParticleKind {
             Self::Wood => Color::rgb(0.46, 0.25, 0.03),
             Self::Crystal => Color::rgb(0.37, 0.69, 0.84),
             Self::Metal => Color::rgb(0.84, 0.73, 0.37),
+            Self::Purple => Color::rgb(0.74, 0., 0.71),
         }
     }
 }

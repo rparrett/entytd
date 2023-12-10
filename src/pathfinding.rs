@@ -42,7 +42,10 @@ pub fn enemy_cost_fn(map: &Tilemap, kind: EnemyKind) -> impl '_ + Fn(TilePos) ->
 
         match (tile, kind) {
             (TileKind::Dirt, _) => 5,
-            (TileKind::Forest, EnemyKind::Ent)
+            (
+                TileKind::Forest,
+                EnemyKind::Ent | EnemyKind::EntTwo | EnemyKind::EntThree | EnemyKind::EntFour,
+            )
             | (
                 TileKind::Road
                 | TileKind::Bridge
