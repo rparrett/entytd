@@ -13,12 +13,14 @@ impl Plugin for MusicPlugin {
 #[derive(Resource)]
 pub struct SoundAssets {
     pub bgm: Handle<AudioSource>,
+    pub pickaxe: Handle<AudioSource>,
 }
 impl FromWorld for SoundAssets {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.resource::<AssetServer>();
         let bgm = asset_server.load("bgm-hzsmith.ogg");
-        SoundAssets { bgm }
+        let pickaxe = asset_server.load("pickaxe.ogg");
+        SoundAssets { bgm, pickaxe }
     }
 }
 

@@ -328,17 +328,21 @@ fn particles_button(
     }
 }
 
-fn sfx_volume(mut commands: Commands, sfx_setting: Res<SfxSetting>, game_audio: Res<SoundAssets>) {
+fn sfx_volume(
+    mut commands: Commands,
+    sfx_setting: Res<SfxSetting>,
+    sound_assets: Res<SoundAssets>,
+) {
     // Do not run when SfxSetting is first added by SavePlugin
     if !sfx_setting.is_changed() || sfx_setting.is_added() {
         return;
     }
 
-    // commands.spawn(AudioBundle {
-    //     source: game_audio.build.clone(),
-    //     settings: PlaybackSettings::ONCE
-    //         .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
-    // });
+    commands.spawn(AudioBundle {
+        source: sound_assets.pickaxe.clone(),
+        settings: PlaybackSettings::DESPAWN
+            .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+    });
 }
 
 fn music_volume(

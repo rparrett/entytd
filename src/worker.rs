@@ -4,12 +4,14 @@ use crate::{
     layer,
     movement::{MovingProgress, Speed},
     pathfinding::{heuristic, worker_cost_fn, NeighborCostIter, PathState},
+    settings::SfxSetting,
+    sound::SoundAssets,
     stone::HitStoneEvent,
     tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap},
     tower::BuildTowerEvent,
     GameState,
 };
-use bevy::prelude::*;
+use bevy::{audio::Volume, prelude::*};
 use pathfinding::prelude::astar;
 use rand::{seq::SliceRandom, thread_rng, Rng};
 
@@ -225,6 +227,8 @@ fn do_job(
     mut tilemap_query: Query<&TileEntities>,
     mut events: EventWriter<HitStoneEvent>,
     mut tower_events: EventWriter<BuildTowerEvent>,
+    sound_assets: Res<SoundAssets>,
+    sfx_setting: Res<SfxSetting>,
 ) {
     if query.is_empty() {
         return;
@@ -266,6 +270,12 @@ fn do_job(
                 events.send(HitStoneEvent {
                     entity: tile_entity,
                     damage: 1,
+                });
+
+                commands.spawn(AudioBundle {
+                    source: sound_assets.pickaxe.clone(),
+                    settings: PlaybackSettings::DESPAWN
+                        .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
                 });
 
                 cooldown.0.reset();
