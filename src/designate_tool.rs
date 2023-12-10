@@ -289,12 +289,26 @@ fn designate(
     };
 
     if tool_state.removing {
+        // Don't remove a designation if there are already workers assigned
+        // to it. We haven't written code to recall workers or cancel half-built
+        // towers or whatever, so removing the designation just makes things
+        // confusing when a worker still goes and works on it.
+        if designations
+            .0
+            .get(&tile_pos)
+            .map(|d| d.workers != 0)
+            .unwrap_or(false)
+        {
+            // TODO sound here would be nice. It may not be very obvious that
+            // nothing is happening for a reason.
+            return;
+        }
+
         if let Some(designation) = designations.0.remove(&tile_pos) {
             commands.entity(designation.indicator).despawn();
 
-            if designation.workers == 0 {
-                currency.add(&designation.kind.price());
-            }
+            // refund
+            currency.add(&designation.kind.price());
         }
 
         return;
