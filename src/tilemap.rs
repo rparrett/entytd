@@ -158,7 +158,7 @@ impl TileKind {
             Self::Tower => 103 * 22 + 42,
             Self::TowerBlueprint => 103 * 22 + 43,
             Self::White => 103 * 48 + 52,
-            Self::WhitePickaxe => 103 * 48 + 53,
+            Self::WhitePickaxe => 103 * 48 + 55,
             Self::WhiteCircleNo => 103 * 48 + 54,
             Self::DirtPathNSA => 103 * 11,
             Self::DirtPathNSB => 103 * 11 + 1,

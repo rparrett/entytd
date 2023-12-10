@@ -13,7 +13,7 @@ use crate::{
     GameState,
 };
 
-const DESIGNATE_DIG_OK: Color = Color::rgba(0., 1.0, 1.0, 0.2);
+const DESIGNATE_DIG_OK: Color = Color::rgba(0., 1.0, 1.0, 0.5);
 const DESIGNATE_DANCE_OK: Color = Color::rgba(1.0, 0.0, 1.0, 0.2);
 const DESIGNATE_NOT_OK: Color = Color::rgba(1.0, 0.0, 0.0, 0.8);
 
