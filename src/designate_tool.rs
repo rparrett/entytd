@@ -291,6 +291,10 @@ fn designate(
     if tool_state.removing {
         if let Some(designation) = designations.0.remove(&tile_pos) {
             commands.entity(designation.indicator).despawn();
+
+            if designation.workers == 0 {
+                currency.add(&designation.kind.price());
+            }
         }
 
         return;

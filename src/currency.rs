@@ -61,6 +61,11 @@ impl Currency {
 
         Err(NotEnoughCurrencyError)
     }
+    pub fn add(&mut self, value: &Currency) {
+        self.metal += value.metal;
+        self.crystal += value.crystal;
+        self.stone += value.stone;
+    }
 }
 
 fn cleanup(mut commands: Commands) {
