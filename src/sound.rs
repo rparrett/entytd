@@ -17,7 +17,7 @@ pub struct SoundAssets {
 impl FromWorld for SoundAssets {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.resource::<AssetServer>();
-        let bgm = asset_server.load("bgm.ogg");
+        let bgm = asset_server.load("bgm-hzsmith.ogg");
         SoundAssets { bgm }
     }
 }
