@@ -174,15 +174,14 @@ fn hit_events(
                 let Ok(y) = usize::try_from(y) else {
                     continue;
                 };
-                if x > map.width - 1 || y > map.height - 1 {
+
+                let Some(kind) = map.get(TilePos { x, y }) else {
                     continue;
-                }
+                };
 
                 let Some(entity) = entities.entities[x][y] else {
                     continue;
                 };
-
-                let kind = map.tiles[x][y];
 
                 if matches!(kind, TileKind::CrystalHidden | TileKind::MetalHidden) {
                     writer.send(RevealStoneEvent(entity));
