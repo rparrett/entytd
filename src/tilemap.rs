@@ -324,10 +324,10 @@ pub struct AtlasHandle(pub Handle<TextureAtlas>);
 
 #[derive(Bundle, Default)]
 pub struct TilemapBundle {
-    tilemap_handle: Handle<Tilemap>,
-    atlas_handle: Handle<TextureAtlas>,
-    tiles: Tilemap,
-    entities: TileEntities,
+    pub tilemap_handle: Handle<Tilemap>,
+    pub atlas_handle: Handle<TextureAtlas>,
+    pub tiles: Tilemap,
+    pub entities: TileEntities,
 }
 
 fn queue_load(

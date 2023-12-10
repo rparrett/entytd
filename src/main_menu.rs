@@ -1,6 +1,7 @@
 use crate::{
     settings::{DifficultySetting, MusicSetting, ParticlesSetting, SfxSetting},
     sound::{MusicController, SoundAssets},
+    tilemap::{AtlasHandle, TileEntities, TilemapBundle},
     ui::{UiAssets, BUTTON_TEXT, TITLE_TEXT},
     GameState,
 };
@@ -13,7 +14,7 @@ use bevy_nine_slice_ui::NineSliceTexture;
 pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::MainMenu), setup_menu)
+        app.add_systems(OnEnter(GameState::MainMenu), (setup_menu, init_background))
             .add_systems(
                 Update,
                 (
@@ -29,7 +30,7 @@ impl Plugin for MainMenuPlugin {
             )
             .add_systems(
                 OnExit(GameState::MainMenu),
-                crate::util::cleanup::<MainMenuScene>,
+                (crate::util::cleanup::<MainMenuScene>, cleanup_background),
             );
     }
 }
@@ -324,6 +325,30 @@ fn particles_button(
             for mut text in text_query.iter_mut() {
                 text.sections[0].value = format!("{}", *particles_setting);
             }
+        }
+    }
+}
+
+fn init_background(
+    mut commands: Commands,
+    atlas_handle: Res<AtlasHandle>,
+    asset_server: Res<AssetServer>,
+) {
+    // TODO preload
+    let tilemap_handle = asset_server.load("menu.map.png");
+
+    commands.spawn(TilemapBundle {
+        tilemap_handle,
+        atlas_handle: atlas_handle.0.clone(),
+        ..default()
+    });
+}
+
+fn cleanup_background(mut commands: Commands, query: Query<(Entity, &TileEntities)>) {
+    for (entity, entities) in &query {
+        commands.entity(entity).despawn();
+        for entity in entities.entities.iter().flatten().flatten() {
+            commands.entity(*entity).despawn();
         }
     }
 }
