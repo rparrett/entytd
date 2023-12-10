@@ -33,9 +33,8 @@ pub fn load_system(mut commands: Commands) {
 
     #[cfg(not(target_arch = "wasm32"))]
     {
-        let file = match std::fs::File::open(SAVE_FILE) {
-            Ok(f) => f,
-            Err(_) => return,
+        let Ok(file) = std::fs::File::open(SAVE_FILE) else {
+            return;
         };
 
         let save_file: SaveFile = match ron::de::from_reader(file) {
@@ -55,19 +54,16 @@ pub fn load_system(mut commands: Commands) {
     }
     #[cfg(target_arch = "wasm32")]
     {
-        let window = match web_sys::window() {
-            Some(w) => w,
-            None => return,
+        let Some(window) = web_sys::window() else {
+            return;
         };
 
-        let storage = match window.local_storage() {
-            Ok(Some(s)) => s,
-            _ => return,
+        let Ok(Some(storage)) = window.local_storage() else {
+            return;
         };
 
-        let item = match storage.get_item(LOCAL_STORAGE_KEY) {
-            Ok(Some(i)) => i,
-            _ => return,
+        let Ok(Some(item)) = storage.get_item(LOCAL_STORAGE_KEY) else {
+            return;
         };
 
         let save_file: SaveFile = match ron::de::from_str(&item) {
@@ -137,14 +133,12 @@ pub fn save_system(
             }
         };
 
-        let window = match web_sys::window() {
-            Some(w) => w,
-            None => return,
+        let Some(window) = web_sys::window() else {
+            return;
         };
 
-        let storage = match window.local_storage() {
-            Ok(Some(s)) => s,
-            _ => return,
+        let Ok(Some(storage)) = window.local_storage() else {
+            return;
         };
 
         if let Err(e) = storage.set_item(LOCAL_STORAGE_KEY, data.as_str()) {
