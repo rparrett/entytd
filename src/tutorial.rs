@@ -50,7 +50,7 @@ pub enum TutorialState {
 }
 
 fn tutorial_not_finished(setting: Res<TutorialFinishedSetting>) -> bool {
-    return !setting.0;
+    !setting.0
 }
 
 pub fn init_tutorial(mut commands: Commands, ui_assets: Res<UiAssets>) {
@@ -182,7 +182,7 @@ fn update(
 ) {
     if matches!(*tutorial_state, TutorialState::Done) {
         for entity in &scene_query {
-            commands.entity(entity).despawn_recursive()
+            commands.entity(entity).despawn_recursive();
         }
         setting.0 = true;
         return;
