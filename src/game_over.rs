@@ -3,6 +3,8 @@ use bevy_nine_slice_ui::NineSliceTexture;
 
 use crate::{
     game::Won,
+    settings::DifficultySetting,
+    stats::Stats,
     ui::{UiAssets, BUTTON_TEXT, TITLE_TEXT},
     util::cleanup,
     GameState,
@@ -23,7 +25,13 @@ struct GameOverScene;
 #[derive(Component)]
 struct MenuButton;
 
-fn init(mut commands: Commands, ui_assets: Res<UiAssets>, won: Res<Won>) {
+fn init(
+    mut commands: Commands,
+    ui_assets: Res<UiAssets>,
+    won: Res<Won>,
+    stats: Res<Stats>,
+    difficulty: Res<DifficultySetting>,
+) {
     let button_style = Style {
         width: Val::Px(250.0),
         height: Val::Px(45.0),
@@ -53,6 +61,7 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, won: Res<Won>) {
                     flex_direction: FlexDirection::Column,
                     align_items: AlignItems::Center,
                     padding: UiRect::all(Val::Px(20.)),
+                    row_gap: Val::Px(10.),
                     ..default()
                 },
                 ..default()
@@ -63,23 +72,79 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, won: Res<Won>) {
         .id();
 
     let title = commands
-        .spawn(
-            TextBundle::from_section(
-                if won.0 {
-                    "You win!".to_string()
-                } else {
-                    "You lose!".to_string()
-                },
-                title_text_style,
-            )
-            .with_style(Style {
-                margin: UiRect {
-                    bottom: Val::Px(10.0),
-                    ..default()
-                },
+        .spawn(TextBundle::from_section(
+            if won.0 {
+                "You win!".to_string()
+            } else {
+                "You lose!".to_string()
+            },
+            title_text_style.clone(),
+        ))
+        .id();
+
+    let stats_container = commands
+        .spawn(NodeBundle {
+            style: Style {
+                display: Display::Grid,
+                grid_template_columns: vec![GridTrack::flex(1.0), GridTrack::min_content()],
+                row_gap: Val::Px(5.),
+                column_gap: Val::Px(40.),
                 ..default()
-            }),
-        )
+            },
+            ..default()
+        })
+        .id();
+
+    let kills_label = commands
+        .spawn(TextBundle::from_section(
+            "Enemies Defeated",
+            title_text_style.clone(),
+        ))
+        .id();
+    let kills = commands
+        .spawn(TextBundle::from_section(
+            format!("{}", stats.kills),
+            title_text_style.clone(),
+        ))
+        .id();
+
+    let mined_label = commands
+        .spawn(TextBundle::from_section(
+            "Resources Mined",
+            title_text_style.clone(),
+        ))
+        .id();
+    let mined = commands
+        .spawn(TextBundle::from_section(
+            format!("{}", stats.mined),
+            title_text_style.clone(),
+        ))
+        .id();
+
+    let built_label = commands
+        .spawn(TextBundle::from_section(
+            "Towers Built",
+            title_text_style.clone(),
+        ))
+        .id();
+    let built = commands
+        .spawn(TextBundle::from_section(
+            format!("{}", stats.towers),
+            title_text_style.clone(),
+        ))
+        .id();
+
+    let difficulty_label = commands
+        .spawn(TextBundle::from_section(
+            "Difficulty",
+            title_text_style.clone(),
+        ))
+        .id();
+    let difficulty = commands
+        .spawn(TextBundle::from_section(
+            format!("{}", *difficulty),
+            title_text_style.clone(),
+        ))
         .id();
 
     let play_button = commands
@@ -99,9 +164,20 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, won: Res<Won>) {
         })
         .id();
 
+    commands.entity(stats_container).push_children(&[
+        difficulty_label,
+        difficulty,
+        kills_label,
+        kills,
+        mined_label,
+        mined,
+        built_label,
+        built,
+    ]);
+
     commands
         .entity(container)
-        .push_children(&[title, play_button]);
+        .push_children(&[title, stats_container, play_button]);
 }
 
 fn menu_button(

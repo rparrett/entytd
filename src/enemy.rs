@@ -9,6 +9,7 @@ use crate::{
     particle::{ParticleBundle, ParticleKind},
     pathfinding::{enemy_cost_fn, heuristic, NeighborCostIter, PathState},
     settings::{DifficultySetting, ParticlesSetting},
+    stats::Stats,
     tilemap::{AtlasHandle, TilePos, Tilemap},
     util::cleanup,
     GameState,
@@ -263,11 +264,17 @@ fn attack(
     }
 }
 
-fn die(mut commands: Commands, query: Query<(Entity, &HitPoints), With<Enemy>>) {
+fn die(
+    mut commands: Commands,
+    query: Query<(Entity, &HitPoints), With<Enemy>>,
+    mut stats: ResMut<Stats>,
+) {
     for (entity, hp) in &query {
         if !hp.is_zero() {
             continue;
         }
+
+        stats.kills += 1;
 
         commands.entity(entity).despawn();
     }

@@ -21,6 +21,7 @@ use radio_button::RadioButtonPlugin;
 use save::SavePlugin;
 use sound::MusicPlugin;
 use spawner::SpawnerPlugin;
+use stats::StatsPlugin;
 use stone::StonePlugin;
 use tilemap::TilemapPlugin;
 use tool_selector::ToolSelectorPlugin;
@@ -59,6 +60,7 @@ mod save;
 mod settings;
 mod sound;
 mod spawner;
+mod stats;
 mod stone;
 mod tilemap;
 mod tool_selector;
@@ -123,6 +125,7 @@ fn main() {
         MusicPlugin,
         GameOverPlugin,
         GamePlugin,
+        StatsPlugin,
     ));
 
     app.add_plugins((

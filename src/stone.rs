@@ -7,6 +7,7 @@ use crate::{
     particle::{ParticleBundle, ParticleKind},
     settings::ParticlesSetting,
     spawner::SpawningPaused,
+    stats::Stats,
     tilemap::{TileEntities, TileKind, TilePos, Tilemap},
     GameState,
 };
@@ -73,6 +74,7 @@ fn hit_events(
     mut currency: ResMut<Currency>,
     particle_settings: Res<ParticlesSetting>,
     mut spawning_paused: ResMut<SpawningPaused>,
+    mut stats: ResMut<Stats>,
 ) {
     for event in reader.read() {
         let Ok((mut map, entities)) = tilemap_query.get_single_mut() else {
@@ -155,6 +157,8 @@ fn hit_events(
         map.tiles[pos.x][pos.y] = *kind;
 
         if hp.is_zero() {
+            stats.mined += 1;
+
             if crystal {
                 currency.crystal += 1;
             } else if metal {

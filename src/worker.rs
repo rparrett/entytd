@@ -6,6 +6,7 @@ use crate::{
     pathfinding::{heuristic, worker_cost_fn, NeighborCostIter, PathState},
     settings::SfxSetting,
     sound::SoundAssets,
+    stats::Stats,
     stone::HitStoneEvent,
     tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap},
     tower::BuildTowerEvent,
@@ -241,6 +242,7 @@ fn do_job(
     mut tower_events: EventWriter<BuildTowerEvent>,
     sound_assets: Res<SoundAssets>,
     sfx_setting: Res<SfxSetting>,
+    mut stats: ResMut<Stats>,
 ) {
     if query.is_empty() {
         return;
@@ -326,6 +328,7 @@ fn do_job(
                 hit_points.sub(1);
 
                 if hit_points.is_zero() {
+                    stats.towers += 1;
                     tower_events.send(BuildTowerEvent(*pos));
                 }
 
