@@ -17,6 +17,7 @@ pub struct SoundAssets {
     pub pickaxe: Handle<AudioSource>,
     pub wave: Handle<AudioSource>,
     pub tutorial: Handle<AudioSource>,
+    pub bad: Handle<AudioSource>,
 }
 impl FromWorld for SoundAssets {
     fn from_world(world: &mut World) -> Self {
@@ -25,18 +26,21 @@ impl FromWorld for SoundAssets {
         let pickaxe = asset_server.load("pickaxe.ogg");
         let wave = asset_server.load("wave.ogg");
         let tutorial = asset_server.load("tutorial.ogg");
+        let bad = asset_server.load("bad.ogg");
 
         let mut loading_assets = world.resource_mut::<LoadingAssets>();
         loading_assets.0.push(bgm.clone().into());
         loading_assets.0.push(pickaxe.clone().into());
         loading_assets.0.push(wave.clone().into());
         loading_assets.0.push(tutorial.clone().into());
+        loading_assets.0.push(bad.clone().into());
 
         SoundAssets {
             bgm,
             pickaxe,
             wave,
             tutorial,
+            bad,
         }
     }
 }

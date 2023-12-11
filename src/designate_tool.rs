@@ -1,4 +1,5 @@
 use bevy::{
+    audio::Volume,
     prelude::*,
     utils::{HashMap, HashSet},
 };
@@ -7,6 +8,8 @@ use crate::{
     currency::Currency,
     cursor::CursorSnapped,
     layer,
+    settings::SfxSetting,
+    sound::SoundAssets,
     tilemap::{AtlasHandle, TileKind, TilePos, Tilemap},
     tool_selector::{SelectedTool, Tool},
     ui::UiAssets,
@@ -267,6 +270,8 @@ fn designate(
     tilemap_query: Query<&Tilemap>,
     atlas_handle: Res<AtlasHandle>,
     mut currency: ResMut<Currency>,
+    sfx_setting: Res<SfxSetting>,
+    sound_assets: Res<SoundAssets>,
 ) {
     if !tool_state.active {
         return;
@@ -299,8 +304,12 @@ fn designate(
             .map(|d| d.workers != 0)
             .unwrap_or(false)
         {
-            // TODO sound here would be nice. It may not be very obvious that
-            // nothing is happening for a reason.
+            commands.spawn(AudioBundle {
+                source: sound_assets.bad.clone(),
+                settings: PlaybackSettings::DESPAWN
+                    .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+            });
+
             return;
         }
 
@@ -332,13 +341,21 @@ fn designate(
     };
 
     if !ok {
-        // TODO sound
+        commands.spawn(AudioBundle {
+            source: sound_assets.bad.clone(),
+            settings: PlaybackSettings::DESPAWN
+                .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+        });
         return;
     }
 
     let designation_kind = DesignationKind::from(selected_tool.0);
     if currency.try_sub(&designation_kind.price()).is_err() {
-        // TODO sound
+        commands.spawn(AudioBundle {
+            source: sound_assets.bad.clone(),
+            settings: PlaybackSettings::DESPAWN
+                .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+        });
         return;
     }
 
