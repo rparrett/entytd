@@ -144,8 +144,6 @@ fn pathfinding(
     home_query: Query<(&TilePos, &HitPoints), With<Home>>,
 ) {
     // TODO spawner should do the pathfinding and cache the result.
-    // TODO i would like for enemies to randomly choose a neighbor of
-    // the goal to park in.
 
     for (entity, pos, behavior, kind) in &query {
         if !matches!(behavior, Behavior::SeekHome) {
