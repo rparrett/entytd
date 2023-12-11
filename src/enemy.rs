@@ -181,7 +181,7 @@ fn pathfinding(
             continue;
         };
 
-        // The enemy may have died and been despawned.
+        // The enemy may have died and been despawned in the same frame.
         commands
             .entity(entity)
             .try_insert(PathState::from(result.0));
