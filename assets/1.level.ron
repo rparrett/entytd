@@ -150,7 +150,7 @@ LevelConfig (
                 ),
             ]
         ),
-        // 7
+        // 8
         Wave (
             spawns: [
                 Spawn (
@@ -171,7 +171,7 @@ LevelConfig (
                 ),
             ]
         ),
-        // 8
+        // 9
         Wave (
             spawns: [
                 Spawn (
@@ -192,7 +192,7 @@ LevelConfig (
                 ),
             ]
         ),
-        // 9
+        // 10
         Wave (
             spawns: [
                 Spawn (
@@ -210,6 +210,216 @@ LevelConfig (
                     interval: 2.0,
                     hp: 10,
                     kind: EntThree
+                ),
+            ]
+        ),
+        // 11
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 15.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 12,
+                    kind: SkeletonThree
+                ),
+                Spawn (
+                    delay: 15.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 10,
+                    kind: EntThree
+                ),
+            ]
+        ),
+        // 12
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 15.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 1.0,
+                    hp: 10,
+                    kind: EntThree
+                ),
+                Spawn (
+                    delay: 15.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 12,
+                    kind: SkeletonThree
+                ),
+            ]
+        ),
+        // 13
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 15.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 1.0,
+                    hp: 10,
+                    kind: EntThree
+                ),
+                Spawn (
+                    delay: 15.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 1.0,
+                    hp: 10,
+                    kind: EntThree
+                ),
+            ]
+        ),
+        // 13
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 15.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 14,
+                    kind: EntFour
+                ),
+                Spawn (
+                    delay: 15.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 12,
+                    kind: SkeletonThree
+                ),
+            ]
+        ),
+        // 14
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 15.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 14,
+                    kind: SkeletonFour
+                ),
+                Spawn (
+                    delay: 15.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 14,
+                    kind: SkeletonFour
+                ),
+            ]
+        ),
+        // 15
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 15.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 14,
+                    kind: SkeletonFour
+                ),
+                Spawn (
+                    delay: 15.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 16,
+                    kind: EntFour
+                ),
+            ]
+        ),
+        // 16
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 15.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 16,
+                    kind: EntFour
+                ),
+                Spawn (
+                    delay: 15.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 16,
+                    kind: EntFour
+                ),
+            ]
+        ),
+        // 17
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 15.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 1.0,
+                    hp: 16,
+                    kind: EntFour
+                ),
+                Spawn (
+                    delay: 15.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 16,
+                    kind: EntFour
+                ),
+            ]
+        ),
+        // 18
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 15.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 1.0,
+                    hp: 16,
+                    kind: EntFour
+                ),
+                Spawn (
+                    delay: 15.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 1.0,
+                    hp: 16,
+                    kind: EntFour
+                ),
+            ]
+        ),
+        // 19
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 15.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 0.8,
+                    hp: 16,
+                    kind: EntFour
+                ),
+                Spawn (
+                    delay: 15.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 0.8,
+                    hp: 16,
+                    kind: EntFour
                 ),
             ]
         ),
