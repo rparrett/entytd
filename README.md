@@ -1,6 +1,6 @@
 # Enty TD
 
-For Bevy Jam #4. [vTODO](https://github.com/rparrett/entytd/tree/vTODO) is the version that was submitted.
+For Bevy Jam #4. [v0.1.0](https://github.com/rparrett/entytd/tree/v0.1.0) is the version that was submitted.
 
 [Play on itch.io](https://euclidean-whale.itch.io/enty-td)
 
