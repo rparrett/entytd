@@ -14,6 +14,7 @@ use crate::{
     tilemap::{AtlasHandle, SCALE, TILE_SIZE},
     tool_selector::SelectedTool,
     ui::UiAssets,
+    waves::Waves,
     worker::{Idle, Worker},
     GameState,
 };
@@ -34,6 +35,7 @@ impl Plugin for HudPlugin {
                     update_stone,
                     update_metal,
                     update_crystal,
+                    update_wave_count,
                 ),
             )
             .add_systems(OnExit(GameState::GameOver), cleanup);
@@ -66,6 +68,9 @@ pub struct Metal;
 
 #[derive(Component, Default)]
 pub struct HomeHitPoints;
+
+#[derive(Component, Default)]
+pub struct WaveCount;
 
 #[derive(Resource)]
 pub struct EntityCountUpdateTimer(Timer);
@@ -204,6 +209,31 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         "0".to_string(),
                         atlas_handle.0.clone(),
                         103 * 24,
+                    );
+                });
+
+            parent
+                .spawn((
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Percent(100.),
+                            flex_direction: FlexDirection::Column,
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::FlexStart,
+                            padding: UiRect::all(Val::Px(4.)),
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    NineSliceTexture::from_image(common.nine_slice.clone()),
+                    HudContainer,
+                ))
+                .with_children(|parent| {
+                    init_hud_item::<WaveCount>(
+                        parent,
+                        "0/0".to_string(),
+                        atlas_handle.0.clone(),
+                        103 * 48 + 94,
                     );
                 });
         });
@@ -493,6 +523,36 @@ fn update_crystal(
             text.sections[1].value.clear();
         }
     }
+}
+
+fn update_wave_count(
+    waves: Option<Res<Waves>>,
+    item_query: Query<&Children, With<WaveCount>>,
+    mut text_query: Query<&mut Text>,
+) {
+    let Some(waves) = waves else {
+        return;
+    };
+
+    if !waves.is_changed() {
+        return;
+    }
+
+    let Ok(children) = item_query.get_single() else {
+        return;
+    };
+
+    let mut text_iter = text_query.iter_many_mut(children);
+    let Some(mut text) = text_iter.fetch_next() else {
+        return;
+    };
+
+    // TODO color
+
+    let num = waves.waves.len();
+    let current = (waves.current + 1).min(num);
+
+    text.sections[0].value = format!("{}/{}", current, num);
 }
 
 fn cleanup(mut commands: Commands, query: Query<Entity, With<HudRoot>>) {
