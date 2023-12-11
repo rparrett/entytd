@@ -91,3 +91,5 @@ impl Display for ParticlesSetting {
         )
     }
 }
+#[derive(Resource, Default, Serialize, Deserialize, Debug, Clone)]
+pub struct TutorialFinishedSetting(pub bool);

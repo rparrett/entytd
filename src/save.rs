@@ -1,4 +1,6 @@
-use crate::settings::{DifficultySetting, MusicSetting, ParticlesSetting, SfxSetting};
+use crate::settings::{
+    DifficultySetting, MusicSetting, ParticlesSetting, SfxSetting, TutorialFinishedSetting,
+};
 
 use bevy::prelude::*;
 use ron::ser::PrettyConfig;
@@ -23,6 +25,7 @@ struct SaveFile {
     music: MusicSetting,
     particles: ParticlesSetting,
     difficulty: DifficultySetting,
+    tutorial_finished: TutorialFinishedSetting,
 }
 
 pub fn load_system(mut commands: Commands) {
@@ -30,6 +33,7 @@ pub fn load_system(mut commands: Commands) {
     commands.insert_resource(MusicSetting::default());
     commands.insert_resource(ParticlesSetting::default());
     commands.insert_resource(DifficultySetting::default());
+    commands.insert_resource(TutorialFinishedSetting::default());
 
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -51,6 +55,7 @@ pub fn load_system(mut commands: Commands) {
         commands.insert_resource(save_file.music);
         commands.insert_resource(save_file.particles);
         commands.insert_resource(save_file.difficulty);
+        commands.insert_resource(save_file.tutorial_finished);
     }
     #[cfg(target_arch = "wasm32")]
     {
@@ -80,6 +85,7 @@ pub fn load_system(mut commands: Commands) {
         commands.insert_resource(save_file.music);
         commands.insert_resource(save_file.particles);
         commands.insert_resource(save_file.difficulty);
+        commands.insert_resource(save_file.tutorial_finished);
     }
 }
 
@@ -88,13 +94,20 @@ pub fn save_system(
     music: Res<MusicSetting>,
     difficulty: Res<DifficultySetting>,
     particles: Res<ParticlesSetting>,
+    tutorial_finished: Res<TutorialFinishedSetting>,
 ) {
     let sfx_changed = sfx.is_changed() && !sfx.is_added();
     let music_changed = music.is_changed() && !music.is_added();
     let difficulty_changed = difficulty.is_changed() && !difficulty.is_added();
     let particles_changed = particles.is_changed() && !particles.is_added();
+    let tutorial_finished_changed = tutorial_finished.is_changed() && !tutorial_finished.is_added();
 
-    if !sfx_changed && !music_changed && !difficulty_changed && !particles_changed {
+    if !sfx_changed
+        && !music_changed
+        && !difficulty_changed
+        && !particles_changed
+        && !tutorial_finished_changed
+    {
         return;
     }
 
@@ -105,6 +118,7 @@ pub fn save_system(
         music: music.clone(),
         difficulty: difficulty.clone(),
         particles: particles.clone(),
+        tutorial_finished: tutorial_finished.clone(),
     };
 
     let pretty = PrettyConfig::new();

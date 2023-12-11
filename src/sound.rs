@@ -16,6 +16,7 @@ pub struct SoundAssets {
     pub bgm: Handle<AudioSource>,
     pub pickaxe: Handle<AudioSource>,
     pub wave: Handle<AudioSource>,
+    pub tutorial: Handle<AudioSource>,
 }
 impl FromWorld for SoundAssets {
     fn from_world(world: &mut World) -> Self {
@@ -23,7 +24,13 @@ impl FromWorld for SoundAssets {
         let bgm = asset_server.load("bgm-hzsmith.ogg");
         let pickaxe = asset_server.load("pickaxe.ogg");
         let wave = asset_server.load("wave.ogg");
-        SoundAssets { bgm, pickaxe, wave }
+        let tutorial = asset_server.load("tutorial.ogg");
+        SoundAssets {
+            bgm,
+            pickaxe,
+            wave,
+            tutorial,
+        }
     }
 }
 
