@@ -83,7 +83,7 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
             ToolContainer,
         ))
         .with_children(|parent| {
-            for i in 1..4 {
+            for i in 1..3 {
                 let kind = Tool::from_index(i);
 
                 let mut button_command = parent.spawn((
