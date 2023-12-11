@@ -1,7 +1,8 @@
 use crate::{
+    loading::LoadingAssets,
     settings::{DifficultySetting, MusicSetting, ParticlesSetting, SfxSetting},
     sound::{MusicController, SoundAssets},
-    tilemap::{AtlasHandle, TileEntities, TilemapBundle},
+    tilemap::{AtlasHandle, TileEntities, Tilemap, TilemapBundle},
     ui::{UiAssets, BUTTON_TEXT, TITLE_TEXT},
     GameState,
 };
@@ -14,7 +15,8 @@ use bevy_nine_slice_ui::NineSliceTexture;
 pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::MainMenu), (setup_menu, init_background))
+        app.init_resource::<MainMenuAssets>()
+            .add_systems(OnEnter(GameState::MainMenu), (setup_menu, init_background))
             .add_systems(
                 Update,
                 (
@@ -37,6 +39,23 @@ impl Plugin for MainMenuPlugin {
 
 #[derive(Component)]
 struct MainMenuScene;
+
+#[derive(Resource)]
+struct MainMenuAssets {
+    background: Handle<Tilemap>,
+}
+impl FromWorld for MainMenuAssets {
+    fn from_world(world: &mut World) -> Self {
+        let asset_server = world.resource::<AssetServer>();
+
+        let background = asset_server.load("menu.map.png");
+
+        let mut loading_assets = world.resource_mut::<LoadingAssets>();
+        loading_assets.0.push(background.clone().into());
+
+        MainMenuAssets { background }
+    }
+}
 
 #[derive(Component)]
 struct PlayButton;
@@ -332,14 +351,11 @@ fn particles_button(
 fn init_background(
     mut commands: Commands,
     atlas_handle: Res<AtlasHandle>,
-    asset_server: Res<AssetServer>,
     mut camera_query: Query<&mut Transform, With<Camera2d>>,
+    assets: Res<MainMenuAssets>,
 ) {
-    // TODO preload
-    let tilemap_handle = asset_server.load("menu.map.png");
-
     commands.spawn(TilemapBundle {
-        tilemap_handle,
+        tilemap_handle: assets.background.clone(),
         atlas_handle: atlas_handle.0.clone(),
         ..default()
     });

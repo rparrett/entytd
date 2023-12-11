@@ -269,8 +269,6 @@ fn die(mut commands: Commands, query: Query<(Entity, &HitPoints), With<Enemy>>) 
             continue;
         }
 
-        // TODO particle spam
-
         commands.entity(entity).despawn();
     }
 }

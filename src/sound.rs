@@ -1,6 +1,6 @@
 use bevy::{audio::Volume, prelude::*};
 
-use crate::{settings::MusicSetting, GameState};
+use crate::{loading::LoadingAssets, settings::MusicSetting, GameState};
 
 pub struct MusicPlugin;
 impl Plugin for MusicPlugin {
@@ -25,6 +25,13 @@ impl FromWorld for SoundAssets {
         let pickaxe = asset_server.load("pickaxe.ogg");
         let wave = asset_server.load("wave.ogg");
         let tutorial = asset_server.load("tutorial.ogg");
+
+        let mut loading_assets = world.resource_mut::<LoadingAssets>();
+        loading_assets.0.push(bgm.clone().into());
+        loading_assets.0.push(pickaxe.clone().into());
+        loading_assets.0.push(wave.clone().into());
+        loading_assets.0.push(tutorial.clone().into());
+
         SoundAssets {
             bgm,
             pickaxe,
