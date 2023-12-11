@@ -181,7 +181,10 @@ fn pathfinding(
             continue;
         };
 
-        commands.entity(entity).insert(PathState::from(result.0));
+        // The enemy may have died and been despawned.
+        commands
+            .entity(entity)
+            .try_insert(PathState::from(result.0));
 
         // limit the amount of pathfinding we do each frame.
         break;
