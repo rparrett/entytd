@@ -1,6 +1,7 @@
 LevelConfig (
     map: "map.map.png",
     waves: [
+        // 0
         Wave (
             spawns: [Spawn (
                 delay: 30.,
@@ -11,6 +12,7 @@ LevelConfig (
                 kind: Ent
             )]
         ),
+        // 1
         Wave (
             spawns: [Spawn (
                 delay: 30.,
@@ -21,6 +23,7 @@ LevelConfig (
                 kind: Skeleton
             )]
         ),
+        // 2
         Wave (
             spawns: [
                 Spawn (
@@ -41,6 +44,7 @@ LevelConfig (
                 )
             ]
         ),
+        // 3
         Wave (
             spawns: [
                 Spawn (
@@ -61,6 +65,7 @@ LevelConfig (
                 ),
             ]
         ),
+        // 4
         Wave (
             spawns: [
                 Spawn (
@@ -77,10 +82,11 @@ LevelConfig (
                     num: 10,
                     interval: 2.,
                     hp: 6,
-                    kind: SkeletonTwo
+                    kind: EntTwo
                 ),
             ]
         ),
+        // 5
         Wave (
             spawns: [
                 Spawn (
@@ -88,7 +94,7 @@ LevelConfig (
                     spawner: 0,
                     num: 10,
                     interval: 2.0,
-                    hp: 12,
+                    hp: 6,
                     kind: EntTwo
                 ),
                 Spawn (
@@ -96,11 +102,34 @@ LevelConfig (
                     spawner: 1,
                     num: 10,
                     interval: 2.0,
-                    hp: 12,
-                    kind: EntTwo
+                    hp: 8,
+                    kind: SkeletonTwo
                 ),
             ]
         ),
+        // 6
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 30.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 8,
+                    kind: SkeletonTwo
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 1.0,
+                    hp: 6,
+                    kind: EntTwo
+                ),
+
+            ]
+        ),
+        // 7
         Wave (
             spawns: [
                 Spawn (
@@ -121,43 +150,66 @@ LevelConfig (
                 ),
             ]
         ),
+        // 7
         Wave (
             spawns: [
                 Spawn (
                     delay: 30.,
                     spawner: 0,
-                    num: 10,
-                    interval: 2.0,
-                    hp: 12,
-                    kind: EntTwo
-                ),
-                Spawn (
-                    delay: 30.,
-                    spawner: 1,
                     num: 10,
                     interval: 2.0,
                     hp: 8,
                     kind: SkeletonTwo
                 ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 10,
+                    kind: EntThree
+                ),
             ]
         ),
+        // 8
         Wave (
             spawns: [
                 Spawn (
                     delay: 30.,
                     spawner: 0,
                     num: 10,
-                    interval: 2.,
-                    hp: 16,
-                    kind: SkeletonThree
+                    interval: 2.0,
+                    hp: 10,
+                    kind: EntThree
                 ),
                 Spawn (
                     delay: 30.,
                     spawner: 1,
                     num: 10,
-                    interval: 2.,
-                    hp: 12,
-                    kind: EntTwo
+                    interval: 1.0,
+                    hp: 8,
+                    kind: SkeletonTwo
+                ),
+            ]
+        ),
+        // 9
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 30.,
+                    spawner: 0,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 10,
+                    kind: EntThree
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 1,
+                    num: 10,
+                    interval: 2.0,
+                    hp: 10,
+                    kind: EntThree
                 ),
             ]
         ),
