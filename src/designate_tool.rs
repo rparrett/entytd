@@ -304,11 +304,13 @@ fn designate(
             .map(|d| d.workers != 0)
             .unwrap_or(false)
         {
-            commands.spawn(AudioBundle {
-                source: sound_assets.bad.clone(),
-                settings: PlaybackSettings::DESPAWN
-                    .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
-            });
+            if buttons.just_pressed(MouseButton::Left) {
+                commands.spawn(AudioBundle {
+                    source: sound_assets.bad.clone(),
+                    settings: PlaybackSettings::DESPAWN
+                        .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+                });
+            }
 
             return;
         }
@@ -341,21 +343,25 @@ fn designate(
     };
 
     if !ok {
-        commands.spawn(AudioBundle {
-            source: sound_assets.bad.clone(),
-            settings: PlaybackSettings::DESPAWN
-                .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
-        });
+        if buttons.just_pressed(MouseButton::Left) {
+            commands.spawn(AudioBundle {
+                source: sound_assets.bad.clone(),
+                settings: PlaybackSettings::DESPAWN
+                    .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+            });
+        }
         return;
     }
 
     let designation_kind = DesignationKind::from(selected_tool.0);
     if currency.try_sub(&designation_kind.price()).is_err() {
-        commands.spawn(AudioBundle {
-            source: sound_assets.bad.clone(),
-            settings: PlaybackSettings::DESPAWN
-                .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
-        });
+        if buttons.just_pressed(MouseButton::Left) {
+            commands.spawn(AudioBundle {
+                source: sound_assets.bad.clone(),
+                settings: PlaybackSettings::DESPAWN
+                    .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+            });
+        }
         return;
     }
 
