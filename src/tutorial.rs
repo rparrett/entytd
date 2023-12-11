@@ -191,7 +191,7 @@ fn update(
     for mut text in &mut query {
         match *tutorial_state {
             TutorialState::Dig => {
-                text.sections[0].value = "You can use the number keys or mouse to select a tool on the right. With dig tool (1), click and drag the left mouse button to paint the stone you want your workers to excavate.".to_string();
+                text.sections[0].value = "You can use the number keys or mouse to select a tool on the right. With dig tool (1), click and hold the left mouse button to paint the stone you want your workers to excavate.".to_string();
             }
             TutorialState::DigMore => {
                 text.sections[0].value =
