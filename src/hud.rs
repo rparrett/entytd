@@ -13,7 +13,7 @@ use crate::{
     home::Home,
     tilemap::{AtlasHandle, SCALE, TILE_SIZE},
     tool_selector::SelectedTool,
-    ui::UiAssets,
+    ui::{self, UiAssets},
     waves::Waves,
     worker::{Idle, Worker},
     GameState,
@@ -331,9 +331,14 @@ fn update_idle_workers(
     };
 
     let idle = has_idle.iter().count();
-    let not_idle = hasnt_idle.iter().count();
+    let total = idle + hasnt_idle.iter().count();
 
-    text.sections[0].value = format!("{}/{}", idle, idle + not_idle);
+    text.sections[0].value = format!("{}/{}", idle, total);
+    text.sections[0].style.color = if idle != total {
+        ui::TITLE_TEXT
+    } else {
+        Color::RED
+    };
 }
 
 fn update_fps(
