@@ -183,7 +183,9 @@ fn update_cursor(
             return;
         };
 
-        let kind = tilemap.tiles[tile_pos.x][tile_pos.y];
+        let Some(kind) = tilemap.get(tile_pos) else {
+            return;
+        };
 
         let designation = DesignationKind::from(selected_tool.0);
 
@@ -333,7 +335,9 @@ fn designate(
         return;
     };
 
-    let kind = tilemap.tiles[tile_pos.x][tile_pos.y];
+    let Some(kind) = tilemap.get(tile_pos) else {
+        return;
+    };
 
     let ok = match selected_tool.0 {
         Tool::Dig if kind.diggable() => true,
