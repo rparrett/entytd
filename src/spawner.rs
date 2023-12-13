@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use bevy::{audio::Volume, prelude::*, window::PrimaryWindow};
+use bevy::{audio::Volume, prelude::*};
 use bevy_nine_slice_ui::NineSliceTexture;
 use serde::Deserialize;
 
@@ -252,8 +252,7 @@ fn update_spawner_ui(
     mut ui_image_query: Query<&mut UiTextureAtlasImage, With<SpawnerPortrait>>,
     mut ui_text_query: Query<&mut Text, With<SpawnerDelayText>>,
     spawners: Res<SpawnerStates>,
-    windows: Query<&Window, With<PrimaryWindow>>,
-    camera_query: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
+    camera_query: Query<(&Camera, &GlobalTransform, &OrthographicProjection), With<Camera2d>>,
     spawning_paused: Res<SpawningPaused>,
 ) {
     for (_, index, ui_entity) in &query {
@@ -287,18 +286,13 @@ fn update_spawner_ui(
         text.sections[0].value = format!("{:.1}", state.delay_timer.remaining_secs());
     }
 
-    let Ok(window) = windows.get_single() else {
-        return;
-    };
-
-    let Ok((camera, camera_transform)) = camera_query.get_single() else {
+    let Ok((camera, camera_transform, projection)) = camera_query.get_single() else {
         return;
     };
 
     for (transform, _, ui_entity) in &query {
         let inset = 10.;
-        let indicator_rect =
-            Vec2::new(window.width(), window.height()) / 2. - SPAWNER_UI_SIZE / 2. - inset / 2.;
+        let indicator_rect = projection.area.size() / 2. - SPAWNER_UI_SIZE / 2. - inset / 2.;
 
         let camera_pos = camera_transform.translation().truncate();
 

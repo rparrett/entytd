@@ -1,4 +1,4 @@
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{prelude::*, render::camera::ScalingMode};
 
 use crate::{tilemap::Tilemap, GameState};
 
@@ -11,16 +11,17 @@ impl Plugin for CameraPlugin {
 }
 
 fn spawn(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    let mut camera = Camera2dBundle::default();
+    camera.projection.scaling_mode = ScalingMode::FixedHorizontal(1280.);
+    commands.spawn(camera);
 }
 
 pub fn update(
     keys: Res<Input<KeyCode>>,
-    mut query: Query<&mut Transform, With<Camera2d>>,
+    mut query: Query<(Ref<OrthographicProjection>, &mut Transform), With<Camera2d>>,
     time: Res<Time>,
     tilemaps: Res<Assets<Tilemap>>,
     tilemap_query: Query<&Handle<Tilemap>>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     let x = keys.any_pressed([KeyCode::Right, KeyCode::D]) as i8
         - keys.any_pressed([KeyCode::Left, KeyCode::A, KeyCode::Q]) as i8;
@@ -28,17 +29,13 @@ pub fn update(
         - keys.any_pressed([KeyCode::Down, KeyCode::S]) as i8;
     let dir = Vec2::new(x as f32, y as f32).normalize_or_zero();
 
-    if dir == Vec2::ZERO {
+    let Ok((projection, mut transform)) = query.get_single_mut() else {
+        return;
+    };
+
+    if dir == Vec2::ZERO && !projection.is_changed() {
         return;
     }
-
-    let Ok(mut camera) = query.get_single_mut() else {
-        return;
-    };
-
-    let Ok(window) = window_query.get_single() else {
-        return;
-    };
 
     let Ok(tilemap_handle) = tilemap_query.get_single() else {
         return;
@@ -57,7 +54,7 @@ pub fn update(
     let pan_area = Vec2::new(tilemap.width as f32, tilemap.height as f32)
         * crate::tilemap::SCALE
         * crate::tilemap::TILE_SIZE
-        - Vec2::new(window.width(), window.height());
+        - projection.area.size();
 
     if pan_area.x <= 0. || pan_area.y <= 0. {
         return;
@@ -66,7 +63,7 @@ pub fn update(
     let min = pan_area / -2.;
     let max = pan_area / 2.;
 
-    camera.translation += dir.extend(0.) * time.delta_seconds() * speed;
-    camera.translation.x = camera.translation.x.clamp(min.x, max.x);
-    camera.translation.y = camera.translation.y.clamp(min.y, max.y);
+    transform.translation += dir.extend(0.) * time.delta_seconds() * speed;
+    transform.translation.x = transform.translation.x.clamp(min.x, max.x);
+    transform.translation.y = transform.translation.y.clamp(min.y, max.y);
 }
