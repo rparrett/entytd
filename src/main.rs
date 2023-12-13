@@ -146,7 +146,9 @@ fn main() {
         WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
     );
 
-    app.insert_resource(Msaa::Off).add_state::<GameState>();
+    app.insert_resource(Msaa::Off)
+        .insert_resource(ClearColor(Color::BLACK))
+        .add_state::<GameState>();
 
     app.run();
 }
