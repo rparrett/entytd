@@ -54,15 +54,19 @@ pub fn update(
         250.
     };
 
-    camera.translation += dir.extend(0.) * time.delta_seconds() * speed;
-
-    let max = Vec2::new(tilemap.width as f32, tilemap.height as f32)
+    let pan_area = Vec2::new(tilemap.width as f32, tilemap.height as f32)
         * crate::tilemap::SCALE
         * crate::tilemap::TILE_SIZE
-        / 2.
-        - Vec2::new(window.width(), window.height()) / 2.;
-    let min = -max;
+        - Vec2::new(window.width(), window.height());
 
+    if pan_area.x <= 0. || pan_area.y <= 0. {
+        return;
+    }
+
+    let min = pan_area / -2.;
+    let max = pan_area / 2.;
+
+    camera.translation += dir.extend(0.) * time.delta_seconds() * speed;
     camera.translation.x = camera.translation.x.clamp(min.x, max.x);
     camera.translation.y = camera.translation.y.clamp(min.y, max.y);
 }
