@@ -1,6 +1,6 @@
 use bevy::{asset::AssetMetaCheck, diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 
-use bevy_nine_slice_ui::NineSlicePlugin;
+use bevy_nine_slice_ui::NineSliceUiPlugin;
 use camera::CameraPlugin;
 use currency::CurrencyPlugin;
 use cursor::CursorPlugin;
@@ -139,7 +139,7 @@ fn main() {
         TutorialPlugin,
     ));
 
-    app.add_plugins(NineSlicePlugin::default());
+    app.add_plugins(NineSliceUiPlugin::default());
 
     #[cfg(feature = "inspector")]
     app.add_plugins(

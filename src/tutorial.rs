@@ -1,5 +1,5 @@
 use bevy::{audio::Volume, prelude::*};
-use bevy_nine_slice_ui::NineSliceTexture;
+use bevy_nine_slice_ui::NineSliceUiTexture;
 
 use crate::{
     currency::Currency,
@@ -73,7 +73,7 @@ pub fn init_tutorial(mut commands: Commands, ui_assets: Res<UiAssets>) {
                 },
                 ..default()
             },
-            NineSliceTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
             Name::new("TutorialContainer"),
             TutorialScene,
         ))

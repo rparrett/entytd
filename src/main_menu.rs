@@ -10,7 +10,7 @@ use bevy::{
     audio::{AudioSink, Volume},
     prelude::*,
 };
-use bevy_nine_slice_ui::NineSliceTexture;
+use bevy_nine_slice_ui::NineSliceUiTexture;
 
 pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
@@ -120,7 +120,7 @@ fn setup_menu(
                 },
                 ..default()
             },
-            NineSliceTexture::from_image(ui_assets.nine_slice_container.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_slice_container.clone()),
             MainMenuScene,
         ))
         .id();
@@ -143,7 +143,7 @@ fn setup_menu(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
             PlayButton,
         ))
         .with_children(|parent| {
@@ -184,7 +184,7 @@ fn setup_menu(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
             ParticlesSettingButton,
         ))
         .with_children(|parent| {
@@ -201,7 +201,7 @@ fn setup_menu(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
             DifficultySettingButton,
         ))
         .with_children(|parent| {
@@ -218,7 +218,7 @@ fn setup_menu(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
             SfxSettingButton,
         ))
         .with_children(|parent| {
@@ -235,7 +235,7 @@ fn setup_menu(
                 style: button_style,
                 ..default()
             },
-            NineSliceTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
             MusicSettingButton,
         ))
         .with_children(|parent| {

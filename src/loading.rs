@@ -2,7 +2,7 @@ use bevy::{
     asset::{LoadState, UntypedAssetId},
     prelude::*,
 };
-use bevy_nine_slice_ui::NineSliceTexture;
+use bevy_nine_slice_ui::NineSliceUiTexture;
 use bevy_pipelines_ready::{PipelinesReady, PipelinesReadyPlugin};
 use strum::IntoEnumIterator;
 
@@ -104,7 +104,7 @@ fn init_loading_scene(
                 },
                 ..default()
             },
-            NineSliceTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
             LoadingScene,
         ))
         .with_children(|parent| {

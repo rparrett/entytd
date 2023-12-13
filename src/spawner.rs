@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::{audio::Volume, prelude::*};
-use bevy_nine_slice_ui::NineSliceTexture;
+use bevy_nine_slice_ui::NineSliceUiTexture;
 use serde::Deserialize;
 
 use crate::{
@@ -204,7 +204,7 @@ fn add_spawner_ui(
                     },
                     ..default()
                 },
-                NineSliceTexture::from_image(ui_assets.nine_slice.clone()),
+                NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
                 SpawnerContainer,
             ))
             .with_children(|parent| {

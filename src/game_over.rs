@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_nine_slice_ui::NineSliceTexture;
+use bevy_nine_slice_ui::NineSliceUiTexture;
 
 use crate::{
     game::Won,
@@ -66,7 +66,7 @@ fn init(
                 },
                 ..default()
             },
-            NineSliceTexture::from_image(ui_assets.nine_slice_container.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_slice_container.clone()),
             GameOverScene,
         ))
         .id();
@@ -153,7 +153,7 @@ fn init(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
             MenuButton,
         ))
         .with_children(|parent| {

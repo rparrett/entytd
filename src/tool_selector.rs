@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_nine_slice_ui::NineSliceTexture;
+use bevy_nine_slice_ui::NineSliceUiTexture;
 
 use crate::{
     radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
@@ -98,7 +98,7 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
                         },
                         ..default()
                     },
-                    NineSliceTexture::from_image(ui_assets.nine_slice.clone()),
+                    NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
                     RadioButton { selected: i == 1 },
                     ToolButton,
                     kind,
@@ -158,16 +158,16 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
 
 fn update_style(
     mut query: Query<
-        (&RadioButton, &mut NineSliceTexture),
+        (&RadioButton, &mut NineSliceUiTexture),
         (Changed<RadioButton>, With<ToolButton>),
     >,
     ui_assets: Res<UiAssets>,
 ) {
     for (radio, mut texture) in query.iter_mut() {
         if radio.selected {
-            *texture = NineSliceTexture::from_image(ui_assets.nine_slice_selected.clone());
+            *texture = NineSliceUiTexture::from_image(ui_assets.nine_slice_selected.clone());
         } else {
-            *texture = NineSliceTexture::from_image(ui_assets.nine_slice.clone());
+            *texture = NineSliceUiTexture::from_image(ui_assets.nine_slice.clone());
         }
     }
 }

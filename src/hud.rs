@@ -4,7 +4,7 @@ use bevy::{
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     prelude::*,
 };
-use bevy_nine_slice_ui::NineSliceTexture;
+use bevy_nine_slice_ui::NineSliceUiTexture;
 
 use crate::{
     currency::Currency,
@@ -126,7 +126,7 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         },
                         ..default()
                     },
-                    NineSliceTexture::from_image(common.nine_slice.clone()),
+                    NineSliceUiTexture::from_image(common.nine_slice.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -157,7 +157,7 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         },
                         ..default()
                     },
-                    NineSliceTexture::from_image(common.nine_slice.clone()),
+                    NineSliceUiTexture::from_image(common.nine_slice.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -188,7 +188,7 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         },
                         ..default()
                     },
-                    NineSliceTexture::from_image(common.nine_slice.clone()),
+                    NineSliceUiTexture::from_image(common.nine_slice.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -225,7 +225,7 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         },
                         ..default()
                     },
-                    NineSliceTexture::from_image(common.nine_slice.clone()),
+                    NineSliceUiTexture::from_image(common.nine_slice.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
