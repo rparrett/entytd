@@ -6,12 +6,15 @@ edition = "2021"
 [dependencies]
 bevy_common_assets = { version = "0.8.0", features = ["ron"] }
 bevy_nine_slice_ui = "0.5.0"
-rand = { version = "0.8.5", features = ["small_rng"] }
+bevy_pipelines_ready = "0.2.0"
+rand = { version = "0.8.5", default-features = false, features = [
+    "std",
+    "small_rng",
+] }
 image = "*"
 pathfinding = "4.4.0"
 serde = "*"
 ron = "*"
-bevy_pipelines_ready = "0.2.0"
 strum = "0.25.0"
 strum_macros = "0.25"
 

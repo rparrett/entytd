@@ -14,13 +14,14 @@ use crate::{
 };
 use bevy::{audio::Volume, prelude::*};
 use pathfinding::prelude::astar;
-use rand::{seq::SliceRandom, thread_rng, Rng};
+use rand::{rngs::SmallRng, seq::SliceRandom, Rng, SeedableRng};
 
 pub struct WorkerPlugin;
 impl Plugin for WorkerPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SpawnWorkerEvent>()
             .init_resource::<WorkerSortTimer>()
+            .init_resource::<WorkerRng>()
             .add_systems(Update, spawn.run_if(in_state(GameState::Playing)))
             .add_systems(OnEnter(GameState::Playing), init)
             .add_systems(
@@ -76,30 +77,37 @@ impl Default for WorkerSortTimer {
     }
 }
 
+#[derive(Resource)]
+pub struct WorkerRng(SmallRng);
+impl Default for WorkerRng {
+    fn default() -> Self {
+        Self(SmallRng::from_entropy())
+    }
+}
+
 fn spawn(
     mut commands: Commands,
     mut events: EventReader<SpawnWorkerEvent>,
     atlas_handle: Res<AtlasHandle>,
     tilemap_query: Query<&Tilemap>,
+    mut rng: ResMut<WorkerRng>,
 ) {
     if events.is_empty() {
         return;
     }
-
-    let mut rng = thread_rng();
 
     for _ in events.read() {
         let Ok(tilemap) = tilemap_query.get_single() else {
             continue;
         };
 
-        let index = *WORKER_SPRITES.choose(&mut rng).unwrap();
-        let color = Color::hsl(rng.gen_range(0.0..=360.0), 0.9, 0.5);
+        let index = *WORKER_SPRITES.choose(&mut rng.0).unwrap();
+        let color = Color::hsl(rng.0.gen_range(0.0..=360.0), 0.9, 0.5);
 
         let home = (60, 30);
         let pos = TilePos {
-            x: rng.gen_range((home.0 - 2)..(home.0 + 2)),
-            y: rng.gen_range((home.1 - 2)..(home.1 + 2)),
+            x: rng.0.gen_range((home.0 - 2)..(home.0 + 2)),
+            y: rng.0.gen_range((home.1 - 2)..(home.1 + 2)),
         };
         let world = tilemap.pos_to_world(pos);
 
@@ -115,7 +123,7 @@ fn spawn(
                     transform: Transform {
                         // Give workers a random z value so their display order is stable as
                         // entities are added/removed from the view/world.
-                        translation: world.extend(layer::MOBS + rng.gen::<f32>()),
+                        translation: world.extend(layer::MOBS + rng.0.gen::<f32>()),
                         scale: crate::tilemap::SCALE.extend(1.),
                         ..default()
                     },
@@ -350,16 +358,15 @@ fn sort_workers(
     mut query: Query<&mut Transform, With<Worker>>,
     mut timer: ResMut<WorkerSortTimer>,
     time: Res<Time>,
+    mut rng: ResMut<WorkerRng>,
 ) {
     timer.0.tick(time.delta());
     if !timer.0.just_finished() {
         return;
     }
 
-    let mut rng = thread_rng();
-
     for mut translation in &mut query {
-        translation.translation.z = layer::MOBS + rng.gen::<f32>();
+        translation.translation.z = layer::MOBS + rng.0.gen::<f32>();
     }
 }
 

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use rand::{seq::SliceRandom, thread_rng};
+use rand::{rngs::SmallRng, seq::SliceRandom, SeedableRng};
 use serde::Deserialize;
 
 use crate::{
@@ -20,6 +20,7 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SpawnEnemyEvent>()
+            .init_resource::<EnemyRng>()
             .add_systems(
                 Update,
                 (spawn, pathfinding, behavior, tick_cooldown, attack, die)
@@ -78,6 +79,14 @@ pub struct AttackCooldown(Timer);
 impl Default for AttackCooldown {
     fn default() -> Self {
         Self(Timer::from_seconds(1., TimerMode::Once))
+    }
+}
+
+#[derive(Resource)]
+pub struct EnemyRng(SmallRng);
+impl Default for EnemyRng {
+    fn default() -> Self {
+        Self(SmallRng::from_entropy())
     }
 }
 
@@ -143,6 +152,7 @@ fn pathfinding(
     query: Query<(Entity, &TilePos, &Behavior, &EnemyKind), (With<Enemy>, Without<PathState>)>,
     tilemap_query: Query<&Tilemap>,
     home_query: Query<(&TilePos, &HitPoints), With<Home>>,
+    mut rng: ResMut<EnemyRng>,
 ) {
     // TODO spawner should do the pathfinding and cache the result.
 
@@ -155,12 +165,11 @@ fn pathfinding(
             return;
         };
 
-        let mut rng = thread_rng();
         let goals = home_query
             .iter()
             .filter(|(_, hp)| !hp.is_zero())
             .collect::<Vec<_>>();
-        let Some((goal, _)) = goals.choose(&mut rng) else {
+        let Some((goal, _)) = goals.choose(&mut rng.0) else {
             return;
         };
 
@@ -168,7 +177,7 @@ fn pathfinding(
         // so when enemies are attacking it feels a bit swarmier.
         let neighbors =
             NeighborCostIter::new(**goal, enemy_cost_fn(map, *kind)).collect::<Vec<_>>();
-        let Some((goal, _)) = neighbors.choose(&mut rng) else {
+        let Some((goal, _)) = neighbors.choose(&mut rng.0) else {
             return;
         };
 
