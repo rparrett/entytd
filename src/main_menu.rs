@@ -48,7 +48,7 @@ impl FromWorld for MainMenuAssets {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.resource::<AssetServer>();
 
-        let background = asset_server.load("menu.map.png");
+        let background = asset_server.load("levels/menu.map.png");
 
         let mut loading_assets = world.resource_mut::<LoadingAssets>();
         loading_assets.0.push(background.clone().into());

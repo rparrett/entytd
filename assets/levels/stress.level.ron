@@ -1,5 +1,5 @@
 LevelConfig (
-    map: "stress.map.png",
+    map: "levels/stress.map.png",
     workers: 99,
     currency: Currency (
         stone: 9998,

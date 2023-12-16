@@ -1,5 +1,5 @@
 LevelConfig (
-    map: "map.map.png",
+    map: "levels/map.map.png",
     currency: Currency (
         stone: 0,
         metal: 0,

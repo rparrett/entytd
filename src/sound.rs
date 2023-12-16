@@ -22,11 +22,11 @@ pub struct SoundAssets {
 impl FromWorld for SoundAssets {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.resource::<AssetServer>();
-        let bgm = asset_server.load("bgm-hzsmith.ogg");
-        let pickaxe = asset_server.load("pickaxe.ogg");
-        let wave = asset_server.load("wave.ogg");
-        let tutorial = asset_server.load("tutorial.ogg");
-        let bad = asset_server.load("bad.ogg");
+        let bgm = asset_server.load("audio/bgm-hzsmith.ogg");
+        let pickaxe = asset_server.load("audio/pickaxe.ogg");
+        let wave = asset_server.load("audio/wave.ogg");
+        let tutorial = asset_server.load("audio/tutorial.ogg");
+        let bad = asset_server.load("audio/bad.ogg");
 
         let mut loading_assets = world.resource_mut::<LoadingAssets>();
         loading_assets.0.push(bgm.clone().into());
