@@ -243,7 +243,8 @@ fn attack(
         };
 
         if home_hp.is_zero() {
-            commands.entity(entity).insert(Behavior::SeekHome);
+            // Enemy may have died and been despawned
+            commands.entity(entity).try_insert(Behavior::SeekHome);
             continue;
         }
 
@@ -266,7 +267,8 @@ fn attack(
         }
 
         if home_hp.is_zero() {
-            commands.entity(entity).insert(Behavior::SeekHome);
+            // Enemy may have died and been despawned
+            commands.entity(entity).try_insert(Behavior::SeekHome);
         }
 
         cooldown.0.reset();
