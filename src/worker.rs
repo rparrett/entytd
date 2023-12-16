@@ -2,6 +2,7 @@ use crate::{
     designate_tool::{DesignationKind, Designations},
     hit_points::HitPoints,
     layer,
+    level::{LevelConfig, LevelHandle},
     movement::{MovingProgress, Speed},
     pathfinding::{heuristic, worker_cost_fn, NeighborCostIter, PathState},
     settings::SfxSetting,
@@ -140,8 +141,17 @@ fn spawn(
     }
 }
 
-fn init(mut events: EventWriter<SpawnWorkerEvent>) {
-    for _ in 0..10 {
+fn init(
+    mut events: EventWriter<SpawnWorkerEvent>,
+    levels: Res<Assets<LevelConfig>>,
+    level_handle: Res<LevelHandle>,
+) {
+    let Some(level) = levels.get(&level_handle.0) else {
+        warn!("Couldn't find level when initializing Currency ");
+        return;
+    };
+
+    for _ in 0..level.workers {
         events.send(SpawnWorkerEvent);
     }
 }

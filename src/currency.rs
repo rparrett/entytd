@@ -1,17 +1,22 @@
 use bevy::prelude::*;
+use serde::Deserialize;
 
-use crate::GameState;
+use crate::{
+    level::{LevelConfig, LevelHandle},
+    GameState,
+};
 
 pub struct CurrencyPlugin;
 impl Plugin for CurrencyPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Currency>();
+        app.add_systems(OnEnter(GameState::Playing), init);
         app.add_systems(OnExit(GameState::GameOver), cleanup);
     }
 }
 
 pub struct NotEnoughCurrencyError;
-#[derive(Resource, Debug, Default, Eq, PartialEq)]
+#[derive(Resource, Debug, Deserialize, Eq, PartialEq, Clone)]
 pub struct Currency {
     pub metal: u32,
     pub crystal: u32,
@@ -66,6 +71,24 @@ impl Currency {
         self.crystal += value.crystal;
         self.stone += value.stone;
     }
+}
+
+impl Default for Currency {
+    fn default() -> Self {
+        Self {
+            metal: 9999,
+            crystal: 9999,
+            stone: 9999,
+        }
+    }
+}
+
+fn init(mut commands: Commands, levels: Res<Assets<LevelConfig>>, level_handle: Res<LevelHandle>) {
+    let Some(level) = levels.get(&level_handle.0) else {
+        warn!("Couldn't find level when initializing Currency ");
+        return;
+    };
+    commands.insert_resource(level.currency.clone());
 }
 
 fn cleanup(mut commands: Commands) {

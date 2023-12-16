@@ -1,0 +1,255 @@
+LevelConfig (
+    map: "stress.map.png",
+    workers: 99,
+    currency: Currency (
+        stone: 9998,
+        metal: 9998,
+        crystal: 9998
+    ),
+    waves: [
+        Wave (
+            spawns: [
+                Spawn (
+                    delay: 30.,
+                    spawner: 0,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 1,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 2,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 3,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 4,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 5,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 6,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 7,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 8,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 9,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 10,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 11,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 12,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 13,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 14,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 15,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 16,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 17,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 18,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 19,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 20,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 21,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 22,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 23,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 24,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 25,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 26,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 27,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 28,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Ent
+                ),
+                Spawn (
+                    delay: 30.,
+                    spawner: 29,
+                    num: 100,
+                    interval: 0.2,
+                    hp: 2,
+                    kind: Skeleton
+                ),
+            ]
+        ),
+    ]
+)

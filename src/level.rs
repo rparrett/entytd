@@ -3,6 +3,7 @@ use bevy_common_assets::ron::RonAssetPlugin;
 use serde::Deserialize;
 
 use crate::{
+    currency::Currency,
     loading::{LoadingAssets, LoadingResources},
     waves::Wave,
     GameState,
@@ -20,6 +21,8 @@ impl Plugin for LevelPlugin {
 #[derive(Asset, TypePath, Deserialize)]
 pub struct LevelConfig {
     pub map: String,
+    pub workers: usize,
+    pub currency: Currency,
     pub waves: Vec<Wave>,
 }
 
@@ -32,7 +35,7 @@ fn queue_load(
     mut loading_assets: ResMut<LoadingAssets>,
     mut loading_resources: ResMut<LoadingResources>,
 ) {
-    let handle = asset_server.load("1.level.ron");
+    let handle = asset_server.load("stress.level.ron");
     loading_assets.0.push(handle.clone().into());
     commands.insert_resource(LevelHandle(handle));
     loading_resources.0 += 1;

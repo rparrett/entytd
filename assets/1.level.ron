@@ -1,5 +1,10 @@
 LevelConfig (
     map: "map.map.png",
+    currency: Currency (
+        stone: 0,
+        metal: 0,
+        crystal: 0
+    ),
     waves: [
         // 0
         Wave (
