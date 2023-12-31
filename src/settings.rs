@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct MusicSetting(u8);
 impl Default for MusicSetting {
     fn default() -> Self {
-        Self(100)
+        Self(50)
     }
 }
 
@@ -15,7 +15,7 @@ impl Default for MusicSetting {
 pub struct SfxSetting(u8);
 impl Default for SfxSetting {
     fn default() -> Self {
-        Self(100)
+        Self(50)
     }
 }
 #[derive(Resource, Debug, Default, Serialize, Deserialize, Clone)]
