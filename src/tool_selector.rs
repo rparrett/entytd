@@ -4,7 +4,7 @@ use bevy_nine_slice_ui::NineSliceUiTexture;
 use crate::{
     radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
     tilemap::{AtlasHandle, TileKind, SCALE, TILE_SIZE},
-    ui::UiAssets,
+    ui::{UiAssets, BUTTON_TEXT},
     util::cleanup,
     GameState,
 };
@@ -89,8 +89,8 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
                 let mut button_command = parent.spawn((
                     ButtonBundle {
                         style: Style {
-                            width: Val::Px(60.0),
-                            height: Val::Px(60.0),
+                            width: Val::Px(64.0),
+                            height: Val::Px(64.0),
                             flex_direction: FlexDirection::Column,
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::Center,
@@ -126,12 +126,12 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
                             format!("{}", i),
                             TextStyle {
                                 font_size: 18.0,
-                                color: Color::rgb(0.9, 0.9, 0.9),
+                                color: BUTTON_TEXT,
                                 ..default()
                             },
                         )
                         .with_style(Style {
-                            margin: UiRect::top(Val::Px(4.)),
+                            margin: UiRect::top(Val::Px(6.)),
                             ..default()
                         }),
                     );

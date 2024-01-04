@@ -13,7 +13,7 @@ use crate::{
     home::Home,
     tilemap::{AtlasHandle, SCALE, TILE_SIZE},
     tool_selector::SelectedTool,
-    ui::{self, UiAssets},
+    ui::{self, UiAssets, TITLE_TEXT},
     waves::Waves,
     worker::{Idle, Worker},
     GameState,
@@ -121,12 +121,12 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                             flex_direction: FlexDirection::Column,
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::FlexStart,
-                            padding: UiRect::all(Val::Px(4.)),
+                            padding: UiRect::all(Val::Px(6.)),
                             ..default()
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(common.nine_slice.clone()),
+                    NineSliceUiTexture::from_image(common.nine_slice_container.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -152,12 +152,12 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                             flex_direction: FlexDirection::Column,
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::FlexStart,
-                            padding: UiRect::all(Val::Px(4.)),
+                            padding: UiRect::all(Val::Px(6.)),
                             ..default()
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(common.nine_slice.clone()),
+                    NineSliceUiTexture::from_image(common.nine_slice_container.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -183,12 +183,12 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                             flex_direction: FlexDirection::Column,
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::FlexStart,
-                            padding: UiRect::all(Val::Px(4.)),
+                            padding: UiRect::all(Val::Px(6.)),
                             ..default()
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(common.nine_slice.clone()),
+                    NineSliceUiTexture::from_image(common.nine_slice_container.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -220,12 +220,12 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                             flex_direction: FlexDirection::Column,
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::FlexStart,
-                            padding: UiRect::all(Val::Px(4.)),
+                            padding: UiRect::all(Val::Px(6.)),
                             ..default()
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(common.nine_slice.clone()),
+                    NineSliceUiTexture::from_image(common.nine_slice_container.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -278,7 +278,7 @@ fn init_hud_item<M: Component + Default>(
                 text,
                 TextStyle {
                     font_size: 18.0,
-                    color: Color::rgb(0.9, 0.9, 0.9),
+                    color: TITLE_TEXT,
                     ..default()
                 },
             ));

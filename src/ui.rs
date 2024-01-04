@@ -19,6 +19,8 @@ pub struct UiAssets {
     pub nine_slice: Handle<Image>,
     pub nine_slice_selected: Handle<Image>,
     pub nine_slice_container: Handle<Image>,
+    pub nine_slice_container_warning: Handle<Image>,
+    pub nine_slice_container_info: Handle<Image>,
     pub nine_slice_hovered: Handle<Image>,
     pub range_indicator_24: Handle<Image>,
 }
@@ -30,6 +32,8 @@ impl FromWorld for UiAssets {
         let nine_slice_selected = asset_server.load("ui_nine_slice_selected.png");
         let nine_slice_hovered = asset_server.load("ui_nine_slice_hovered.png");
         let nine_slice_container = asset_server.load("ui_nine_slice_container.png");
+        let nine_slice_container_warning = asset_server.load("ui_nine_slice_container_warning.png");
+        let nine_slice_container_info = asset_server.load("ui_nine_slice_container_info.png");
         let range_indicator_24 = asset_server.load("range_indicator_24.png");
 
         let mut loading_assets = world.resource_mut::<LoadingAssets>();
@@ -38,6 +42,12 @@ impl FromWorld for UiAssets {
         loading_assets.0.push(nine_slice_hovered.clone().into());
         loading_assets.0.push(nine_slice_selected.clone().into());
         loading_assets.0.push(nine_slice_container.clone().into());
+        loading_assets
+            .0
+            .push(nine_slice_container_warning.clone().into());
+        loading_assets
+            .0
+            .push(nine_slice_container_info.clone().into());
         loading_assets.0.push(range_indicator_24.clone().into());
 
         UiAssets {
@@ -45,6 +55,8 @@ impl FromWorld for UiAssets {
             nine_slice_selected,
             nine_slice_hovered,
             nine_slice_container,
+            nine_slice_container_warning,
+            nine_slice_container_info,
             range_indicator_24,
         }
     }

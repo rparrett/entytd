@@ -9,12 +9,12 @@ use crate::{
     settings::SfxSetting,
     sound::SoundAssets,
     tilemap::{AtlasHandle, TilePos, SCALE, TILE_SIZE},
-    ui::UiAssets,
+    ui::{UiAssets, TITLE_TEXT},
     waves::{WaveStartEvent, Waves},
     GameState,
 };
 
-const SPAWNER_UI_SIZE: Vec2 = Vec2::new(60., 60.);
+const SPAWNER_UI_SIZE: Vec2 = Vec2::new(64., 64.);
 
 pub struct SpawnerPlugin;
 impl Plugin for SpawnerPlugin {
@@ -204,7 +204,7 @@ fn add_spawner_ui(
                     },
                     ..default()
                 },
-                NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
+                NineSliceUiTexture::from_image(ui_assets.nine_slice_container_warning.clone()),
                 SpawnerContainer,
             ))
             .with_children(|parent| {
@@ -229,12 +229,12 @@ fn add_spawner_ui(
                         "10.1",
                         TextStyle {
                             font_size: 18.0,
-                            color: Color::rgb(0.9, 0.9, 0.9),
+                            color: TITLE_TEXT,
                             ..default()
                         },
                     )
                     .with_style(Style {
-                        margin: UiRect::top(Val::Px(4.)),
+                        margin: UiRect::top(Val::Px(6.)),
                         ..default()
                     }),
                     SpawnerDelayText,

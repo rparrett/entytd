@@ -7,7 +7,7 @@ use crate::{
     settings::{SfxSetting, TutorialFinishedSetting},
     sound::SoundAssets,
     spawner::SpawningPaused,
-    ui::UiAssets,
+    ui::{UiAssets, TITLE_TEXT},
     util::cleanup,
     GameState,
 };
@@ -73,7 +73,7 @@ pub fn init_tutorial(mut commands: Commands, ui_assets: Res<UiAssets>) {
                 },
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_slice_container_info.clone()),
             Name::new("TutorialContainer"),
             TutorialScene,
         ))
@@ -83,7 +83,7 @@ pub fn init_tutorial(mut commands: Commands, ui_assets: Res<UiAssets>) {
                     .to_string(),
                 TextStyle {
                     font_size: 18.0,
-                    color: Color::rgb(0.9, 0.9, 0.9),
+                    color: TITLE_TEXT,
                     ..default()
                 },
             ), TutorialText));
