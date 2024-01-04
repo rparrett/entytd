@@ -104,7 +104,7 @@ fn init_loading_scene(
                 },
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
             LoadingScene,
         ))
         .with_children(|parent| {

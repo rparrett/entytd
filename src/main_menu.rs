@@ -120,7 +120,7 @@ fn setup_menu(
                 },
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_slice_container.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_panel.clone()),
             MainMenuScene,
         ))
         .id();
@@ -143,7 +143,7 @@ fn setup_menu(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
             PlayButton,
         ))
         .with_children(|parent| {
@@ -184,7 +184,7 @@ fn setup_menu(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
             ParticlesSettingButton,
         ))
         .with_children(|parent| {
@@ -201,7 +201,7 @@ fn setup_menu(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
             DifficultySettingButton,
         ))
         .with_children(|parent| {
@@ -218,7 +218,7 @@ fn setup_menu(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
             SfxSettingButton,
         ))
         .with_children(|parent| {
@@ -235,7 +235,7 @@ fn setup_menu(
                 style: button_style,
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
             MusicSettingButton,
         ))
         .with_children(|parent| {

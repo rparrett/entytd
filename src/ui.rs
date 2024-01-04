@@ -16,47 +16,43 @@ impl Plugin for UiPlugin {
 
 #[derive(Resource)]
 pub struct UiAssets {
-    pub nine_slice: Handle<Image>,
-    pub nine_slice_selected: Handle<Image>,
-    pub nine_slice_container: Handle<Image>,
-    pub nine_slice_container_warning: Handle<Image>,
-    pub nine_slice_container_info: Handle<Image>,
-    pub nine_slice_hovered: Handle<Image>,
+    pub nine_button: Handle<Image>,
+    pub nine_button_selected: Handle<Image>,
+    pub nine_button_hovered: Handle<Image>,
+    pub nine_panel: Handle<Image>,
+    pub nine_panel_warning: Handle<Image>,
+    pub nine_panel_info: Handle<Image>,
     pub range_indicator_24: Handle<Image>,
 }
 impl FromWorld for UiAssets {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.resource::<AssetServer>();
 
-        let nine_slice = asset_server.load("ui_nine_slice.png");
-        let nine_slice_selected = asset_server.load("ui_nine_slice_selected.png");
-        let nine_slice_hovered = asset_server.load("ui_nine_slice_hovered.png");
-        let nine_slice_container = asset_server.load("ui_nine_slice_container.png");
-        let nine_slice_container_warning = asset_server.load("ui_nine_slice_container_warning.png");
-        let nine_slice_container_info = asset_server.load("ui_nine_slice_container_info.png");
-        let range_indicator_24 = asset_server.load("range_indicator_24.png");
+        let nine_button = asset_server.load("ui/nine_button.png");
+        let nine_button_selected = asset_server.load("ui/nine_button_selected.png");
+        let nine_button_hovered = asset_server.load("ui/nine_button_hovered.png");
+        let nine_panel = asset_server.load("ui/nine_panel.png");
+        let nine_panel_warning = asset_server.load("ui/nine_panel_warning.png");
+        let nine_panel_info = asset_server.load("ui/nine_panel_info.png");
+        let range_indicator_24 = asset_server.load("ui/range_indicator_24.png");
 
         let mut loading_assets = world.resource_mut::<LoadingAssets>();
 
-        loading_assets.0.push(nine_slice.clone().into());
-        loading_assets.0.push(nine_slice_hovered.clone().into());
-        loading_assets.0.push(nine_slice_selected.clone().into());
-        loading_assets.0.push(nine_slice_container.clone().into());
-        loading_assets
-            .0
-            .push(nine_slice_container_warning.clone().into());
-        loading_assets
-            .0
-            .push(nine_slice_container_info.clone().into());
+        loading_assets.0.push(nine_button.clone().into());
+        loading_assets.0.push(nine_button_selected.clone().into());
+        loading_assets.0.push(nine_button_hovered.clone().into());
+        loading_assets.0.push(nine_panel.clone().into());
+        loading_assets.0.push(nine_panel_warning.clone().into());
+        loading_assets.0.push(nine_panel_info.clone().into());
         loading_assets.0.push(range_indicator_24.clone().into());
 
         UiAssets {
-            nine_slice,
-            nine_slice_selected,
-            nine_slice_hovered,
-            nine_slice_container,
-            nine_slice_container_warning,
-            nine_slice_container_info,
+            nine_button,
+            nine_button_selected,
+            nine_button_hovered,
+            nine_panel,
+            nine_panel_warning,
+            nine_panel_info,
             range_indicator_24,
         }
     }
@@ -72,18 +68,18 @@ pub fn button_style(
     for (interaction, mut texture, maybe_radio) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Pressed => {
-                *texture = NineSliceUiTexture::from_image(assets.nine_slice_selected.clone());
+                *texture = NineSliceUiTexture::from_image(assets.nine_button_selected.clone());
             }
             Interaction::Hovered => {
                 if !maybe_radio.map_or_else(|| false, |radio| radio.selected) {
-                    *texture = NineSliceUiTexture::from_image(assets.nine_slice_hovered.clone());
+                    *texture = NineSliceUiTexture::from_image(assets.nine_button_hovered.clone());
                 }
             }
             Interaction::None => {
                 *texture = if maybe_radio.map_or_else(|| false, |radio| radio.selected) {
-                    NineSliceUiTexture::from_image(assets.nine_slice_selected.clone())
+                    NineSliceUiTexture::from_image(assets.nine_button_selected.clone())
                 } else {
-                    NineSliceUiTexture::from_image(assets.nine_slice.clone())
+                    NineSliceUiTexture::from_image(assets.nine_button.clone())
                 };
             }
         }

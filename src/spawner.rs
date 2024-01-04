@@ -204,7 +204,7 @@ fn add_spawner_ui(
                     },
                     ..default()
                 },
-                NineSliceUiTexture::from_image(ui_assets.nine_slice_container_warning.clone()),
+                NineSliceUiTexture::from_image(ui_assets.nine_panel_warning.clone()),
                 SpawnerContainer,
             ))
             .with_children(|parent| {

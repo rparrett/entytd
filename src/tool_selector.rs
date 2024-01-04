@@ -98,7 +98,7 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
+                    NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
                     RadioButton { selected: i == 1 },
                     ToolButton,
                     kind,
@@ -165,9 +165,9 @@ fn update_style(
 ) {
     for (radio, mut texture) in query.iter_mut() {
         if radio.selected {
-            *texture = NineSliceUiTexture::from_image(ui_assets.nine_slice_selected.clone());
+            *texture = NineSliceUiTexture::from_image(ui_assets.nine_button_selected.clone());
         } else {
-            *texture = NineSliceUiTexture::from_image(ui_assets.nine_slice.clone());
+            *texture = NineSliceUiTexture::from_image(ui_assets.nine_button.clone());
         }
     }
 }

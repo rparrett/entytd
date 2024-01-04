@@ -126,7 +126,7 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(common.nine_slice_container.clone()),
+                    NineSliceUiTexture::from_image(common.nine_panel.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -157,7 +157,7 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(common.nine_slice_container.clone()),
+                    NineSliceUiTexture::from_image(common.nine_panel.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -188,7 +188,7 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(common.nine_slice_container.clone()),
+                    NineSliceUiTexture::from_image(common.nine_panel.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -225,7 +225,7 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(common.nine_slice_container.clone()),
+                    NineSliceUiTexture::from_image(common.nine_panel.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {

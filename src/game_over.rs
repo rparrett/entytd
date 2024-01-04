@@ -66,7 +66,7 @@ fn init(
                 },
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_slice_container.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_panel.clone()),
             GameOverScene,
         ))
         .id();
@@ -153,7 +153,7 @@ fn init(
                 style: button_style.clone(),
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_slice.clone()),
+            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
             MenuButton,
         ))
         .with_children(|parent| {
