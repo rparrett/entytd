@@ -92,7 +92,7 @@ impl Default for FpsUpdateTimer {
     }
 }
 
-fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHandle>) {
+fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHandle>) {
     commands
         .spawn((
             NodeBundle {
@@ -126,7 +126,7 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(common.nine_panel.clone()),
+                    NineSliceUiTexture::from_image(assets.nine_panel.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -157,7 +157,7 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(common.nine_panel.clone()),
+                    NineSliceUiTexture::from_image(assets.nine_panel.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -188,7 +188,7 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(common.nine_panel.clone()),
+                    NineSliceUiTexture::from_image(assets.nine_panel.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -225,7 +225,7 @@ fn init(mut commands: Commands, common: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         },
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(common.nine_panel.clone()),
+                    NineSliceUiTexture::from_image(assets.nine_panel.clone()),
                     HudContainer,
                 ))
                 .with_children(|parent| {
