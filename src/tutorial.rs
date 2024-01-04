@@ -198,7 +198,7 @@ fn update(
         match *tutorial_state {
             TutorialState::CameraTwo => {
                 text.sections[0].value =
-                    "Hold LSHIFT or RSHIFT while moving the camera to move fast.".to_string()
+                    "Hold LSHIFT or RSHIFT while moving the camera to move fast.".to_string();
             }
             TutorialState::Dig => {
                 text.sections[0].value = "You can use the number keys or mouse to select a tool on the right.\n\nWith dig tool (1), click and hold the left mouse button to paint the stone you want your workers to excavate.".to_string();
