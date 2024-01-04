@@ -79,7 +79,7 @@ pub fn init_tutorial(mut commands: Commands, ui_assets: Res<UiAssets>) {
         ))
         .with_children(|parent| {
             parent.spawn((TextBundle::from_section(
-                "This is your new peaceful mountain home. Use the WASD, QZSD, or arrow keys to look around. Hold LSHIFT or RSHIFT to while moving to move the camera faster."
+                "This is your new peaceful mountain home.\n\nUse the WASD, QZSD, or arrow keys to look around."
                     .to_string(),
                 TextStyle {
                     font_size: 18.0,
@@ -115,6 +115,12 @@ pub fn camera(
     match *tutorial_state {
         TutorialState::CameraOne if moving => {
             *tutorial_state = TutorialState::CameraTwo;
+
+            commands.spawn(AudioBundle {
+                source: sound_assets.tutorial.clone(),
+                settings: PlaybackSettings::DESPAWN
+                    .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+            });
         }
         TutorialState::CameraTwo if (moving && fast) => {
             *tutorial_state = TutorialState::Dig;
@@ -190,16 +196,20 @@ fn update(
 
     for mut text in &mut query {
         match *tutorial_state {
+            TutorialState::CameraTwo => {
+                text.sections[0].value =
+                    "Hold LSHIFT or RSHIFT while moving the camera to move fast.".to_string()
+            }
             TutorialState::Dig => {
-                text.sections[0].value = "You can use the number keys or mouse to select a tool on the right. With dig tool (1), click and hold the left mouse button to paint the stone you want your workers to excavate.".to_string();
+                text.sections[0].value = "You can use the number keys or mouse to select a tool on the right.\n\nWith dig tool (1), click and hold the left mouse button to paint the stone you want your workers to excavate.".to_string();
             }
             TutorialState::DigMore => {
                 text.sections[0].value =
-                    "Uh Oh! Some entities approach, and they look unfriendly! We'll need 15 stone and 1 metal for our defenses. Make sure all your workers are working!".to_string();
+                    "Uh Oh! Entities are approaching, and they don't look friendly!\n\nWe'll need 15 stone and 1 metal for our defenses.\n\nMake sure all your workers are working!".to_string();
             }
             TutorialState::Build => {
                 text.sections[0].value =
-                    "Use the build tool to select a nice spot near the main road to build a tower."
+                    "Use the build tool (2) to select a nice spot next to the main road to build a tower."
                         .to_string();
             }
             _ => {}
