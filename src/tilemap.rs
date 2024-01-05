@@ -356,7 +356,7 @@ fn queue_load(
     let texture_handle = asset_server.load("urizen_onebit_tileset__v1d0.png");
     loading_assets.0.push(texture_handle.clone().into());
 
-    let atlas = TextureAtlas::from_grid(
+    let mut atlas = TextureAtlas::from_grid(
         texture_handle,
         Vec2::new(12.0, 12.0),
         103,
@@ -364,6 +364,8 @@ fn queue_load(
         Some(Vec2::splat(1.)),
         Some(Vec2::splat(1.)),
     );
+    // Workaround for https://github.com/bevyengine/bevy/issues/11219
+    atlas.size = Vec2::new(1340., 651.);
 
     let atlas_handle = atlases.add(atlas);
 
