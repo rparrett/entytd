@@ -87,7 +87,7 @@ fn main() {
     let mut app = App::new();
 
     // Workaround for Bevy attempting to load .meta files in wasm builds. On itch,
-    // the CDN servers HTTP 403 errors instead of 404 when files don't exists, which
+    // the CDN serves HTTP 403 errors instead of 404 when files don't exist, which
     // causes Bevy to break.
     app.insert_resource(AssetMetaCheck::Never);
 
