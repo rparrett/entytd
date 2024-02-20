@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     pathfinding::PathState,
-    tilemap::{TilePos, Tilemap},
+    tilemap::{Map, TilePos},
     GameState,
 };
 
@@ -35,7 +35,7 @@ fn movement(
         &mut MovingProgress,
         &Speed,
     )>,
-    tilemap_query: Query<&Tilemap>,
+    tilemap_query: Query<&Map>,
     time: Res<Time>,
 ) {
     let Ok(map) = tilemap_query.get_single() else {

@@ -10,7 +10,7 @@ use crate::{
     pathfinding::{enemy_cost_fn, heuristic, NeighborCostIter, PathState},
     settings::{DifficultySetting, ParticlesSetting},
     stats::Stats,
-    tilemap::{AtlasHandle, TilePos, Tilemap},
+    tilemap::{AtlasHandle, Map, TilePos},
     util::cleanup,
     GameState,
 };
@@ -107,7 +107,7 @@ fn spawn(
     mut commands: Commands,
     mut events: EventReader<SpawnEnemyEvent>,
     atlas_handle: Res<AtlasHandle>,
-    tilemap_query: Query<&Tilemap>,
+    tilemap_query: Query<&Map>,
     difficulty: Res<DifficultySetting>,
 ) {
     for event in events.read() {
@@ -153,7 +153,7 @@ fn spawn(
 fn pathfinding(
     mut commands: Commands,
     query: Query<(Entity, &TilePos, &Behavior, &EnemyKind), (With<Enemy>, Without<PathState>)>,
-    tilemap_query: Query<&Tilemap>,
+    tilemap_query: Query<&Map>,
     home_query: Query<(&TilePos, &HitPoints), With<Home>>,
     mut rng: ResMut<EnemyRng>,
 ) {
@@ -225,7 +225,7 @@ fn attack(
         (With<Enemy>, Without<PathState>),
     >,
     mut home_query: Query<(&mut HitPoints, &TilePos), With<Home>>,
-    tilemap_query: Query<&Tilemap>,
+    tilemap_query: Query<&Map>,
     particle_settings: Res<ParticlesSetting>,
 ) {
     for (entity, behavior, mut cooldown, pos) in &mut query {

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     enemy::EnemyKind,
-    tilemap::{TileKind, TilePos, Tilemap},
+    tilemap::{Map, TileKind, TilePos},
 };
 
 pub struct PathfindingPlugin;
@@ -34,9 +34,9 @@ impl PathState {
     }
 }
 
-pub fn enemy_cost_fn(map: &Tilemap, kind: EnemyKind) -> impl '_ + Fn(TilePos) -> isize {
+pub fn enemy_cost_fn(map: &Map, kind: EnemyKind) -> impl '_ + Fn((isize, isize)) -> isize {
     move |pos| {
-        let Some(tile) = map.get(pos) else {
+        let Some(tile) = map.0.get(pos.1, pos.0) else {
             return -1;
         };
 
@@ -70,9 +70,9 @@ pub fn enemy_cost_fn(map: &Tilemap, kind: EnemyKind) -> impl '_ + Fn(TilePos) ->
     }
 }
 
-pub fn worker_cost_fn(map: &Tilemap) -> impl '_ + Fn(TilePos) -> isize {
+pub fn worker_cost_fn(map: &Map) -> impl '_ + Fn((isize, isize)) -> isize {
     move |pos| {
-        let Some(tile) = map.get(pos) else {
+        let Some(tile) = map.0.get(pos.1, pos.0) else {
             return -1;
         };
 
@@ -120,7 +120,7 @@ pub struct NeighborCostIter<F> {
 
 impl<F> NeighborCostIter<F>
 where
-    F: Sync + Fn(TilePos) -> isize,
+    F: Sync + Fn((isize, isize)) -> isize,
 {
     pub fn new(pos: TilePos, cost_fn: F) -> NeighborCostIter<F> {
         NeighborCostIter {
@@ -133,27 +133,24 @@ where
 
 impl<F> Iterator for NeighborCostIter<F>
 where
-    F: Fn(TilePos) -> isize,
+    F: Fn((isize, isize)) -> isize,
 {
     type Item = (TilePos, u32);
 
     fn next(&mut self) -> Option<Self::Item> {
         for i in self.index..NEIGHBORS.len() {
-            let n = NEIGHBORS.get(i)?;
+            let offset = NEIGHBORS.get(i)?;
 
-            let x = (self.pos.x as isize + n.0) as usize;
-            let y = (self.pos.y as isize + n.1) as usize;
+            let neighbor = *offset + self.pos;
 
-            let pos = TilePos { x, y };
-
-            let cost = (self.cost_fn)(pos);
+            let cost = (self.cost_fn)(neighbor);
             if cost == -1 {
                 continue;
             }
 
             self.index = i + 1;
 
-            return Some((TilePos { x, y }, cost as u32));
+            return Some((TilePos::from(neighbor), cost as u32));
         }
 
         None

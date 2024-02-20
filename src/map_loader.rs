@@ -1,4 +1,4 @@
-use crate::tilemap::Tilemap;
+use crate::tilemap::Map;
 use bevy::utils::thiserror;
 use bevy::{
     asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext},
@@ -11,8 +11,7 @@ use thiserror::Error;
 pub struct MapFileLoaderPlugin;
 impl Plugin for MapFileLoaderPlugin {
     fn build(&self, app: &mut App) {
-        app.init_asset::<Tilemap>()
-            .init_asset_loader::<MapFileLoader>();
+        app.init_asset_loader::<MapFileLoader>();
     }
 }
 
@@ -30,7 +29,7 @@ pub enum MapFileLoaderError {
 }
 
 impl AssetLoader for MapFileLoader {
-    type Asset = Tilemap;
+    type Asset = Map;
     type Settings = ();
     type Error = MapFileLoaderError;
     fn load<'a>(
@@ -48,14 +47,16 @@ impl AssetLoader for MapFileLoader {
             reader.no_limits();
             let dyn_img = reader.decode()?;
 
-            let mut map = Tilemap::new(dyn_img.width() as usize, dyn_img.height() as usize);
+            let mut map = Map::new(dyn_img.height() as usize, dyn_img.width() as usize);
 
             for (x, y, rgba) in dyn_img.pixels() {
                 let Ok(kind) = rgba.to_rgb().0.try_into() else {
                     continue;
                 };
 
-                map.tiles[x as usize][dyn_img.height() as usize - y as usize - 1] = kind;
+                let inv_y = dyn_img.height() - y - 1;
+
+                map.0[(inv_y as usize, x as usize)] = kind;
             }
 
             Ok(map)

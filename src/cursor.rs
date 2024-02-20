@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::tilemap::{TilePos, Tilemap, TilemapHandle};
+use crate::tilemap::{Map, TilePos, TilemapHandle};
 
 pub struct CursorPlugin;
 impl Plugin for CursorPlugin {
@@ -26,7 +26,7 @@ fn cursor(
     mut events: EventReader<CursorMoved>,
     camera_query: Query<(&Camera, Ref<GlobalTransform>)>,
     maybe_tilemap_handle: Option<Res<TilemapHandle>>,
-    tilemaps: Res<Assets<Tilemap>>,
+    tilemaps: Res<Assets<Map>>,
     mut cursor: ResMut<Cursor>,
     mut cursor_snapped: ResMut<CursorSnapped>,
     added_window: Query<&Window, Added<Window>>,

@@ -10,7 +10,7 @@ use crate::{
     layer,
     settings::SfxSetting,
     sound::SoundAssets,
-    tilemap::{AtlasHandle, TileKind, TilePos, Tilemap},
+    tilemap::{AtlasHandle, Map, TileKind, TilePos},
     tool_selector::{SelectedTool, Tool},
     ui::UiAssets,
     GameState,
@@ -163,7 +163,7 @@ fn update_cursor(
     cursor_snapped: Res<CursorSnapped>,
     mut query: Query<(&mut Transform, &mut TextureAtlas, &mut Sprite), With<DesignateToolCursor>>,
     mut range_query: Query<&mut Visibility, With<DesignateToolRange>>,
-    tilemap_query: Query<&Tilemap>,
+    tilemap_query: Query<&Map>,
     currency: Res<Currency>,
 ) {
     if !cursor_snapped.is_changed() && !currency.is_changed() && !selected_tool.is_changed() {
@@ -186,7 +186,7 @@ fn update_cursor(
             return;
         };
 
-        let Some(kind) = tilemap.get(tile_pos) else {
+        let Some(kind) = tilemap.0.get(tile_pos.y, tile_pos.x) else {
             return;
         };
 
@@ -272,7 +272,7 @@ fn designate(
     cursor_snapped: Res<CursorSnapped>,
     mut designations: ResMut<Designations>,
     mut tool_state: ResMut<DesignationToolState>,
-    tilemap_query: Query<&Tilemap>,
+    tilemap_query: Query<&Map>,
     atlas_handle: Res<AtlasHandle>,
     mut currency: ResMut<Currency>,
     sfx_setting: Res<SfxSetting>,
@@ -338,7 +338,7 @@ fn designate(
         return;
     };
 
-    let Some(kind) = tilemap.get(tile_pos) else {
+    let Some(kind) = tilemap.0.get(tile_pos.y, tile_pos.x) else {
         return;
     };
 

@@ -8,12 +8,14 @@ use crate::{
     GameState,
 };
 use bevy::prelude::*;
+use grid::Grid;
 use strum_macros::EnumIter;
 
 pub struct TilemapPlugin;
 impl Plugin for TilemapPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<TileKind>()
+        app.init_asset::<Map>()
+            .register_type::<TileKind>()
             .register_type::<TilePos>()
             .add_systems(Update, queue_load.run_if(in_state(GameState::Loading)))
             .add_systems(Update, process_loaded_maps)
@@ -25,8 +27,9 @@ impl Plugin for TilemapPlugin {
 pub const SCALE: Vec2 = Vec2::splat(2.);
 pub const TILE_SIZE: Vec2 = Vec2::splat(12.);
 
-#[derive(Reflect, Debug, Component, Clone, Copy, EnumIter)]
+#[derive(Reflect, Debug, Component, Clone, Copy, EnumIter, Default)]
 pub enum TileKind {
+    #[default]
     Empty,
     Stone,
     StoneTunnel,
@@ -206,21 +209,12 @@ impl TileKind {
     }
 }
 
-#[derive(Clone)]
-pub struct Tile {
-    pub kind: TileKind,
-    pub sprite: Option<Entity>,
-}
+#[derive(Component, Asset, TypePath, Clone)]
+pub struct Map(pub Grid<TileKind>);
 
-#[derive(Component, Asset, TypePath, Default, Clone)]
-pub struct Tilemap {
-    pub tiles: Vec<Vec<TileKind>>,
-    pub width: usize,
-    pub height: usize,
-}
-impl Tilemap {
+impl Map {
     pub fn size_vec2(&self) -> Vec2 {
-        Vec2::new(self.width as f32, self.height as f32)
+        Vec2::new(self.0.cols() as f32, self.0.rows() as f32)
     }
 
     pub fn pos_to_world(&self, pos: TilePos) -> Vec2 {
@@ -242,42 +236,13 @@ impl Tilemap {
         }
     }
 
-    pub fn new(width: usize, height: usize) -> Self {
-        Self {
-            tiles: vec![vec![TileKind::Empty; height]; width],
-            width,
-            height,
-        }
-    }
-
-    pub fn get(&self, pos: TilePos) -> Option<&TileKind> {
-        let col = self.tiles.get(pos.x)?;
-        col.get(pos.y)
-    }
-
-    pub fn get_mut(&mut self, pos: TilePos) -> Option<&mut TileKind> {
-        let col = self.tiles.get_mut(pos.x)?;
-        col.get_mut(pos.y)
+    pub fn new(height: usize, width: usize) -> Self {
+        Self(Grid::new(height, width))
     }
 }
 
-// TODO argh why is this not just a hashmap
-#[derive(Component, Default)]
-pub struct TileEntities {
-    pub entities: Vec<Vec<Option<Entity>>>,
-}
-impl TileEntities {
-    #[allow(unused)]
-    pub fn get(&self, pos: TilePos) -> Option<&Option<Entity>> {
-        let col = self.entities.get(pos.x)?;
-        col.get(pos.y)
-    }
-
-    pub fn get_mut(&mut self, pos: TilePos) -> Option<&mut Option<Entity>> {
-        let col = self.entities.get_mut(pos.x)?;
-        col.get_mut(pos.y)
-    }
-}
+#[derive(Component)]
+pub struct TileEntities(pub Grid<Option<Entity>>);
 
 #[derive(Reflect, Component, Debug, Clone, Copy, Default, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct TilePos {
@@ -315,9 +280,16 @@ impl From<(usize, usize)> for TilePos {
         }
     }
 }
+impl std::ops::Add<TilePos> for (isize, isize) {
+    type Output = (isize, isize);
+
+    fn add(self, _rhs: TilePos) -> (isize, isize) {
+        (_rhs.x as isize + self.0, _rhs.y as isize + self.1)
+    }
+}
 
 #[derive(Resource)]
-pub struct TilemapHandle(pub Handle<Tilemap>);
+pub struct TilemapHandle(pub Handle<Map>);
 
 #[derive(Resource, Component, Clone, Default)]
 pub struct AtlasHandle {
@@ -325,11 +297,11 @@ pub struct AtlasHandle {
     pub image: Handle<Image>,
 }
 
-#[derive(Bundle, Default)]
+#[derive(Bundle)]
 pub struct TilemapBundle {
-    pub tilemap_handle: Handle<Tilemap>,
+    pub tilemap_handle: Handle<Map>,
     pub atlas_handle: AtlasHandle,
-    pub tiles: Tilemap,
+    pub tiles: Map,
     pub entities: TileEntities,
 }
 
@@ -382,12 +354,12 @@ fn queue_load(
 
 pub fn process_loaded_maps(
     mut commands: Commands,
-    mut map_events: EventReader<AssetEvent<Tilemap>>,
-    maps: Res<Assets<Tilemap>>,
-    mut map_query: Query<(&Handle<Tilemap>, &AtlasHandle, &mut TileEntities)>,
-    new_maps: Query<&Handle<Tilemap>, Added<Handle<Tilemap>>>,
+    mut map_events: EventReader<AssetEvent<Map>>,
+    maps: Res<Assets<Map>>,
+    mut map_query: Query<(&Handle<Map>, &AtlasHandle, &mut TileEntities)>,
+    new_maps: Query<&Handle<Map>, Added<Handle<Map>>>,
 ) {
-    let mut changed_maps = Vec::<AssetId<Tilemap>>::default();
+    let mut changed_maps = Vec::<AssetId<Map>>::default();
     for event in map_events.read() {
         match event {
             AssetEvent::Added { id } => {
@@ -418,7 +390,7 @@ pub fn process_loaded_maps(
                 continue;
             }
 
-            for entity in tile_entities.entities.iter().flatten().flatten() {
+            for entity in tile_entities.0.iter().flatten() {
                 commands.entity(*entity).despawn_recursive();
             }
 
@@ -426,13 +398,13 @@ pub fn process_loaded_maps(
                 continue;
             };
 
-            tile_entities.entities = vec![vec![None; map.height]; map.width];
+            tile_entities.0.fill(None);
 
             let mut spawner_index = 0;
 
-            for x in 0..map.width {
-                for y in 0..map.height {
-                    let tile = &map.tiles[x][y];
+            for x in 0..map.0.cols() {
+                for y in 0..map.0.rows() {
+                    let tile = &map.0[(y, x)];
 
                     let mut command = commands.spawn((
                         SpriteSheetBundle {
@@ -494,7 +466,7 @@ pub fn process_loaded_maps(
 
                     let entity = command.id();
 
-                    tile_entities.entities[x][y] = Some(entity);
+                    tile_entities.0[(y, x)] = Some(entity);
                 }
             }
         }
@@ -505,17 +477,20 @@ fn spawn(
     mut commands: Commands,
     tilemap_handle: Res<TilemapHandle>,
     atlas_handle: Res<AtlasHandle>,
-    tilemaps: Res<Assets<Tilemap>>,
+    tilemaps: Res<Assets<Map>>,
 ) {
+    let tiles = tilemaps.get(&tilemap_handle.0).unwrap().clone();
+    let entities = TileEntities(Grid::new(tiles.0.rows(), tiles.0.cols()));
+
     commands.spawn(TilemapBundle {
         tilemap_handle: tilemap_handle.0.clone(),
         atlas_handle: atlas_handle.clone(),
-        tiles: tilemaps.get(&tilemap_handle.0).unwrap().clone(),
-        ..default()
+        tiles,
+        entities,
     });
 }
 
-fn cleanup(mut commands: Commands, query: Query<Entity, Or<(With<TileKind>, With<Tilemap>)>>) {
+fn cleanup(mut commands: Commands, query: Query<Entity, Or<(With<TileKind>, With<Map>)>>) {
     for entity in &query {
         commands.entity(entity).despawn();
     }

@@ -1,6 +1,6 @@
 use bevy::{prelude::*, render::camera::ScalingMode};
 
-use crate::{tilemap::Tilemap, GameState};
+use crate::{tilemap::Map, GameState};
 
 pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
@@ -20,8 +20,8 @@ pub fn update(
     keys: Res<ButtonInput<KeyCode>>,
     mut query: Query<(Ref<OrthographicProjection>, &mut Transform), With<Camera2d>>,
     time: Res<Time>,
-    tilemaps: Res<Assets<Tilemap>>,
-    tilemap_query: Query<&Handle<Tilemap>>,
+    tilemaps: Res<Assets<Map>>,
+    tilemap_query: Query<&Handle<Map>>,
 ) {
     let x = keys.any_pressed([KeyCode::ArrowRight, KeyCode::KeyD]) as i8
         - keys.any_pressed([KeyCode::ArrowLeft, KeyCode::KeyA]) as i8;
@@ -51,9 +51,7 @@ pub fn update(
         250.
     };
 
-    let pan_area = Vec2::new(tilemap.width as f32, tilemap.height as f32)
-        * crate::tilemap::SCALE
-        * crate::tilemap::TILE_SIZE
+    let pan_area = tilemap.size_vec2() * crate::tilemap::SCALE * crate::tilemap::TILE_SIZE
         - projection.area.size();
 
     if pan_area.x <= 0. || pan_area.y <= 0. {

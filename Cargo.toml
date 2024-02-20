@@ -17,6 +17,7 @@ serde = "*"
 ron = "*"
 strum = "0.25.0"
 strum_macros = "0.25"
+grid = "0.13.0"
 
 [features]
 inspector = ["bevy-inspector-egui"]

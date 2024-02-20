@@ -9,7 +9,7 @@ use crate::{
     sound::SoundAssets,
     stats::Stats,
     stone::HitStoneEvent,
-    tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap},
+    tilemap::{AtlasHandle, Map, TileEntities, TileKind, TilePos},
     tower::BuildTowerEvent,
     GameState,
 };
@@ -90,7 +90,7 @@ fn spawn(
     mut commands: Commands,
     mut events: EventReader<SpawnWorkerEvent>,
     atlas_handle: Res<AtlasHandle>,
-    tilemap_query: Query<&Tilemap>,
+    tilemap_query: Query<&Map>,
     mut rng: ResMut<WorkerRng>,
 ) {
     if events.is_empty() {
@@ -160,7 +160,7 @@ fn find_job(
     mut commands: Commands,
     query: Query<(Entity, &TilePos), (With<Worker>, With<Idle>, Without<PathState>)>,
     mut designations: ResMut<Designations>,
-    tilemap_query: Query<&Tilemap>,
+    tilemap_query: Query<&Map>,
 ) {
     let Ok(map) = tilemap_query.get_single() else {
         return;
@@ -275,7 +275,7 @@ fn do_job(
 
         match &mut *job {
             Job::Dig(dig_pos) => {
-                let Some(tile_entity) = map_entities.entities[dig_pos.x][dig_pos.y] else {
+                let Some(tile_entity) = map_entities.0[(dig_pos.y, dig_pos.x)] else {
                     warn!("Working trying to dig at position without entity.");
                     commands.entity(entity).insert(Idle).remove::<Job>();
                     continue;
@@ -313,7 +313,7 @@ fn do_job(
                 cooldown.0.reset();
             }
             Job::Build { hit_points, pos } => {
-                let Some(tile_entity) = map_entities.entities[pos.x][pos.y] else {
+                let Some(tile_entity) = map_entities.0[(pos.y, pos.x)] else {
                     warn!("Working trying to build at position without entity.");
                     commands.entity(entity).insert(Idle).remove::<Job>();
                     continue;

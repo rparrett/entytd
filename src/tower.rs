@@ -8,7 +8,7 @@ use crate::{
     movement::Speed,
     particle::{ParticleBundle, ParticleKind},
     settings::ParticlesSetting,
-    tilemap::{AtlasHandle, TileEntities, TileKind, TilePos, Tilemap, SCALE, TILE_SIZE},
+    tilemap::{AtlasHandle, Map, TileEntities, TileKind, TilePos, SCALE, TILE_SIZE},
     util::cleanup,
     GameState,
 };
@@ -135,7 +135,7 @@ fn build_tower(
     mut commands: Commands,
     mut events: EventReader<BuildTowerEvent>,
     mut designations: ResMut<Designations>,
-    mut tilemap_query: Query<(&mut Tilemap, &mut TileEntities)>,
+    mut tilemap_query: Query<(&mut Map, &mut TileEntities)>,
     atlas_handle: Res<AtlasHandle>,
 ) {
     for event in events.read() {
@@ -145,7 +145,7 @@ fn build_tower(
 
         let world = tilemap.pos_to_world(event.0).extend(layer::BACKGROUND);
 
-        let Some(tile_kind) = tilemap.get_mut(event.0) else {
+        let Some(tile_kind) = tilemap.0.get_mut(event.0.y, event.0.x) else {
             continue;
         };
 
@@ -153,7 +153,7 @@ fn build_tower(
             continue;
         }
 
-        let Some(maybe_tile_entity) = tile_entities.get_mut(event.0) else {
+        let Some(maybe_tile_entity) = tile_entities.0.get_mut(event.0.y, event.0.x) else {
             continue;
         };
 

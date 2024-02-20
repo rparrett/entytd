@@ -2,7 +2,7 @@ use crate::{
     loading::LoadingAssets,
     settings::{DifficultySetting, MusicSetting, ParticlesSetting, SfxSetting},
     sound::{MusicController, SoundAssets},
-    tilemap::{AtlasHandle, TileEntities, Tilemap, TilemapBundle},
+    tilemap::{AtlasHandle, Map, TileEntities, TilemapBundle},
     ui::{UiAssets, BUTTON_TEXT, TITLE_TEXT},
     GameState,
 };
@@ -11,6 +11,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_nine_slice_ui::NineSliceUiTexture;
+use grid::Grid;
 
 pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
@@ -42,7 +43,7 @@ struct MainMenuScene;
 
 #[derive(Resource)]
 struct MainMenuAssets {
-    background: Handle<Tilemap>,
+    background: Handle<Map>,
 }
 impl FromWorld for MainMenuAssets {
     fn from_world(world: &mut World) -> Self {
@@ -353,11 +354,16 @@ fn init_background(
     atlas_handle: Res<AtlasHandle>,
     mut camera_query: Query<&mut Transform, With<Camera2d>>,
     assets: Res<MainMenuAssets>,
+    maps: Res<Assets<Map>>,
 ) {
+    let tiles = maps.get(&assets.background).unwrap().clone();
+    let entities = TileEntities(Grid::new(tiles.0.rows(), tiles.0.cols()));
+
     commands.spawn(TilemapBundle {
         tilemap_handle: assets.background.clone(),
         atlas_handle: atlas_handle.clone(),
-        ..default()
+        tiles,
+        entities,
     });
 
     for mut transform in &mut camera_query {
@@ -369,7 +375,7 @@ fn init_background(
 fn cleanup_background(mut commands: Commands, query: Query<(Entity, &TileEntities)>) {
     for (entity, entities) in &query {
         commands.entity(entity).despawn();
-        for entity in entities.entities.iter().flatten().flatten() {
+        for entity in entities.0.iter().flatten() {
             commands.entity(*entity).despawn();
         }
     }

@@ -8,7 +8,7 @@ use crate::{
     settings::ParticlesSetting,
     spawner::SpawningPaused,
     stats::Stats,
-    tilemap::{TileEntities, TileKind, TilePos, Tilemap},
+    tilemap::{Map, TileEntities, TileKind, TilePos},
     GameState,
 };
 
@@ -65,7 +65,7 @@ fn hit_events(
     mut writer: EventWriter<RevealStoneEvent>,
     mut query: Query<(&mut HitPoints, &TilePos, &mut TileKind, &mut TextureAtlas)>,
     mut designations: ResMut<Designations>,
-    mut tilemap_query: Query<(&mut Tilemap, &TileEntities)>,
+    mut tilemap_query: Query<(&mut Map, &TileEntities)>,
     mut currency: ResMut<Currency>,
     particle_settings: Res<ParticlesSetting>,
     mut spawning_paused: ResMut<SpawningPaused>,
@@ -149,7 +149,7 @@ fn hit_events(
         }
 
         atlas.index = kind.atlas_index();
-        map.tiles[pos.x][pos.y] = *kind;
+        map.0[(pos.y, pos.x)] = *kind;
 
         if hp.is_zero() {
             stats.mined += 1;
@@ -170,26 +170,19 @@ fn hit_events(
                 commands.entity(designation.indicator).despawn();
             }
 
-            for n in &crate::pathfinding::NEIGHBORS {
-                let x = pos.x as isize + n.0;
-                let Ok(x) = usize::try_from(x) else {
-                    continue;
-                };
-                let y = pos.y as isize + n.1;
-                let Ok(y) = usize::try_from(y) else {
+            for offset in &crate::pathfinding::NEIGHBORS {
+                let neighbor = *offset + *pos;
+
+                let Some(kind) = map.0.get(neighbor.1, neighbor.0) else {
                     continue;
                 };
 
-                let Some(kind) = map.get(TilePos { x, y }) else {
-                    continue;
-                };
-
-                let Some(entity) = entities.entities[x][y] else {
+                let Some(Some(entity)) = entities.0.get(neighbor.1, neighbor.0) else {
                     continue;
                 };
 
                 if matches!(kind, TileKind::CrystalHidden | TileKind::MetalHidden) {
-                    writer.send(RevealStoneEvent(entity));
+                    writer.send(RevealStoneEvent(*entity));
                 }
             }
         }
