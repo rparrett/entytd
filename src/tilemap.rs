@@ -319,13 +319,16 @@ impl From<(usize, usize)> for TilePos {
 #[derive(Resource)]
 pub struct TilemapHandle(pub Handle<Tilemap>);
 
-#[derive(Resource)]
-pub struct AtlasHandle(pub Handle<TextureAtlas>);
+#[derive(Resource, Component, Clone, Default)]
+pub struct AtlasHandle {
+    pub layout: Handle<TextureAtlasLayout>,
+    pub image: Handle<Image>,
+}
 
 #[derive(Bundle, Default)]
 pub struct TilemapBundle {
     pub tilemap_handle: Handle<Tilemap>,
-    pub atlas_handle: Handle<TextureAtlas>,
+    pub atlas_handle: AtlasHandle,
     pub tiles: Tilemap,
     pub entities: TileEntities,
 }
@@ -334,7 +337,7 @@ fn queue_load(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut loading_assets: ResMut<LoadingAssets>,
-    mut atlases: ResMut<Assets<TextureAtlas>>,
+    mut layouts: ResMut<Assets<TextureAtlasLayout>>,
     level_handle: Option<Res<LevelHandle>>,
     levels: Res<Assets<LevelConfig>>,
     mut queued: Local<bool>,
@@ -356,8 +359,7 @@ fn queue_load(
     let texture_handle = asset_server.load("urizen_onebit_tileset__v1d0.png");
     loading_assets.0.push(texture_handle.clone().into());
 
-    let mut atlas = TextureAtlas::from_grid(
-        texture_handle,
+    let mut atlas = TextureAtlasLayout::from_grid(
         Vec2::new(12.0, 12.0),
         103,
         50,
@@ -367,12 +369,13 @@ fn queue_load(
     // Workaround for https://github.com/bevyengine/bevy/issues/11219
     atlas.size = Vec2::new(1340., 651.);
 
-    let atlas_handle = atlases.add(atlas);
-
     loading_assets.0.push(tilemap_handle.clone().into());
 
     commands.insert_resource(TilemapHandle(tilemap_handle));
-    commands.insert_resource(AtlasHandle(atlas_handle));
+    commands.insert_resource(AtlasHandle {
+        layout: layouts.add(atlas),
+        image: texture_handle,
+    });
 
     *queued = true;
 }
@@ -381,7 +384,7 @@ pub fn process_loaded_maps(
     mut commands: Commands,
     mut map_events: EventReader<AssetEvent<Tilemap>>,
     maps: Res<Assets<Tilemap>>,
-    mut map_query: Query<(&Handle<Tilemap>, &Handle<TextureAtlas>, &mut TileEntities)>,
+    mut map_query: Query<(&Handle<Tilemap>, &AtlasHandle, &mut TileEntities)>,
     new_maps: Query<&Handle<Tilemap>, Added<Handle<Tilemap>>>,
 ) {
     let mut changed_maps = Vec::<AssetId<Tilemap>>::default();
@@ -433,8 +436,11 @@ pub fn process_loaded_maps(
 
                     let mut command = commands.spawn((
                         SpriteSheetBundle {
-                            texture_atlas: atlas_handle.clone(),
-                            sprite: TextureAtlasSprite::new(tile.atlas_index()),
+                            atlas: TextureAtlas {
+                                layout: atlas_handle.layout.clone(),
+                                index: tile.atlas_index(),
+                            },
+                            texture: atlas_handle.image.clone(),
                             transform: Transform {
                                 scale: SCALE.extend(1.),
                                 translation: map
@@ -503,7 +509,7 @@ fn spawn(
 ) {
     commands.spawn(TilemapBundle {
         tilemap_handle: tilemap_handle.0.clone(),
-        atlas_handle: atlas_handle.0.clone(),
+        atlas_handle: atlas_handle.clone(),
         tiles: tilemaps.get(&tilemap_handle.0).unwrap().clone(),
         ..default()
     });

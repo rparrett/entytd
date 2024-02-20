@@ -105,8 +105,11 @@ fn attack(
 
             commands.spawn(BulletBundle {
                 sprite: SpriteSheetBundle {
-                    texture_atlas: atlas_handle.0.clone(),
-                    sprite: TextureAtlasSprite::new(103 * 49 + 52),
+                    atlas: TextureAtlas {
+                        layout: atlas_handle.layout.clone(),
+                        index: 103 * 49 + 52,
+                    },
+                    texture: atlas_handle.image.clone(),
                     transform: Transform {
                         scale: SCALE.extend(1.),
                         translation: pos.extend(layer::BULLET),
@@ -163,8 +166,11 @@ fn build_tower(
         let id = commands
             .spawn(TowerBundle {
                 sprite: SpriteSheetBundle {
-                    texture_atlas: atlas_handle.0.clone(),
-                    sprite: TextureAtlasSprite::new(TileKind::Tower.atlas_index()),
+                    atlas: TextureAtlas {
+                        layout: atlas_handle.layout.clone(),
+                        index: TileKind::Tower.atlas_index(),
+                    },
+                    texture: atlas_handle.image.clone(),
                     transform: Transform {
                         scale: SCALE.extend(1.),
                         translation: world,

@@ -115,12 +115,12 @@ fn spawn(
         commands.spawn((
             WorkerBundle {
                 sheet: SpriteSheetBundle {
-                    texture_atlas: atlas_handle.0.clone(),
-                    sprite: TextureAtlasSprite {
+                    atlas: TextureAtlas {
+                        layout: atlas_handle.layout.clone(),
                         index,
-                        color,
-                        ..default()
                     },
+                    texture: atlas_handle.image.clone(),
+                    sprite: Sprite { color, ..default() },
                     transform: Transform {
                         // Give workers a random z value so their display order is stable as
                         // entities are added/removed from the view/world.
@@ -307,7 +307,7 @@ fn do_job(
                 commands.spawn(AudioBundle {
                     source: sound_assets.pickaxe.clone(),
                     settings: PlaybackSettings::DESPAWN
-                        .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+                        .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
                 });
 
                 cooldown.0.reset();

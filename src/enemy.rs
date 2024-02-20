@@ -126,8 +126,11 @@ fn spawn(
         commands.spawn((
             EnemyBundle {
                 sheet: SpriteSheetBundle {
-                    texture_atlas: atlas_handle.0.clone(),
-                    sprite: TextureAtlasSprite::new(event.kind.atlas_index()),
+                    atlas: TextureAtlas {
+                        layout: atlas_handle.layout.clone(),
+                        index: event.kind.atlas_index(),
+                    },
+                    texture: atlas_handle.image.clone(),
                     transform: Transform {
                         translation: world.extend(1.),
                         scale: crate::tilemap::SCALE.extend(1.),

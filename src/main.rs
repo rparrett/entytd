@@ -152,7 +152,7 @@ fn main() {
 
     app.insert_resource(Msaa::Off)
         .insert_resource(ClearColor(Color::BLACK))
-        .add_state::<GameState>();
+        .init_state::<GameState>();
 
     app.run();
 }

@@ -76,7 +76,7 @@ fn start_music(
     commands.spawn((
         AudioBundle {
             source: audio_assets.bgm.clone(),
-            settings: PlaybackSettings::LOOP.with_volume(Volume::new_absolute(initial_volume)),
+            settings: PlaybackSettings::LOOP.with_volume(Volume::new(initial_volume)),
         },
         MusicController,
         MusicFade::default(),

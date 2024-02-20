@@ -112,11 +112,11 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
                                 height: Val::Px(TILE_SIZE.y * SCALE.y),
                                 ..default()
                             },
-                            texture_atlas: atlas_handle.0.clone(),
-                            texture_atlas_image: UiTextureAtlasImage {
+                            texture_atlas: TextureAtlas {
+                                layout: atlas_handle.layout.clone(),
                                 index: kind.atlas_index(),
-                                ..default()
                             },
+                            image: atlas_handle.image.clone().into(),
                             ..default()
                         },
                         ToolPortrait,
@@ -185,15 +185,15 @@ fn select_tool(
 
 fn keyboard(
     mut query: Query<(&mut RadioButton, &Tool), With<ToolButton>>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
 ) {
-    let index = if keys.just_pressed(KeyCode::Key1) {
+    let index = if keys.just_pressed(KeyCode::Digit1) {
         1
-    } else if keys.just_pressed(KeyCode::Key2) {
+    } else if keys.just_pressed(KeyCode::Digit2) {
         2
-    } else if keys.just_pressed(KeyCode::Key3) {
+    } else if keys.just_pressed(KeyCode::Digit3) {
         3
-    } else if keys.just_pressed(KeyCode::Key4) {
+    } else if keys.just_pressed(KeyCode::Digit4) {
         4
     } else {
         return;

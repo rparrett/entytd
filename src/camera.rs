@@ -17,16 +17,16 @@ fn spawn(mut commands: Commands) {
 }
 
 pub fn update(
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut query: Query<(Ref<OrthographicProjection>, &mut Transform), With<Camera2d>>,
     time: Res<Time>,
     tilemaps: Res<Assets<Tilemap>>,
     tilemap_query: Query<&Handle<Tilemap>>,
 ) {
-    let x = keys.any_pressed([KeyCode::Right, KeyCode::D]) as i8
-        - keys.any_pressed([KeyCode::Left, KeyCode::A, KeyCode::Q]) as i8;
-    let y = keys.any_pressed([KeyCode::Up, KeyCode::W, KeyCode::Z]) as i8
-        - keys.any_pressed([KeyCode::Down, KeyCode::S]) as i8;
+    let x = keys.any_pressed([KeyCode::ArrowRight, KeyCode::KeyD]) as i8
+        - keys.any_pressed([KeyCode::ArrowLeft, KeyCode::KeyA]) as i8;
+    let y = keys.any_pressed([KeyCode::ArrowUp, KeyCode::KeyW]) as i8
+        - keys.any_pressed([KeyCode::ArrowDown, KeyCode::KeyS]) as i8;
     let dir = Vec2::new(x as f32, y as f32).normalize_or_zero();
 
     let Ok((projection, mut transform)) = query.get_single_mut() else {

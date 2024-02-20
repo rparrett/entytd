@@ -133,15 +133,10 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     init_hud_item::<EntityCount>(
                         parent,
                         "0".to_string(),
-                        atlas_handle.0.clone(),
+                        &atlas_handle,
                         103 * 47 + 101,
                     );
-                    init_hud_item::<Fps>(
-                        parent,
-                        "0".to_string(),
-                        atlas_handle.0.clone(),
-                        103 * 49 + 78,
-                    );
+                    init_hud_item::<Fps>(parent, "0".to_string(), &atlas_handle, 103 * 49 + 78);
                 });
 
             parent
@@ -164,13 +159,13 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     init_hud_item::<HomeHitPoints>(
                         parent,
                         "0/0".to_string(),
-                        atlas_handle.0.clone(),
+                        &atlas_handle,
                         103 * 33 + 24,
                     );
                     init_hud_item::<IdleWorkers>(
                         parent,
                         "0/0".to_string(),
-                        atlas_handle.0.clone(),
+                        &atlas_handle,
                         103 * 15 + 24,
                     );
                 });
@@ -192,24 +187,9 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     HudContainer,
                 ))
                 .with_children(|parent| {
-                    init_hud_item::<Stone>(
-                        parent,
-                        "0".to_string(),
-                        atlas_handle.0.clone(),
-                        103 * 2 + 5,
-                    );
-                    init_hud_item::<Metal>(
-                        parent,
-                        "0".to_string(),
-                        atlas_handle.0.clone(),
-                        103 * 25 + 6,
-                    );
-                    init_hud_item::<Crystal>(
-                        parent,
-                        "0".to_string(),
-                        atlas_handle.0.clone(),
-                        103 * 24,
-                    );
+                    init_hud_item::<Stone>(parent, "0".to_string(), &atlas_handle, 103 * 2 + 5);
+                    init_hud_item::<Metal>(parent, "0".to_string(), &atlas_handle, 103 * 25 + 6);
+                    init_hud_item::<Crystal>(parent, "0".to_string(), &atlas_handle, 103 * 24);
                 });
 
             parent
@@ -232,7 +212,7 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     init_hud_item::<WaveCount>(
                         parent,
                         "0/0".to_string(),
-                        atlas_handle.0.clone(),
+                        &atlas_handle,
                         103 * 48 + 94,
                     );
                 });
@@ -242,7 +222,7 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
 fn init_hud_item<M: Component + Default>(
     commands: &mut ChildBuilder,
     text: String,
-    texture_atlas: Handle<TextureAtlas>,
+    atlas_handle: &AtlasHandle,
     atlas_index: usize,
 ) {
     commands
@@ -267,10 +247,10 @@ fn init_hud_item<M: Component + Default>(
                     margin: UiRect::right(Val::Px(5.)),
                     ..default()
                 },
-                texture_atlas,
-                texture_atlas_image: UiTextureAtlasImage {
+                image: atlas_handle.image.clone().into(),
+                texture_atlas: TextureAtlas {
+                    layout: atlas_handle.layout.clone(),
                     index: atlas_index,
-                    ..default()
                 },
                 ..default()
             });
@@ -354,7 +334,7 @@ fn update_fps(
     }
 
     let fps = diagnostics
-        .get(FrameTimeDiagnosticsPlugin::FPS)
+        .get(&FrameTimeDiagnosticsPlugin::FPS)
         .and_then(|d| d.smoothed())
         .unwrap_or(0.0);
 

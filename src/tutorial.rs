@@ -92,22 +92,20 @@ pub fn init_tutorial(mut commands: Commands, ui_assets: Res<UiAssets>) {
 
 pub fn camera(
     mut commands: Commands,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut tutorial_state: ResMut<TutorialState>,
     sfx_setting: Res<SfxSetting>,
     sound_assets: Res<SoundAssets>,
 ) {
     let moving = keys.any_pressed([
-        KeyCode::Right,
-        KeyCode::D,
-        KeyCode::Left,
-        KeyCode::A,
-        KeyCode::Q,
-        KeyCode::Up,
-        KeyCode::W,
-        KeyCode::Z,
-        KeyCode::Down,
-        KeyCode::S,
+        KeyCode::ArrowRight,
+        KeyCode::KeyD,
+        KeyCode::ArrowLeft,
+        KeyCode::KeyA,
+        KeyCode::ArrowUp,
+        KeyCode::KeyW,
+        KeyCode::ArrowDown,
+        KeyCode::KeyS,
     ]);
 
     let fast = keys.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]);
@@ -119,7 +117,7 @@ pub fn camera(
             commands.spawn(AudioBundle {
                 source: sound_assets.tutorial.clone(),
                 settings: PlaybackSettings::DESPAWN
-                    .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+                    .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
             });
         }
         TutorialState::CameraTwo if (moving && fast) => {
@@ -128,7 +126,7 @@ pub fn camera(
             commands.spawn(AudioBundle {
                 source: sound_assets.tutorial.clone(),
                 settings: PlaybackSettings::DESPAWN
-                    .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+                    .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
             });
         }
         _ => {}
@@ -164,7 +162,7 @@ pub fn dug_more(
         commands.spawn(AudioBundle {
             source: sound_assets.tutorial.clone(),
             settings: PlaybackSettings::DESPAWN
-                .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+                .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
         });
     }
 }

@@ -162,7 +162,7 @@ fn spawn(
             commands.spawn(AudioBundle {
                 source: sound_assets.wave.clone(),
                 settings: PlaybackSettings::DESPAWN
-                    .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+                    .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
             });
         }
     }
@@ -215,11 +215,11 @@ fn add_spawner_ui(
                             height: Val::Px(TILE_SIZE.y * SCALE.y),
                             ..default()
                         },
-                        texture_atlas: atlas_handle.0.clone(),
-                        texture_atlas_image: UiTextureAtlasImage {
+                        texture_atlas: TextureAtlas {
+                            layout: atlas_handle.layout.clone(),
                             index: 103 * 8,
-                            ..default()
                         },
+                        image: atlas_handle.image.clone().into(),
                         ..default()
                     },
                     SpawnerPortrait,
@@ -249,7 +249,7 @@ fn add_spawner_ui(
 fn update_spawner_ui(
     query: Query<(&Transform, &SpawnerIndex, &SpawnerUi)>,
     mut ui_query: Query<(&mut Style, &Children), With<SpawnerContainer>>,
-    mut ui_image_query: Query<&mut UiTextureAtlasImage, With<SpawnerPortrait>>,
+    mut ui_atlas_query: Query<&mut TextureAtlas, With<SpawnerPortrait>>,
     mut ui_text_query: Query<&mut Text, With<SpawnerDelayText>>,
     spawners: Res<SpawnerStates>,
     camera_query: Query<(&Camera, &GlobalTransform, &OrthographicProjection), With<Camera2d>>,
@@ -276,12 +276,12 @@ fn update_spawner_ui(
             continue;
         }
 
-        let mut image_iter = ui_image_query.iter_many_mut(children);
-        let Some(mut image) = image_iter.fetch_next() else {
+        let mut image_iter = ui_atlas_query.iter_many_mut(children);
+        let Some(mut atlas) = image_iter.fetch_next() else {
             continue;
         };
 
-        image.index = state.spawn.kind.atlas_index();
+        atlas.index = state.spawn.kind.atlas_index();
 
         text.sections[0].value = format!("{:.1}", state.delay_timer.remaining_secs());
     }
@@ -324,7 +324,7 @@ fn first_wave_audio(
         commands.spawn(AudioBundle {
             source: sound_assets.wave.clone(),
             settings: PlaybackSettings::DESPAWN
-                .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+                .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
         });
     }
 }

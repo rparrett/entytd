@@ -356,7 +356,7 @@ fn init_background(
 ) {
     commands.spawn(TilemapBundle {
         tilemap_handle: assets.background.clone(),
-        atlas_handle: atlas_handle.0.clone(),
+        atlas_handle: atlas_handle.clone(),
         ..default()
     });
 
@@ -387,8 +387,7 @@ fn sfx_volume(
 
     commands.spawn(AudioBundle {
         source: sound_assets.pickaxe.clone(),
-        settings: PlaybackSettings::DESPAWN
-            .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+        settings: PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
     });
 }
 

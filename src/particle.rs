@@ -63,8 +63,11 @@ pub struct ParticleBundle {
 impl ParticleBundle {
     pub fn new(kind: ParticleKind, pos: Vec2) -> Self {
         let sprite = SpriteSheetBundle {
-            sprite: TextureAtlasSprite {
+            atlas: TextureAtlas {
                 index: 103 * 49 + 53,
+                ..default()
+            },
+            sprite: Sprite {
                 color: kind.color(),
                 ..default()
             },
@@ -105,7 +108,8 @@ fn update_particles(
         &mut Life,
         &mut Transform,
         &mut Velocity,
-        &mut Handle<TextureAtlas>,
+        &mut TextureAtlas,
+        &mut Handle<Image>,
         &mut Visibility,
         Ref<ParticleKind>,
     )>,
@@ -113,13 +117,22 @@ fn update_particles(
     atlas_handle: Res<AtlasHandle>,
     time: Res<Time>,
 ) {
-    for (entity, mut life, mut transform, mut velocity, mut handle, mut visibility, kind) in
-        &mut query
+    for (
+        entity,
+        mut life,
+        mut transform,
+        mut velocity,
+        mut atlas,
+        mut image_handle,
+        mut visibility,
+        kind,
+    ) in &mut query
     {
         if kind.is_added() {
             velocity.0 =
                 Vec2::new(rng.0.gen::<f32>() - 0.5, 1.0).normalize() * (rng.0.gen::<f32>() + 1.0);
-            *handle = atlas_handle.0.clone();
+            atlas.layout = atlas_handle.layout.clone();
+            *image_handle = atlas_handle.image.clone();
             *visibility = Visibility::Visible;
             continue;
         }

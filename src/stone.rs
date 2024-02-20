@@ -63,12 +63,7 @@ fn hit_events(
     mut commands: Commands,
     mut reader: EventReader<HitStoneEvent>,
     mut writer: EventWriter<RevealStoneEvent>,
-    mut query: Query<(
-        &mut HitPoints,
-        &TilePos,
-        &mut TileKind,
-        &mut TextureAtlasSprite,
-    )>,
+    mut query: Query<(&mut HitPoints, &TilePos, &mut TileKind, &mut TextureAtlas)>,
     mut designations: ResMut<Designations>,
     mut tilemap_query: Query<(&mut Tilemap, &TileEntities)>,
     mut currency: ResMut<Currency>,
@@ -81,7 +76,7 @@ fn hit_events(
             return;
         };
 
-        let Ok((mut hp, pos, mut kind, mut sprite)) = query.get_mut(event.entity) else {
+        let Ok((mut hp, pos, mut kind, mut atlas)) = query.get_mut(event.entity) else {
             continue;
         };
 
@@ -153,7 +148,7 @@ fn hit_events(
             }
         }
 
-        sprite.index = kind.atlas_index();
+        atlas.index = kind.atlas_index();
         map.tiles[pos.x][pos.y] = *kind;
 
         if hp.is_zero() {
@@ -203,10 +198,10 @@ fn hit_events(
 
 fn reveal_events(
     mut reader: EventReader<RevealStoneEvent>,
-    mut query: Query<(&mut TileKind, &mut TextureAtlasSprite)>,
+    mut query: Query<(&mut TileKind, &mut TextureAtlas)>,
 ) {
     for event in reader.read() {
-        let Ok((mut kind, mut sprite)) = query.get_mut(event.0) else {
+        let Ok((mut kind, mut atlas)) = query.get_mut(event.0) else {
             continue;
         };
 
@@ -216,6 +211,6 @@ fn reveal_events(
             _ => continue,
         };
 
-        sprite.index = kind.atlas_index();
+        atlas.index = kind.atlas_index();
     }
 }

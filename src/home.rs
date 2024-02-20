@@ -13,11 +13,11 @@ impl Plugin for HomePlugin {
 pub struct Home;
 
 fn update_sprites(
-    mut query: Query<(&mut TextureAtlasSprite, &HitPoints), (Changed<HitPoints>, With<Home>)>,
+    mut query: Query<(&mut TextureAtlas, &HitPoints), (Changed<HitPoints>, With<Home>)>,
 ) {
-    for (mut sprite, hitpoints) in &mut query {
+    for (mut atlas, hitpoints) in &mut query {
         if hitpoints.is_zero() {
-            sprite.index = TileKind::HomeDead.atlas_index();
+            atlas.index = TileKind::HomeDead.atlas_index();
         }
     }
 }

@@ -33,7 +33,7 @@ impl Plugin for LoadingPlugin {
             )
             .add_systems(
                 Update,
-                log_pipelines.run_if(resource_changed::<PipelinesReady>()),
+                log_pipelines.run_if(resource_changed::<PipelinesReady>),
             )
             .add_systems(OnExit(GameState::Loading), cleanup::<LoadingScene>);
     }
@@ -114,11 +114,11 @@ fn init_loading_scene(
             });
             parent.spawn((
                 AtlasImageBundle {
-                    texture_atlas_image: UiTextureAtlasImage {
+                    texture_atlas: TextureAtlas {
+                        layout: atlas_handle.layout.clone(),
                         index: EnemyKind::Ent.atlas_index(),
-                        ..default()
                     },
-                    texture_atlas: atlas_handle.0.clone(),
+                    image: atlas_handle.image.clone().into(),
                     ..default()
                 },
                 LoadingImage {
@@ -133,10 +133,10 @@ fn init_loading_scene(
 }
 
 fn animate_loading_scene(
-    mut query: Query<(&mut UiTextureAtlasImage, &mut LoadingImage)>,
+    mut query: Query<(&mut TextureAtlas, &mut LoadingImage)>,
     time: Res<Time>,
 ) {
-    for (mut image, mut anim) in &mut query {
+    for (mut atlas, mut anim) in &mut query {
         anim.timer.tick(time.delta());
         if !anim.timer.just_finished() {
             continue;
@@ -147,7 +147,7 @@ fn animate_loading_scene(
             anim.index = 0;
         }
 
-        image.index = anim.frames[anim.index];
+        atlas.index = anim.frames[anim.index];
     }
 }
 

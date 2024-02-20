@@ -126,12 +126,15 @@ fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>, ui_assets
     commands
         .spawn((
             SpriteSheetBundle {
-                sprite: TextureAtlasSprite {
+                atlas: TextureAtlas {
+                    layout: atlas_handle.layout.clone(),
                     index: DesignationKind::Dig.not_ok_atlas_index(),
+                },
+                sprite: Sprite {
                     color: DesignationKind::Dig.not_ok_color(),
                     ..default()
                 },
-                texture_atlas: atlas_handle.0.clone(),
+                texture: atlas_handle.image.clone(),
                 visibility: Visibility::Hidden,
                 transform: Transform::from_xyz(0., 0., layer::CURSOR)
                     .with_scale(crate::tilemap::SCALE.extend(1.)),
@@ -158,7 +161,7 @@ fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>, ui_assets
 fn update_cursor(
     selected_tool: Res<SelectedTool>,
     cursor_snapped: Res<CursorSnapped>,
-    mut query: Query<(&mut Transform, &mut TextureAtlasSprite), With<DesignateToolCursor>>,
+    mut query: Query<(&mut Transform, &mut TextureAtlas, &mut Sprite), With<DesignateToolCursor>>,
     mut range_query: Query<&mut Visibility, With<DesignateToolRange>>,
     tilemap_query: Query<&Tilemap>,
     currency: Res<Currency>,
@@ -167,7 +170,7 @@ fn update_cursor(
         return;
     }
 
-    for (mut transform, mut sprite) in &mut query {
+    for (mut transform, mut atlas, mut sprite) in &mut query {
         let Some(snapped) = cursor_snapped.world_pos else {
             continue;
         };
@@ -201,10 +204,10 @@ fn update_cursor(
         // TODO separate cursor for the no-money situation?
 
         if ok && has_money {
-            sprite.index = designation.ok_atlas_index();
+            atlas.index = designation.ok_atlas_index();
             sprite.color = designation.ok_color();
         } else {
-            sprite.index = designation.not_ok_atlas_index();
+            atlas.index = designation.not_ok_atlas_index();
             sprite.color = designation.not_ok_color();
         }
 
@@ -239,7 +242,7 @@ fn show_cursor(
 }
 
 fn update_tool_state(
-    buttons: Res<Input<MouseButton>>,
+    buttons: Res<ButtonInput<MouseButton>>,
     cursor_snapped: Res<CursorSnapped>,
     mut tool_state: ResMut<DesignationToolState>,
     designations: Res<Designations>,
@@ -265,7 +268,7 @@ fn update_tool_state(
 fn designate(
     selected_tool: Res<SelectedTool>,
     mut commands: Commands,
-    buttons: Res<Input<MouseButton>>,
+    buttons: Res<ButtonInput<MouseButton>>,
     cursor_snapped: Res<CursorSnapped>,
     mut designations: ResMut<Designations>,
     mut tool_state: ResMut<DesignationToolState>,
@@ -310,7 +313,7 @@ fn designate(
                 commands.spawn(AudioBundle {
                     source: sound_assets.bad.clone(),
                     settings: PlaybackSettings::DESPAWN
-                        .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+                        .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
                 });
             }
 
@@ -351,7 +354,7 @@ fn designate(
             commands.spawn(AudioBundle {
                 source: sound_assets.bad.clone(),
                 settings: PlaybackSettings::DESPAWN
-                    .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+                    .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
             });
         }
         return;
@@ -363,7 +366,7 @@ fn designate(
             commands.spawn(AudioBundle {
                 source: sound_assets.bad.clone(),
                 settings: PlaybackSettings::DESPAWN
-                    .with_volume(Volume::new_absolute(**sfx_setting as f32 / 100.)),
+                    .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
             });
         }
         return;
@@ -372,12 +375,15 @@ fn designate(
     let id = commands
         .spawn((
             SpriteSheetBundle {
-                sprite: TextureAtlasSprite {
+                atlas: TextureAtlas {
+                    layout: atlas_handle.layout.clone(),
                     index: designation_kind.ok_atlas_index(),
+                },
+                sprite: Sprite {
                     color: designation_kind.ok_color(),
                     ..default()
                 },
-                texture_atlas: atlas_handle.0.clone(),
+                texture: atlas_handle.image.clone(),
                 transform: Transform::from_translation(world_pos_snapped.extend(layer::BLUEPRINT))
                     .with_scale(crate::tilemap::SCALE.extend(1.)),
                 ..default()
