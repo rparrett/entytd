@@ -209,18 +209,18 @@ fn add_spawner_ui(
             ))
             .with_children(|parent| {
                 parent.spawn((
-                    AtlasImageBundle {
+                    ImageBundle {
                         style: Style {
                             width: Val::Px(TILE_SIZE.x * SCALE.x),
                             height: Val::Px(TILE_SIZE.y * SCALE.y),
                             ..default()
                         },
-                        texture_atlas: TextureAtlas {
-                            layout: atlas_handle.layout.clone(),
-                            index: 103 * 8,
-                        },
                         image: atlas_handle.image.clone().into(),
                         ..default()
+                    },
+                    TextureAtlas {
+                        layout: atlas_handle.layout.clone(),
+                        index: 103 * 8,
                     },
                     SpawnerPortrait,
                 ));

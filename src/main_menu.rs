@@ -52,7 +52,7 @@ impl FromWorld for MainMenuAssets {
         let background = asset_server.load("levels/menu.map.png");
 
         let mut loading_assets = world.resource_mut::<LoadingAssets>();
-        loading_assets.0.push(background.clone().into());
+        loading_assets.0.push(background.id().into());
 
         MainMenuAssets { background }
     }

@@ -240,20 +240,22 @@ fn init_hud_item<M: Component + Default>(
             M::default(),
         ))
         .with_children(|parent| {
-            parent.spawn(AtlasImageBundle {
-                style: Style {
-                    width: Val::Px(TILE_SIZE.x * SCALE.x),
-                    height: Val::Px(TILE_SIZE.y * SCALE.y),
-                    margin: UiRect::right(Val::Px(5.)),
+            parent.spawn((
+                ImageBundle {
+                    style: Style {
+                        width: Val::Px(TILE_SIZE.x * SCALE.x),
+                        height: Val::Px(TILE_SIZE.y * SCALE.y),
+                        margin: UiRect::right(Val::Px(5.)),
+                        ..default()
+                    },
+                    image: atlas_handle.image.clone().into(),
                     ..default()
                 },
-                image: atlas_handle.image.clone().into(),
-                texture_atlas: TextureAtlas {
+                TextureAtlas {
                     layout: atlas_handle.layout.clone(),
                     index: atlas_index,
                 },
-                ..default()
-            });
+            ));
             parent.spawn(TextBundle::from_section(
                 text,
                 TextStyle {
@@ -317,7 +319,7 @@ fn update_idle_workers(
     text.sections[0].style.color = if idle != total {
         ui::TITLE_TEXT
     } else {
-        Color::RED
+        bevy::color::palettes::css::RED.into()
     };
 }
 
@@ -412,9 +414,9 @@ fn update_stone(
         if price.stone > 0 {
             text.sections[1].value = format!("-{}", price.stone);
             text.sections[1].style.color = if currency.stone >= price.stone {
-                Color::rgb(0.0, 0.9, 0.0)
+                Color::srgb(0.0, 0.9, 0.0)
             } else {
-                Color::rgb(0.9, 0.0, 0.0)
+                Color::srgb(0.9, 0.0, 0.0)
             };
         } else {
             text.sections[1].value.clear();
@@ -456,9 +458,9 @@ fn update_metal(
         if price.metal > 0 {
             text.sections[1].value = format!("-{}", price.metal);
             text.sections[1].style.color = if currency.metal >= price.metal {
-                Color::rgb(0.0, 0.9, 0.0)
+                Color::srgb(0.0, 0.9, 0.0)
             } else {
-                Color::rgb(0.9, 0.0, 0.0)
+                Color::srgb(0.9, 0.0, 0.0)
             };
         } else {
             text.sections[1].value.clear();
@@ -500,9 +502,9 @@ fn update_crystal(
         if price.crystal > 0 {
             text.sections[1].value = format!("-{}", price.crystal);
             text.sections[1].style.color = if currency.crystal >= price.crystal {
-                Color::rgb(0.0, 0.9, 0.0)
+                Color::srgb(0.0, 0.9, 0.0)
             } else {
-                Color::rgb(0.9, 0.0, 0.0)
+                Color::srgb(0.9, 0.0, 0.0)
             };
         } else {
             text.sections[1].value.clear();

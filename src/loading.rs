@@ -15,9 +15,9 @@ use crate::{
 };
 
 #[cfg(not(target_arch = "wasm32"))]
-const EXPECTED_PIPELINES: usize = 7;
+const EXPECTED_PIPELINES: usize = 10;
 #[cfg(target_arch = "wasm32")]
-const EXPECTED_PIPELINES: usize = 7;
+const EXPECTED_PIPELINES: usize = 6;
 
 pub struct LoadingPlugin;
 
@@ -113,13 +113,13 @@ fn init_loading_scene(
                 ..default()
             });
             parent.spawn((
-                AtlasImageBundle {
-                    texture_atlas: TextureAtlas {
-                        layout: atlas_handle.layout.clone(),
-                        index: EnemyKind::Ent.atlas_index(),
-                    },
+                ImageBundle {
                     image: atlas_handle.image.clone().into(),
                     ..default()
+                },
+                TextureAtlas {
+                    layout: atlas_handle.layout.clone(),
+                    index: EnemyKind::Ent.atlas_index(),
                 },
                 LoadingImage {
                     frames: TileKind::iter().map(|t| t.atlas_index()).collect(),

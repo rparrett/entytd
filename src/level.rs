@@ -36,7 +36,7 @@ fn queue_load(
     mut loading_resources: ResMut<LoadingResources>,
 ) {
     let handle = asset_server.load("levels/1.level.ron");
-    loading_assets.0.push(handle.clone().into());
+    loading_assets.0.push(handle.id().into());
     commands.insert_resource(LevelHandle(handle));
     loading_resources.0 += 1;
 }

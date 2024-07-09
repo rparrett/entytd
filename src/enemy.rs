@@ -92,7 +92,8 @@ impl Default for EnemyRng {
 
 #[derive(Bundle, Default)]
 pub struct EnemyBundle {
-    sheet: SpriteSheetBundle,
+    sprite: SpriteBundle,
+    texture: TextureAtlas,
     hit_points: HitPoints,
     enemy: Enemy,
     kind: EnemyKind,
@@ -125,11 +126,7 @@ fn spawn(
 
         commands.spawn((
             EnemyBundle {
-                sheet: SpriteSheetBundle {
-                    atlas: TextureAtlas {
-                        layout: atlas_handle.layout.clone(),
-                        index: event.kind.atlas_index(),
-                    },
+                sprite: SpriteBundle {
                     texture: atlas_handle.image.clone(),
                     transform: Transform {
                         translation: world.extend(1.),
@@ -137,6 +134,10 @@ fn spawn(
                         ..default()
                     },
                     ..default()
+                },
+                texture: TextureAtlas {
+                    layout: atlas_handle.layout.clone(),
+                    index: event.kind.atlas_index(),
                 },
                 hit_points: HitPoints::full(hp),
                 kind: event.kind,

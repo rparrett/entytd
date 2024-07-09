@@ -86,11 +86,6 @@ enum GameState {
 fn main() {
     let mut app = App::new();
 
-    // Workaround for Bevy attempting to load .meta files in wasm builds. On itch,
-    // the CDN serves HTTP 403 errors instead of 404 when files don't exist, which
-    // causes Bevy to break.
-    app.insert_resource(AssetMetaCheck::Never);
-
     app.add_plugins((
         DefaultPlugins
             .set(ImagePlugin::default_nearest())
@@ -101,6 +96,13 @@ fn main() {
                     decorations: false,
                     ..default()
                 }),
+                ..default()
+            })
+            .set(AssetPlugin {
+                // Workaround for Bevy attempting to load .meta files in wasm builds. On itch,
+                // the CDN serves HTTP 403 errors instead of 404 when files don't exist, which
+                // causes Bevy to break.
+                meta_check: AssetMetaCheck::Never,
                 ..default()
             }),
         FrameTimeDiagnosticsPlugin,

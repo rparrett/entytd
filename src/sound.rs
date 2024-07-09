@@ -29,11 +29,11 @@ impl FromWorld for SoundAssets {
         let bad = asset_server.load("audio/bad.ogg");
 
         let mut loading_assets = world.resource_mut::<LoadingAssets>();
-        loading_assets.0.push(bgm.clone().into());
-        loading_assets.0.push(pickaxe.clone().into());
-        loading_assets.0.push(wave.clone().into());
-        loading_assets.0.push(tutorial.clone().into());
-        loading_assets.0.push(bad.clone().into());
+        loading_assets.0.push(bgm.id().into());
+        loading_assets.0.push(pickaxe.id().into());
+        loading_assets.0.push(wave.id().into());
+        loading_assets.0.push(tutorial.id().into());
+        loading_assets.0.push(bad.id().into());
 
         SoundAssets {
             bgm,

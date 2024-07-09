@@ -329,19 +329,19 @@ fn queue_load(
     let tilemap_handle = asset_server.load(&level.map);
 
     let texture_handle = asset_server.load("urizen_onebit_tileset__v1d0.png");
-    loading_assets.0.push(texture_handle.clone().into());
+    loading_assets.0.push(texture_handle.id().into());
 
     let mut atlas = TextureAtlasLayout::from_grid(
-        Vec2::new(12.0, 12.0),
+        UVec2::new(12, 12),
         103,
         50,
-        Some(Vec2::splat(1.)),
-        Some(Vec2::splat(1.)),
+        Some(UVec2::splat(1)),
+        Some(UVec2::splat(1)),
     );
     // Workaround for https://github.com/bevyengine/bevy/issues/11219
-    atlas.size = Vec2::new(1340., 651.);
+    atlas.size = UVec2::new(1340, 651);
 
-    loading_assets.0.push(tilemap_handle.clone().into());
+    loading_assets.0.push(tilemap_handle.id().into());
 
     commands.insert_resource(TilemapHandle(tilemap_handle));
     commands.insert_resource(AtlasHandle {
@@ -407,11 +407,7 @@ pub fn process_loaded_maps(
                     let tile = &map.0[(y, x)];
 
                     let mut command = commands.spawn((
-                        SpriteSheetBundle {
-                            atlas: TextureAtlas {
-                                layout: atlas_handle.layout.clone(),
-                                index: tile.atlas_index(),
-                            },
+                        SpriteBundle {
                             texture: atlas_handle.image.clone(),
                             transform: Transform {
                                 scale: SCALE.extend(1.),
@@ -421,6 +417,10 @@ pub fn process_loaded_maps(
                                 ..default()
                             },
                             ..default()
+                        },
+                        TextureAtlas {
+                            layout: atlas_handle.layout.clone(),
+                            index: tile.atlas_index(),
                         },
                         TilePos { x, y },
                         *tile,
