@@ -31,15 +31,9 @@ impl Plugin for MainMenuPlugin {
                 )
                     .run_if(in_state(GameState::MainMenu)),
             )
-            .add_systems(
-                OnExit(GameState::MainMenu),
-                (crate::util::cleanup::<MainMenuScene>, cleanup_background),
-            );
+            .add_systems(OnExit(GameState::MainMenu), cleanup_background);
     }
 }
-
-#[derive(Component)]
-struct MainMenuScene;
 
 #[derive(Resource)]
 struct MainMenuAssets {
@@ -122,7 +116,7 @@ fn setup_menu(
                 ..default()
             },
             NineSliceUiTexture::from_image(ui_assets.nine_panel.clone()),
-            MainMenuScene,
+            StateScoped(GameState::MainMenu),
         ))
         .id();
 

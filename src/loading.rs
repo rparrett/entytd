@@ -10,7 +10,6 @@ use crate::{
     enemy::EnemyKind,
     tilemap::{AtlasHandle, TileKind},
     ui::UiAssets,
-    util::cleanup,
     GameState,
 };
 
@@ -34,13 +33,9 @@ impl Plugin for LoadingPlugin {
             .add_systems(
                 Update,
                 log_pipelines.run_if(resource_changed::<PipelinesReady>),
-            )
-            .add_systems(OnExit(GameState::Loading), cleanup::<LoadingScene>);
+            );
     }
 }
-
-#[derive(Component)]
-struct LoadingScene;
 
 #[derive(Component)]
 pub struct LoadingImage {
@@ -105,7 +100,7 @@ fn init_loading_scene(
                 ..default()
             },
             NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
-            LoadingScene,
+            StateScoped(GameState::Loading),
         ))
         .with_children(|parent| {
             parent.spawn(TextBundle {
