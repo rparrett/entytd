@@ -2,7 +2,6 @@ use crate::tilemap::Map;
 use bevy::{
     asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext},
     prelude::*,
-    utils::BoxedFuture,
 };
 use image::{GenericImageView, ImageError, Pixel};
 use thiserror::Error;
