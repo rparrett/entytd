@@ -24,9 +24,6 @@ impl Plugin for StonePlugin {
     }
 }
 
-#[derive(Component)]
-pub struct Stone;
-
 #[derive(Debug)]
 pub enum StoneHealth {
     Full,

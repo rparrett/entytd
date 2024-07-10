@@ -16,9 +16,9 @@ use crate::{
     GameState,
 };
 
-const DESIGNATE_DIG_OK: Color = Color::rgba(0., 1.0, 1.0, 0.5);
-const DESIGNATE_DANCE_OK: Color = Color::rgba(1.0, 0.0, 1.0, 0.2);
-const DESIGNATE_NOT_OK: Color = Color::rgba(1.0, 0.0, 0.0, 0.8);
+const DESIGNATE_DIG_OK: Color = Color::srgba(0., 1.0, 1.0, 0.5);
+const DESIGNATE_DANCE_OK: Color = Color::srgba(1.0, 0.0, 1.0, 0.2);
+const DESIGNATE_NOT_OK: Color = Color::srgba(1.0, 0.0, 0.0, 0.8);
 
 pub struct DesignateToolPlugin;
 impl Plugin for DesignateToolPlugin {
@@ -65,7 +65,7 @@ impl DesignationKind {
     fn ok_color(&self) -> Color {
         match self {
             DesignationKind::Dig => DESIGNATE_DIG_OK,
-            DesignationKind::BuildTower => Color::rgb_u8(82, 94, 173),
+            DesignationKind::BuildTower => Color::srgb_u8(82, 94, 173),
             DesignationKind::Dance => DESIGNATE_DANCE_OK,
         }
     }
@@ -125,11 +125,7 @@ struct DesignationToolState {
 fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>, ui_assets: Res<UiAssets>) {
     commands
         .spawn((
-            SpriteSheetBundle {
-                atlas: TextureAtlas {
-                    layout: atlas_handle.layout.clone(),
-                    index: DesignationKind::Dig.not_ok_atlas_index(),
-                },
+            SpriteBundle {
                 sprite: Sprite {
                     color: DesignationKind::Dig.not_ok_color(),
                     ..default()
@@ -139,6 +135,10 @@ fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>, ui_assets
                 transform: Transform::from_xyz(0., 0., layer::CURSOR)
                     .with_scale(crate::tilemap::SCALE.extend(1.)),
                 ..default()
+            },
+            TextureAtlas {
+                layout: atlas_handle.layout.clone(),
+                index: DesignationKind::Dig.not_ok_atlas_index(),
             },
             DesignateToolCursor,
         ))
@@ -194,8 +194,7 @@ fn update_cursor(
 
         let ok = match selected_tool.0 {
             Tool::Dig if kind.diggable() => true,
-            Tool::BuildTower if kind.buildable() => true,
-            Tool::Dance if kind.buildable() => true,
+            Tool::BuildTower | Tool::Dance if kind.buildable() => true,
             _ => false,
         };
 
@@ -344,8 +343,7 @@ fn designate(
 
     let ok = match selected_tool.0 {
         Tool::Dig if kind.diggable() => true,
-        Tool::BuildTower if kind.buildable() => true,
-        Tool::Dance if kind.buildable() => true,
+        Tool::BuildTower | Tool::Dance if kind.buildable() => true,
         _ => false,
     };
 
@@ -374,11 +372,7 @@ fn designate(
 
     let id = commands
         .spawn((
-            SpriteSheetBundle {
-                atlas: TextureAtlas {
-                    layout: atlas_handle.layout.clone(),
-                    index: designation_kind.ok_atlas_index(),
-                },
+            SpriteBundle {
                 sprite: Sprite {
                     color: designation_kind.ok_color(),
                     ..default()
@@ -387,6 +381,10 @@ fn designate(
                 transform: Transform::from_translation(world_pos_snapped.extend(layer::BLUEPRINT))
                     .with_scale(crate::tilemap::SCALE.extend(1.)),
                 ..default()
+            },
+            TextureAtlas {
+                layout: atlas_handle.layout.clone(),
+                index: designation_kind.ok_atlas_index(),
             },
             DesignationMarker,
             #[cfg(feature = "inspector")]

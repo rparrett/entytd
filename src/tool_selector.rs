@@ -106,18 +106,18 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
 
                 button_command.with_children(|parent| {
                     parent.spawn((
-                        AtlasImageBundle {
+                        ImageBundle {
                             style: Style {
                                 width: Val::Px(TILE_SIZE.x * SCALE.x),
                                 height: Val::Px(TILE_SIZE.y * SCALE.y),
                                 ..default()
                             },
-                            texture_atlas: TextureAtlas {
-                                layout: atlas_handle.layout.clone(),
-                                index: kind.atlas_index(),
-                            },
                             image: atlas_handle.image.clone().into(),
                             ..default()
+                        },
+                        TextureAtlas {
+                            layout: atlas_handle.layout.clone(),
+                            index: kind.atlas_index(),
                         },
                         ToolPortrait,
                     ));

@@ -3,8 +3,8 @@ use bevy_nine_slice_ui::NineSliceUiTexture;
 
 use crate::{loading::LoadingAssets, radio_button::RadioButton};
 
-pub const BUTTON_TEXT: Color = Color::rgb(0.9, 0.9, 0.9);
-pub const TITLE_TEXT: Color = Color::rgb(0.9, 0.9, 0.9);
+pub const BUTTON_TEXT: Color = Color::srgb(0.9, 0.9, 0.9);
+pub const TITLE_TEXT: Color = Color::srgb(0.9, 0.9, 0.9);
 
 pub struct UiPlugin;
 impl Plugin for UiPlugin {
@@ -38,13 +38,13 @@ impl FromWorld for UiAssets {
 
         let mut loading_assets = world.resource_mut::<LoadingAssets>();
 
-        loading_assets.0.push(nine_button.clone().into());
-        loading_assets.0.push(nine_button_selected.clone().into());
-        loading_assets.0.push(nine_button_hovered.clone().into());
-        loading_assets.0.push(nine_panel.clone().into());
-        loading_assets.0.push(nine_panel_warning.clone().into());
-        loading_assets.0.push(nine_panel_info.clone().into());
-        loading_assets.0.push(range_indicator_24.clone().into());
+        loading_assets.0.push(nine_button.id().into());
+        loading_assets.0.push(nine_button_selected.id().into());
+        loading_assets.0.push(nine_button_hovered.id().into());
+        loading_assets.0.push(nine_panel.id().into());
+        loading_assets.0.push(nine_panel_warning.id().into());
+        loading_assets.0.push(nine_panel_info.id().into());
+        loading_assets.0.push(range_indicator_24.id().into());
 
         UiAssets {
             nine_button,

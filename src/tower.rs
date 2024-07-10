@@ -49,7 +49,8 @@ struct Bullet {
 #[derive(Bundle)]
 
 pub struct TowerBundle {
-    sprite: SpriteSheetBundle,
+    sprite: SpriteBundle,
+    texture: TextureAtlas,
     tower: Tower,
     kind: TileKind,
     cooldown: CooldownTimer,
@@ -60,7 +61,8 @@ pub struct TowerBundle {
 impl Default for TowerBundle {
     fn default() -> Self {
         Self {
-            sprite: SpriteSheetBundle::default(),
+            sprite: SpriteBundle::default(),
+            texture: TextureAtlas::default(),
             tower: Tower,
             kind: TileKind::Tower,
             cooldown: CooldownTimer(Timer::from_seconds(1.0, TimerMode::Once)),
@@ -73,7 +75,8 @@ impl Default for TowerBundle {
 
 #[derive(Bundle)]
 pub struct BulletBundle {
-    sprite: SpriteSheetBundle,
+    sprite: SpriteBundle,
+    texture: TextureAtlas,
     bullet: Bullet,
     speed: Speed,
 }
@@ -104,11 +107,7 @@ fn attack(
             }
 
             commands.spawn(BulletBundle {
-                sprite: SpriteSheetBundle {
-                    atlas: TextureAtlas {
-                        layout: atlas_handle.layout.clone(),
-                        index: 103 * 49 + 52,
-                    },
+                sprite: SpriteBundle {
                     texture: atlas_handle.image.clone(),
                     transform: Transform {
                         scale: SCALE.extend(1.),
@@ -116,6 +115,10 @@ fn attack(
                         ..default()
                     },
                     ..default()
+                },
+                texture: TextureAtlas {
+                    layout: atlas_handle.layout.clone(),
+                    index: 103 * 49 + 52,
                 },
                 bullet: Bullet {
                     damage: 1 + upgrades.0,
@@ -165,11 +168,7 @@ fn build_tower(
 
         let id = commands
             .spawn(TowerBundle {
-                sprite: SpriteSheetBundle {
-                    atlas: TextureAtlas {
-                        layout: atlas_handle.layout.clone(),
-                        index: TileKind::Tower.atlas_index(),
-                    },
+                sprite: SpriteBundle {
                     texture: atlas_handle.image.clone(),
                     transform: Transform {
                         scale: SCALE.extend(1.),
@@ -177,6 +176,10 @@ fn build_tower(
                         ..default()
                     },
                     ..default()
+                },
+                texture: TextureAtlas {
+                    layout: atlas_handle.layout.clone(),
+                    index: TileKind::Tower.atlas_index(),
                 },
                 pos: event.0,
                 ..default()

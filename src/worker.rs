@@ -58,7 +58,8 @@ impl Default for WorkCooldown {
 
 #[derive(Bundle, Default)]
 pub struct WorkerBundle {
-    sheet: SpriteSheetBundle,
+    sprite: SpriteBundle,
+    texture: TextureAtlas,
     hit_points: HitPoints,
     worker: Worker,
     pos: TilePos,
@@ -114,11 +115,7 @@ fn spawn(
 
         commands.spawn((
             WorkerBundle {
-                sheet: SpriteSheetBundle {
-                    atlas: TextureAtlas {
-                        layout: atlas_handle.layout.clone(),
-                        index,
-                    },
+                sprite: SpriteBundle {
                     texture: atlas_handle.image.clone(),
                     sprite: Sprite { color, ..default() },
                     transform: Transform {
@@ -129,6 +126,10 @@ fn spawn(
                         ..default()
                     },
                     ..default()
+                },
+                texture: TextureAtlas {
+                    layout: atlas_handle.layout.clone(),
+                    index,
                 },
                 hit_points: HitPoints::full(2),
                 pos,
