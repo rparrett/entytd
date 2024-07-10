@@ -154,7 +154,8 @@ fn main() {
 
     app.insert_resource(Msaa::Off)
         .insert_resource(ClearColor(Color::BLACK))
-        .init_state::<GameState>();
+        .init_state::<GameState>()
+        .enable_state_scoped_entities::<GameState>();
 
     app.run();
 }
