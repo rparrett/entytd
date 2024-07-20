@@ -52,10 +52,6 @@ pub fn update(
     };
 
     if let Some(cursor_position) = window.cursor_position() {
-        fn map_range(from: (f32, f32), to: (f32, f32), value: f32) -> f32 {
-            to.0 + (value - from.0) * (to.1 - to.0) / (from.1 - from.0)
-        }
-
         let cursor_position = Vec2::new(cursor_position.x, cursor_position.y);
         let half_viewport_size = window.resolution.size() / 2.;
         let center_to_cursor = cursor_position - half_viewport_size;
@@ -63,12 +59,18 @@ pub fn update(
 
         if normalized_length.x.abs() >= 0.8 {
             transform.translation.x += time.delta_seconds()
-                * map_range((0.8, 1.), (min_speed, max_speed), normalized_length.x.abs())
+                * normalized_length
+                    .x
+                    .abs()
+                    .remap(0.8, 1., min_speed, max_speed)
                     .copysign(normalized_length.x);
         }
         if normalized_length.y.abs() >= 0.8 {
             transform.translation.y -= time.delta_seconds()
-                * map_range((0.8, 1.), (min_speed, max_speed), normalized_length.y.abs())
+                * normalized_length
+                    .y
+                    .abs()
+                    .remap(0.8, 1., min_speed, max_speed)
                     .copysign(normalized_length.y);
         }
     }
