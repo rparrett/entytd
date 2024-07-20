@@ -57,20 +57,21 @@ pub fn update(
         let center_to_cursor = cursor_position - half_viewport_size;
         let normalized_length = center_to_cursor / half_viewport_size;
 
-        if normalized_length.x.abs() >= 0.8 {
+        let threshold = 0.8;
+        if normalized_length.x.abs() >= threshold {
             transform.translation.x += time.delta_seconds()
                 * normalized_length
                     .x
                     .abs()
-                    .remap(0.8, 1., min_speed, max_speed)
+                    .remap(threshold, 1., min_speed, max_speed)
                     .copysign(normalized_length.x);
         }
-        if normalized_length.y.abs() >= 0.8 {
+        if normalized_length.y.abs() >= threshold {
             transform.translation.y -= time.delta_seconds()
                 * normalized_length
                     .y
                     .abs()
-                    .remap(0.8, 1., min_speed, max_speed)
+                    .remap(threshold, 1., min_speed, max_speed)
                     .copysign(normalized_length.y);
         }
     }
