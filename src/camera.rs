@@ -18,23 +18,62 @@ fn spawn(mut commands: Commands) {
 
 pub fn update(
     keys: Res<ButtonInput<KeyCode>>,
-    mut query: Query<(Ref<OrthographicProjection>, &mut Transform), With<Camera2d>>,
+    mut query: Query<(&OrthographicProjection, &mut Transform), With<Camera2d>>,
     time: Res<Time>,
     tilemaps: Res<Assets<Map>>,
     tilemap_query: Query<&Handle<Map>>,
+    window_query: Query<&Window>,
 ) {
+    let Ok((projection, mut transform)) = query.get_single_mut() else {
+        return;
+    };
+
+    let min_speed = 250.;
+    let max_speed = 500.;
+
     let x = keys.any_pressed([KeyCode::ArrowRight, KeyCode::KeyD]) as i8
         - keys.any_pressed([KeyCode::ArrowLeft, KeyCode::KeyA]) as i8;
     let y = keys.any_pressed([KeyCode::ArrowUp, KeyCode::KeyW]) as i8
         - keys.any_pressed([KeyCode::ArrowDown, KeyCode::KeyS]) as i8;
     let dir = Vec2::new(x as f32, y as f32).normalize_or_zero();
 
-    let Ok((projection, mut transform)) = query.get_single_mut() else {
+    if dir != Vec2::ZERO {
+        let speed = if keys.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]) {
+            max_speed
+        } else {
+            min_speed
+        };
+
+        transform.translation += dir.extend(0.) * time.delta_seconds() * speed;
+    }
+
+    let Ok(window) = window_query.get_single() else {
         return;
     };
 
-    if dir == Vec2::ZERO && !projection.is_changed() {
-        return;
+    if let Some(cursor_position) = window.cursor_position() {
+        let cursor_position = Vec2::new(cursor_position.x, cursor_position.y);
+        let half_viewport_size = window.resolution.size() / 2.;
+        let center_to_cursor = cursor_position - half_viewport_size;
+        let normalized_length = center_to_cursor / half_viewport_size;
+
+        let threshold = 0.8;
+        if normalized_length.x.abs() >= threshold {
+            transform.translation.x += time.delta_seconds()
+                * normalized_length
+                    .x
+                    .abs()
+                    .remap(threshold, 1., min_speed, max_speed)
+                    .copysign(normalized_length.x);
+        }
+        if normalized_length.y.abs() >= threshold {
+            transform.translation.y -= time.delta_seconds()
+                * normalized_length
+                    .y
+                    .abs()
+                    .remap(threshold, 1., min_speed, max_speed)
+                    .copysign(normalized_length.y);
+        }
     }
 
     let Ok(tilemap_handle) = tilemap_query.get_single() else {
@@ -43,12 +82,6 @@ pub fn update(
 
     let Some(tilemap) = tilemaps.get(tilemap_handle) else {
         return;
-    };
-
-    let speed = if keys.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]) {
-        500.
-    } else {
-        250.
     };
 
     let pan_area = tilemap.size_vec2() * crate::tilemap::SCALE * crate::tilemap::TILE_SIZE
@@ -61,7 +94,6 @@ pub fn update(
     let min = pan_area / -2.;
     let max = pan_area / 2.;
 
-    transform.translation += dir.extend(0.) * time.delta_seconds() * speed;
     transform.translation.x = transform.translation.x.clamp(min.x, max.x);
     transform.translation.y = transform.translation.y.clamp(min.y, max.y);
 }
