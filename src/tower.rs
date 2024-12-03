@@ -6,7 +6,7 @@ use crate::{
     hit_points::HitPoints,
     layer,
     movement::Speed,
-    particle::{ParticleBundle, ParticleKind},
+    particle::ParticleKind,
     settings::ParticlesSetting,
     tilemap::{AtlasHandle, Map, TileEntities, TileKind, TilePos, SCALE, TILE_SIZE},
     util::cleanup,
@@ -29,6 +29,7 @@ impl Plugin for TowerPlugin {
 }
 
 #[derive(Component)]
+#[require(TileKind, CooldownTimer, Upgrades, TilePos, Range)]
 pub struct Tower;
 
 #[derive(Component, Default)]
@@ -36,49 +37,25 @@ struct Upgrades(u32);
 
 #[derive(Component)]
 struct CooldownTimer(Timer);
-
-#[derive(Component)]
-struct Range(f32);
-
-#[derive(Component)]
-struct Bullet {
-    damage: u32,
-    target: Entity,
-}
-
-#[derive(Bundle)]
-
-pub struct TowerBundle {
-    sprite: SpriteBundle,
-    texture: TextureAtlas,
-    tower: Tower,
-    kind: TileKind,
-    cooldown: CooldownTimer,
-    upgrades: Upgrades,
-    pos: TilePos,
-    range: Range,
-}
-impl Default for TowerBundle {
+impl Default for CooldownTimer {
     fn default() -> Self {
-        Self {
-            sprite: SpriteBundle::default(),
-            texture: TextureAtlas::default(),
-            tower: Tower,
-            kind: TileKind::Tower,
-            cooldown: CooldownTimer(Timer::from_seconds(1.0, TimerMode::Once)),
-            upgrades: Upgrades::default(),
-            pos: TilePos::default(),
-            range: Range(TILE_SIZE.x * SCALE.x * 2.),
-        }
+        Self(Timer::from_seconds(1.0, TimerMode::Once))
     }
 }
 
-#[derive(Bundle)]
-pub struct BulletBundle {
-    sprite: SpriteBundle,
-    texture: TextureAtlas,
-    bullet: Bullet,
-    speed: Speed,
+#[derive(Component)]
+struct Range(f32);
+impl Default for Range {
+    fn default() -> Self {
+        Self(TILE_SIZE.x * SCALE.x * 2.)
+    }
+}
+
+#[derive(Component)]
+#[require(Speed, Sprite)]
+struct Bullet {
+    damage: u32,
+    target: Entity,
 }
 
 #[derive(Event, Debug)]
@@ -106,26 +83,26 @@ fn attack(
                 continue;
             }
 
-            commands.spawn(BulletBundle {
-                sprite: SpriteBundle {
-                    texture: atlas_handle.image.clone(),
-                    transform: Transform {
-                        scale: SCALE.extend(1.),
-                        translation: pos.extend(layer::BULLET),
-                        ..default()
-                    },
-                    ..default()
-                },
-                texture: TextureAtlas {
-                    layout: atlas_handle.layout.clone(),
-                    index: 103 * 49 + 52,
-                },
-                bullet: Bullet {
+            commands.spawn((
+                Bullet {
                     damage: 1 + upgrades.0,
                     target: entity,
                 },
-                speed: Speed(4.),
-            });
+                Speed(4.),
+                Sprite {
+                    image: atlas_handle.image.clone(),
+                    texture_atlas: Some(TextureAtlas {
+                        layout: atlas_handle.layout.clone(),
+                        index: 103 * 49 + 52,
+                    }),
+                    ..default()
+                },
+                Transform {
+                    scale: SCALE.extend(1.),
+                    translation: pos.extend(layer::BULLET),
+                    ..default()
+                },
+            ));
 
             timer.0.reset();
 
@@ -167,23 +144,23 @@ fn build_tower(
         }
 
         let id = commands
-            .spawn(TowerBundle {
-                sprite: SpriteBundle {
-                    texture: atlas_handle.image.clone(),
-                    transform: Transform {
-                        scale: SCALE.extend(1.),
-                        translation: world,
-                        ..default()
-                    },
+            .spawn((
+                Tower,
+                Sprite {
+                    image: atlas_handle.image.clone(),
+                    texture_atlas: Some(TextureAtlas {
+                        layout: atlas_handle.layout.clone(),
+                        index: TileKind::Tower.atlas_index(),
+                    }),
                     ..default()
                 },
-                texture: TextureAtlas {
-                    layout: atlas_handle.layout.clone(),
-                    index: TileKind::Tower.atlas_index(),
+                event.0,
+                Transform {
+                    scale: SCALE.extend(1.),
+                    translation: world,
+                    ..default()
                 },
-                pos: event.0,
-                ..default()
-            })
+            ))
             .id();
 
         *maybe_tile_entity = Some(id);
@@ -214,7 +191,7 @@ fn bullet_movement(
         let diff = enemy.translation.truncate() - transform.translation.truncate();
         let dist = diff.length();
         let dir = diff.normalize();
-        let step = time.delta_seconds() * speed.0 * TILE_SIZE.x * SCALE.x;
+        let step = time.delta_secs() * speed.0 * TILE_SIZE.x * SCALE.x;
 
         if dist > step {
             transform.translation.x += step * dir.x;
@@ -229,7 +206,7 @@ fn bullet_movement(
                 particle_settings.hit_amt() / 2
             };
             for _ in 0..amt {
-                commands.spawn(ParticleBundle::new(
+                commands.spawn((
                     match enemy_kind {
                         EnemyKind::Ent | EnemyKind::EntTwo | EnemyKind::EntThree => {
                             ParticleKind::Wood
@@ -240,11 +217,11 @@ fn bullet_movement(
                         | EnemyKind::SkeletonThree
                         | EnemyKind::SkeletonFour => ParticleKind::Bone,
                     },
-                    enemy.translation.truncate(),
+                    Transform::from_translation(enemy.translation),
                 ));
-                commands.spawn(ParticleBundle::new(
+                commands.spawn((
                     ParticleKind::Stone,
-                    enemy.translation.truncate(),
+                    Transform::from_translation(enemy.translation),
                 ));
             }
 

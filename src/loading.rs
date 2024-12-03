@@ -127,11 +127,8 @@ fn init_loading_scene(
     *done = true;
 }
 
-fn animate_loading_scene(
-    mut query: Query<(&mut TextureAtlas, &mut LoadingImage)>,
-    time: Res<Time>,
-) {
-    for (mut atlas, mut anim) in &mut query {
+fn animate_loading_scene(mut query: Query<(&mut Sprite, &mut LoadingImage)>, time: Res<Time>) {
+    for (mut sprite, mut anim) in &mut query {
         anim.timer.tick(time.delta());
         if !anim.timer.just_finished() {
             continue;
@@ -142,7 +139,9 @@ fn animate_loading_scene(
             anim.index = 0;
         }
 
-        atlas.index = anim.frames[anim.index];
+        if let Some(ref mut atlas) = sprite.texture_atlas {
+            atlas.index = anim.frames[anim.index];
+        }
     }
 }
 
