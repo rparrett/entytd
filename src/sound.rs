@@ -74,10 +74,8 @@ fn start_music(
     };
 
     commands.spawn((
-        AudioBundle {
-            source: audio_assets.bgm.clone(),
-            settings: PlaybackSettings::LOOP.with_volume(Volume::new(initial_volume)),
-        },
+        AudioPlayer(audio_assets.bgm.clone()),
+        PlaybackSettings::LOOP.with_volume(Volume::new(initial_volume)),
         MusicController,
         MusicFade::default(),
     ));
@@ -90,7 +88,7 @@ fn fade_music(
     time: Res<Time>,
 ) {
     if let Ok((entity, sink, mut fade)) = query.get_single_mut() {
-        fade.remaining -= time.delta_seconds();
+        fade.remaining -= time.delta_secs();
 
         let progress = (1.0 - fade.remaining / fade.seconds).min(1.);
 
