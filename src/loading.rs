@@ -1,8 +1,4 @@
-use bevy::{
-    asset::{LoadState, UntypedAssetId},
-    prelude::*,
-};
-use bevy_nine_slice_ui::NineSliceUiTexture;
+use bevy::{asset::UntypedAssetId, prelude::*};
 use bevy_pipelines_ready::{PipelinesReady, PipelinesReadyPlugin};
 use strum::IntoEnumIterator;
 
@@ -56,10 +52,11 @@ fn wait(
     pipelines: Res<PipelinesReady>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    let assets = loading
-        .0
-        .iter()
-        .all(|id| asset_server.get_load_state(*id) == Some(LoadState::Loaded));
+    let assets = loading.0.iter().all(|id| {
+        asset_server
+            .get_load_state(*id)
+            .map_or_else(|| false, |state| state.is_loaded())
+    });
 
     let resources = loading_resources.0 == 0;
 
@@ -88,33 +85,31 @@ fn init_loading_scene(
 
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.),
-                    height: Val::Percent(100.),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    padding: UiRect::all(Val::Px(10.)),
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.),
+                height: Val::Percent(100.),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                padding: UiRect::all(Val::Px(10.)),
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
+            ImageNode {
+                image: ui_assets.nine_button.clone(),
+                ..default()
+            },
+            // TODO 9 slice
             StateScoped(GameState::Loading),
         ))
         .with_children(|parent| {
-            parent.spawn(TextBundle {
-                text: Text::from_section("Loading...", TextStyle::default()),
-                ..default()
-            });
+            parent.spawn(Text::new("Loading..."));
             parent.spawn((
-                ImageBundle {
+                ImageNode {
                     image: atlas_handle.image.clone().into(),
+                    texture_atlas: Some(TextureAtlas {
+                        layout: atlas_handle.layout.clone(),
+                        index: EnemyKind::Ent.atlas_index(),
+                    }),
                     ..default()
-                },
-                TextureAtlas {
-                    layout: atlas_handle.layout.clone(),
-                    index: EnemyKind::Ent.atlas_index(),
                 },
                 LoadingImage {
                     frames: TileKind::iter().map(|t| t.atlas_index()).collect(),
