@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_nine_slice_ui::NineSliceUiTexture;
 
 use crate::{loading::LoadingAssets, radio_button::RadioButton};
 
@@ -60,26 +59,26 @@ impl FromWorld for UiAssets {
 
 pub fn button_style(
     mut interaction_query: Query<
-        (&Interaction, &mut NineSliceUiTexture, Option<&RadioButton>),
+        (&Interaction, &mut ImageNode, Option<&RadioButton>),
         (Changed<Interaction>, With<Button>),
     >,
     assets: Res<UiAssets>,
 ) {
-    for (interaction, mut texture, maybe_radio) in interaction_query.iter_mut() {
+    for (interaction, mut node, maybe_radio) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Pressed => {
-                *texture = NineSliceUiTexture::from_image(assets.nine_button_selected.clone());
+                node.image = assets.nine_button_selected.clone();
             }
             Interaction::Hovered => {
                 if !maybe_radio.map_or_else(|| false, |radio| radio.selected) {
-                    *texture = NineSliceUiTexture::from_image(assets.nine_button_hovered.clone());
+                    node.image = assets.nine_button_hovered.clone();
                 }
             }
             Interaction::None => {
-                *texture = if maybe_radio.map_or_else(|| false, |radio| radio.selected) {
-                    NineSliceUiTexture::from_image(assets.nine_button_selected.clone())
+                node.image = if maybe_radio.map_or_else(|| false, |radio| radio.selected) {
+                    assets.nine_button_selected.clone()
                 } else {
-                    NineSliceUiTexture::from_image(assets.nine_button.clone())
+                    assets.nine_button.clone()
                 };
             }
         }
