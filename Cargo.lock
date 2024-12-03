@@ -742,6 +742,7 @@ version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4237e6e9b03902321032f00f931f18a4a211093bd9a7cf81276a0228a2a4417"
 dependencies = [
+ "bevy_a11y",
  "bevy_app",
  "bevy_asset",
  "bevy_audio",
@@ -772,6 +773,7 @@ dependencies = [
  "bevy_transform",
  "bevy_ui",
  "bevy_utils",
+ "bevy_window",
  "bevy_winit",
 ]
 

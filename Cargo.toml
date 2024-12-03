@@ -40,6 +40,7 @@ features = [
     "bevy_text",
     "bevy_ui",
     "bevy_winit",
+    "bevy_window",
     "default_font",
     "multi_threaded",
     "png",
