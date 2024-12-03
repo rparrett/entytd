@@ -288,7 +288,7 @@ impl std::ops::Add<TilePos> for (isize, isize) {
     }
 }
 
-#[derive(Resource)]
+#[derive(Resource, Component, Clone, Default)]
 pub struct TilemapHandle(pub Handle<Map>);
 
 #[derive(Resource, Component, Clone, Default)]
@@ -299,7 +299,7 @@ pub struct AtlasHandle {
 
 #[derive(Bundle)]
 pub struct TilemapBundle {
-    pub tilemap_handle: Handle<Map>,
+    pub tilemap_handle: TilemapHandle,
     pub atlas_handle: AtlasHandle,
     pub tiles: Map,
     pub entities: TileEntities,
@@ -356,8 +356,8 @@ pub fn process_loaded_maps(
     mut commands: Commands,
     mut map_events: EventReader<AssetEvent<Map>>,
     maps: Res<Assets<Map>>,
-    mut map_query: Query<(&Handle<Map>, &AtlasHandle, &mut TileEntities)>,
-    new_maps: Query<&Handle<Map>, Added<Handle<Map>>>,
+    mut map_query: Query<(&TilemapHandle, &AtlasHandle, &mut TileEntities)>,
+    new_maps: Query<&TilemapHandle, Added<TilemapHandle>>,
 ) {
     let mut changed_maps = Vec::<AssetId<Map>>::default();
     for event in map_events.read() {
@@ -381,12 +381,12 @@ pub fn process_loaded_maps(
         }
     }
     for new_map_handle in new_maps.iter() {
-        changed_maps.push(new_map_handle.id());
+        changed_maps.push(new_map_handle.0.id());
     }
 
     for changed_map in changed_maps.iter() {
         for (map_handle, atlas_handle, mut tile_entities) in map_query.iter_mut() {
-            if map_handle.id() != *changed_map {
+            if map_handle.0.id() != *changed_map {
                 continue;
             }
 
@@ -394,7 +394,7 @@ pub fn process_loaded_maps(
                 commands.entity(*entity).despawn_recursive();
             }
 
-            let Some(map) = maps.get(map_handle) else {
+            let Some(map) = maps.get(&map_handle.0) else {
                 continue;
             };
 
@@ -407,20 +407,20 @@ pub fn process_loaded_maps(
                     let tile = &map.0[(y, x)];
 
                     let mut command = commands.spawn((
-                        SpriteBundle {
-                            texture: atlas_handle.image.clone(),
-                            transform: Transform {
-                                scale: SCALE.extend(1.),
-                                translation: map
-                                    .pos_to_world(TilePos { x, y })
-                                    .extend(layer::BACKGROUND),
-                                ..default()
-                            },
+                        Sprite {
+                            image: atlas_handle.image.clone(),
+                            texture_atlas: Some(TextureAtlas {
+                                layout: atlas_handle.layout.clone(),
+                                index: tile.atlas_index(),
+                            }),
                             ..default()
                         },
-                        TextureAtlas {
-                            layout: atlas_handle.layout.clone(),
-                            index: tile.atlas_index(),
+                        Transform {
+                            scale: SCALE.extend(1.),
+                            translation: map
+                                .pos_to_world(TilePos { x, y })
+                                .extend(layer::BACKGROUND),
+                            ..default()
                         },
                         TilePos { x, y },
                         *tile,
@@ -483,7 +483,7 @@ fn spawn(
     let entities = TileEntities(Grid::new(tiles.0.rows(), tiles.0.cols()));
 
     commands.spawn(TilemapBundle {
-        tilemap_handle: tilemap_handle.0.clone(),
+        tilemap_handle: tilemap_handle.clone(),
         atlas_handle: atlas_handle.clone(),
         tiles,
         entities,
