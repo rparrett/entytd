@@ -4,7 +4,7 @@ use crate::{
     currency::Currency,
     designate_tool::Designations,
     hit_points::HitPoints,
-    particle::{ParticleBundle, ParticleKind},
+    particle::ParticleKind,
     settings::ParticlesSetting,
     spawner::SpawningPaused,
     stats::Stats,
@@ -60,7 +60,7 @@ fn hit_events(
     mut commands: Commands,
     mut reader: EventReader<HitStoneEvent>,
     mut writer: EventWriter<RevealStoneEvent>,
-    mut query: Query<(&mut HitPoints, &TilePos, &mut TileKind, &mut TextureAtlas)>,
+    mut query: Query<(&mut HitPoints, &TilePos, &mut TileKind, &mut Sprite)>,
     mut designations: ResMut<Designations>,
     mut tilemap_query: Query<(&mut Map, &TileEntities)>,
     mut currency: ResMut<Currency>,
@@ -73,7 +73,7 @@ fn hit_events(
             return;
         };
 
-        let Ok((mut hp, pos, mut kind, mut atlas)) = query.get_mut(event.entity) else {
+        let Ok((mut hp, pos, mut kind, mut sprite)) = query.get_mut(event.entity) else {
             continue;
         };
 
@@ -102,13 +102,13 @@ fn hit_events(
             particle_settings.hit_amt() / 2
         };
         for _ in 0..amt {
-            commands.spawn(ParticleBundle::new(
+            commands.spawn((
                 ParticleKind::Stone,
-                map.pos_to_world(*pos),
+                Transform::from_translation(map.pos_to_world(*pos).extend(0.)),
             ));
         }
         for _ in 0..amt {
-            commands.spawn(ParticleBundle::new(
+            commands.spawn((
                 if crystal {
                     ParticleKind::Crystal
                 } else if metal {
@@ -116,7 +116,7 @@ fn hit_events(
                 } else {
                     ParticleKind::Stone
                 },
-                map.pos_to_world(*pos),
+                Transform::from_translation(map.pos_to_world(*pos).extend(0.)),
             ));
         }
 
@@ -145,7 +145,9 @@ fn hit_events(
             }
         }
 
-        atlas.index = kind.atlas_index();
+        if let Some(ref mut atlas) = sprite.texture_atlas {
+            atlas.index = kind.atlas_index();
+        }
         map.0[(pos.y, pos.x)] = *kind;
 
         if hp.is_zero() {
@@ -188,10 +190,10 @@ fn hit_events(
 
 fn reveal_events(
     mut reader: EventReader<RevealStoneEvent>,
-    mut query: Query<(&mut TileKind, &mut TextureAtlas)>,
+    mut query: Query<(&mut TileKind, &mut Sprite)>,
 ) {
     for event in reader.read() {
-        let Ok((mut kind, mut atlas)) = query.get_mut(event.0) else {
+        let Ok((mut kind, mut sprite)) = query.get_mut(event.0) else {
             continue;
         };
 
@@ -201,6 +203,8 @@ fn reveal_events(
             _ => continue,
         };
 
-        atlas.index = kind.atlas_index();
+        if let Some(ref mut atlas) = sprite.texture_atlas {
+            atlas.index = kind.atlas_index();
+        }
     }
 }
