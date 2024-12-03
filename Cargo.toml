@@ -11,7 +11,7 @@ rand = { version = "0.8.5", default-features = false, features = [
     "std",
     "small_rng",
 ] }
-image = "*"
+image = { version = "*", default-features = false }
 pathfinding = "4.10.0"
 serde = "*"
 ron = "*"
