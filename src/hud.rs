@@ -263,7 +263,7 @@ fn init_hud_item<M: Component + Default>(
                     TextColor(TITLE_TEXT),
                 ))
                 .with_child((
-                    Text::default(),
+                    TextSpan::default(),
                     TextFont {
                         font_size: 18.0,
                         ..default()
