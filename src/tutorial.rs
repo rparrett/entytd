@@ -1,5 +1,4 @@
 use bevy::{audio::Volume, prelude::*};
-use bevy_nine_slice_ui::NineSliceUiTexture;
 
 use crate::{
     currency::Currency,
@@ -27,7 +26,7 @@ impl Plugin for TutorialPlugin {
             .add_systems(
                 Update,
                 (camera, dug, dug_more, built, update)
-                    .run_if(in_state(GameState::Playing).and_then(tutorial_not_finished)),
+                    .run_if(in_state(GameState::Playing).and(tutorial_not_finished)),
             );
     }
 }
@@ -56,8 +55,7 @@ fn tutorial_not_finished(setting: Res<TutorialFinishedSetting>) -> bool {
 pub fn init_tutorial(mut commands: Commands, ui_assets: Res<UiAssets>) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
+            Node {
                     margin: UiRect {
                         left: Val::Auto,
                         right: Val::Auto,
@@ -70,23 +68,28 @@ pub fn init_tutorial(mut commands: Commands, ui_assets: Res<UiAssets>) {
                     max_width: Val::Px(500.),
                     width: Val::Px(500.),
                     ..default()
-                },
+
+            },
+            ImageNode {
+                image: ui_assets.nine_panel_info.clone(),
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_panel_info.clone()),
+            // TODO 9 slice
             Name::new("TutorialContainer"),
             TutorialScene,
         ))
         .with_children(|parent| {
-            parent.spawn((TextBundle::from_section(
-                "This is your new peaceful mountain home.\n\nUse the WASD, QZSD, or arrow keys to look around."
-                    .to_string(),
-                TextStyle {
+            parent.spawn((
+                Text::new(
+                    "This is your new peaceful mountain home.\n\nUse the WASD, QZSD, or arrow keys to look around."
+                ),
+                TextFont {
                     font_size: 18.0,
-                    color: TITLE_TEXT,
                     ..default()
                 },
-            ), TutorialText));
+                TextColor(TITLE_TEXT),
+                TutorialText
+            ));
         });
 }
 
@@ -114,20 +117,18 @@ pub fn camera(
         TutorialState::CameraOne if moving => {
             *tutorial_state = TutorialState::CameraTwo;
 
-            commands.spawn(AudioBundle {
-                source: sound_assets.tutorial.clone(),
-                settings: PlaybackSettings::DESPAWN
-                    .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
-            });
+            commands.spawn((
+                AudioPlayer(sound_assets.tutorial.clone()),
+                PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+            ));
         }
         TutorialState::CameraTwo if (moving && fast) => {
             *tutorial_state = TutorialState::Dig;
 
-            commands.spawn(AudioBundle {
-                source: sound_assets.tutorial.clone(),
-                settings: PlaybackSettings::DESPAWN
-                    .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
-            });
+            commands.spawn((
+                AudioPlayer(sound_assets.tutorial.clone()),
+                PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+            ));
         }
         _ => {}
     };
@@ -159,11 +160,10 @@ pub fn dug_more(
     {
         *tutorial_state = TutorialState::Build;
 
-        commands.spawn(AudioBundle {
-            source: sound_assets.tutorial.clone(),
-            settings: PlaybackSettings::DESPAWN
-                .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
-        });
+        commands.spawn((
+            AudioPlayer(sound_assets.tutorial.clone()),
+            PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+        ));
     }
 }
 
@@ -195,18 +195,17 @@ fn update(
     for mut text in &mut query {
         match *tutorial_state {
             TutorialState::CameraTwo => {
-                text.sections[0].value =
-                    "Hold LSHIFT or RSHIFT while moving the camera to move fast.".to_string();
+                text.0 = "Hold LSHIFT or RSHIFT while moving the camera to move fast.".to_string();
             }
             TutorialState::Dig => {
-                text.sections[0].value = "You can use the number keys or mouse to select a tool on the right.\n\nWith dig tool (1), click and hold the left mouse button to paint the stone you want your workers to excavate.".to_string();
+                text.0 = "You can use the number keys or mouse to select a tool on the right.\n\nWith dig tool (1), click and hold the left mouse button to paint the stone you want your workers to excavate.".to_string();
             }
             TutorialState::DigMore => {
-                text.sections[0].value =
+                text.0 =
                     "Uh Oh! Entities are approaching, and they don't look friendly!\n\nWe'll need 15 stone and 1 metal for our defenses.\n\nMake sure all your workers are working!".to_string();
             }
             TutorialState::Build => {
-                text.sections[0].value =
+                text.0 =
                     "Use the build tool (2) to select a nice spot next to the main road to build a tower."
                         .to_string();
             }
