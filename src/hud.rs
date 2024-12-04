@@ -246,7 +246,7 @@ fn init_hud_item<M: Component + Default>(
                     ..default()
                 },
                 ImageNode {
-                    image: atlas_handle.image.clone().into(),
+                    image: atlas_handle.image.clone(),
                     texture_atlas: Some(TextureAtlas {
                         layout: atlas_handle.layout.clone(),
                         index: atlas_index,
@@ -453,7 +453,7 @@ fn update_metal(
             Color::srgb(0.9, 0.0, 0.0)
         };
     } else {
-        writer.text(text_entity, 1).clear()
+        writer.text(text_entity, 1).clear();
     }
 }
 

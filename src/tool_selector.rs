@@ -110,7 +110,7 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
                             ..default()
                         },
                         ImageNode {
-                            image: atlas_handle.image.clone().into(),
+                            image: atlas_handle.image.clone(),
                             texture_atlas: Some(TextureAtlas {
                                 layout: atlas_handle.layout.clone(),
                                 index: kind.atlas_index(),

@@ -104,7 +104,7 @@ fn init_loading_scene(
             parent.spawn(Text::new("Loading..."));
             parent.spawn((
                 ImageNode {
-                    image: atlas_handle.image.clone().into(),
+                    image: atlas_handle.image.clone(),
                     texture_atlas: Some(TextureAtlas {
                         layout: atlas_handle.layout.clone(),
                         index: EnemyKind::Ent.atlas_index(),

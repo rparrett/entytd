@@ -214,7 +214,7 @@ fn add_spawner_ui(
                         ..default()
                     },
                     ImageNode {
-                        image: atlas_handle.image.clone().into(),
+                        image: atlas_handle.image.clone(),
                         texture_atlas: Some(TextureAtlas {
                             layout: atlas_handle.layout.clone(),
                             index: 103 * 8,
