@@ -84,7 +84,7 @@ pub fn init_tutorial(mut commands: Commands, ui_assets: Res<UiAssets>) {
                     "This is your new peaceful mountain home.\n\nUse the WASD, QZSD, or arrow keys to look around."
                 ),
                 TextFont {
-                    font_size: 18.0,
+                    font_size: 15.0,
                     ..default()
                 },
                 TextColor(TITLE_TEXT),

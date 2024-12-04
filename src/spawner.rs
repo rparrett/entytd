@@ -230,7 +230,7 @@ fn add_spawner_ui(
                     },
                     Text::new("10.1"),
                     TextFont {
-                        font_size: 18.0,
+                        font_size: 15.0,
 
                         ..default()
                     },

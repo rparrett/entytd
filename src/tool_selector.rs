@@ -122,7 +122,7 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
                     parent.spawn((
                         Text::new(format!("{}", i)),
                         TextFont {
-                            font_size: 18.0,
+                            font_size: 15.0,
                             ..default()
                         },
                         TextColor(BUTTON_TEXT),

@@ -95,21 +95,21 @@ fn setup_menu(
     );
     let button_text_style = (
         TextFont {
-            font_size: 18.0,
+            font_size: 15.0,
             ..default()
         },
         TextColor(BUTTON_TEXT),
     );
     let title_text_style = (
         TextFont {
-            font_size: 18.0,
+            font_size: 15.0,
             ..default()
         },
         TextColor(TITLE_TEXT),
     );
     let subtitle_text_style = (
         TextFont {
-            font_size: 18.0,
+            font_size: 15.0,
             ..default()
         },
         TextColor(TITLE_TEXT),

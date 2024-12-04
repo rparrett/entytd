@@ -257,7 +257,7 @@ fn init_hud_item<M: Component + Default>(
                 .spawn((
                     Text::new(text),
                     TextFont {
-                        font_size: 18.0,
+                        font_size: 15.0,
                         ..default()
                     },
                     TextColor(TITLE_TEXT),
@@ -265,7 +265,7 @@ fn init_hud_item<M: Component + Default>(
                 .with_child((
                     TextSpan::default(),
                     TextFont {
-                        font_size: 18.0,
+                        font_size: 15.0,
                         ..default()
                     },
                     TextColor(TITLE_TEXT),
