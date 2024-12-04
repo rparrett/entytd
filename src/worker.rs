@@ -37,15 +37,7 @@ impl Plugin for WorkerPlugin {
 const WORKER_SPRITES: [usize; 2] = [103 * 14, 103 * 15];
 
 #[derive(Component, Default)]
-#[require(
-    Sprite,
-    HitPoints,
-    Worker,
-    TilePos,
-    MovingProgress,
-    Speed,
-    WorkCooldown
-)]
+#[require(Sprite, HitPoints, TilePos, MovingProgress, Speed, WorkCooldown)]
 pub struct Worker;
 
 #[derive(Component)]
