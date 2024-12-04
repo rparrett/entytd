@@ -136,6 +136,7 @@ fn spawn(
                 scale: crate::tilemap::SCALE.extend(1.),
                 ..default()
             },
+            Enemy,
             HitPoints::full(hp),
             event.kind,
             event.pos,
