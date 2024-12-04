@@ -148,6 +148,7 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     },
                     ImageNode {
                         image: assets.nine_panel.clone(),
+                        image_mode: slice_image_mode(),
                         ..default()
                     },
                     // 9 slice
