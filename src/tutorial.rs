@@ -6,7 +6,7 @@ use crate::{
     settings::{SfxSetting, TutorialFinishedSetting},
     sound::SoundAssets,
     spawner::SpawningPaused,
-    ui::{UiAssets, TITLE_TEXT},
+    ui::{slice_image_mode, UiAssets, TITLE_TEXT},
     util::cleanup,
     GameState,
 };
@@ -72,9 +72,9 @@ pub fn init_tutorial(mut commands: Commands, ui_assets: Res<UiAssets>) {
             },
             ImageNode {
                 image: ui_assets.nine_panel_info.clone(),
+                image_mode: slice_image_mode(),
                 ..default()
             },
-            // TODO 9 slice
             Name::new("TutorialContainer"),
             TutorialScene,
         ))

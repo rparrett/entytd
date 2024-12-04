@@ -4,7 +4,7 @@ use crate::{
     game::Won,
     settings::DifficultySetting,
     stats::Stats,
-    ui::{UiAssets, BUTTON_TEXT, TITLE_TEXT},
+    ui::{slice_image_mode, UiAssets, BUTTON_TEXT, TITLE_TEXT},
     GameState,
 };
 
@@ -63,9 +63,9 @@ fn init(
             },
             ImageNode {
                 image: ui_assets.nine_panel.clone(),
+                image_mode: slice_image_mode(),
                 ..default()
             },
-            // TODO 9 slice
             StateScoped(GameState::GameOver),
         ))
         .id();
@@ -137,9 +137,9 @@ fn init(
             button_style.clone(),
             ImageNode {
                 image: ui_assets.nine_button.clone(),
+                image_mode: slice_image_mode(),
                 ..default()
             },
-            // TODO 9 slice
             MenuButton,
         ))
         .with_children(|parent| {

@@ -5,7 +5,7 @@ use strum::IntoEnumIterator;
 use crate::{
     enemy::EnemyKind,
     tilemap::{AtlasHandle, TileKind},
-    ui::UiAssets,
+    ui::{slice_image_mode, UiAssets},
     GameState,
 };
 
@@ -95,9 +95,9 @@ fn init_loading_scene(
             },
             ImageNode {
                 image: ui_assets.nine_button.clone(),
+                image_mode: slice_image_mode(),
                 ..default()
             },
-            // TODO 9 slice
             StateScoped(GameState::Loading),
         ))
         .with_children(|parent| {

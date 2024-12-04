@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, ui::widget::NodeImageMode};
 
 use crate::{loading::LoadingAssets, radio_button::RadioButton};
 
@@ -83,4 +83,15 @@ pub fn button_style(
             }
         }
     }
+}
+
+// Returns the correct slice settings for the 9 slice assets
+// used by the UI.
+pub fn slice_image_mode() -> NodeImageMode {
+    NodeImageMode::Sliced(TextureSlicer {
+        border: BorderRect::square(16.0),
+        center_scale_mode: SliceScaleMode::Stretch,
+        sides_scale_mode: SliceScaleMode::Stretch,
+        max_corner_scale: 1.0,
+    })
 }

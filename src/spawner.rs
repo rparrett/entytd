@@ -8,7 +8,7 @@ use crate::{
     settings::SfxSetting,
     sound::SoundAssets,
     tilemap::{AtlasHandle, TilePos, SCALE, TILE_SIZE},
-    ui::{UiAssets, TITLE_TEXT},
+    ui::{slice_image_mode, UiAssets, TITLE_TEXT},
     waves::{WaveStartEvent, Waves},
     GameState,
 };
@@ -201,9 +201,9 @@ fn add_spawner_ui(
                 },
                 ImageNode {
                     image: ui_assets.nine_panel_warning.clone(),
+                    image_mode: slice_image_mode(),
                     ..default()
                 },
-                // TODO 9 slice
                 SpawnerContainer,
             ))
             .with_children(|parent| {

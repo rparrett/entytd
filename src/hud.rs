@@ -12,7 +12,7 @@ use crate::{
     home::Home,
     tilemap::{AtlasHandle, SCALE, TILE_SIZE},
     tool_selector::SelectedTool,
-    ui::{self, UiAssets, TITLE_TEXT},
+    ui::{self, slice_image_mode, UiAssets, TITLE_TEXT},
     waves::Waves,
     worker::{Idle, Worker},
     GameState,
@@ -117,14 +117,13 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::FlexStart,
                         padding: UiRect::all(Val::Px(6.)),
-
                         ..default()
                     },
                     ImageNode {
                         image: assets.nine_panel.clone(),
+                        image_mode: slice_image_mode(),
                         ..default()
                     },
-                    // TODO 9 slice
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -181,9 +180,9 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     },
                     ImageNode {
                         image: assets.nine_panel.clone(),
+                        image_mode: slice_image_mode(),
                         ..default()
                     },
-                    // TODO 9 slice
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -204,9 +203,9 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     },
                     ImageNode {
                         image: assets.nine_panel.clone(),
+                        image_mode: slice_image_mode(),
                         ..default()
                     },
-                    // TODO 9 slice
                     HudContainer,
                 ))
                 .with_children(|parent| {

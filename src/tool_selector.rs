@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
     tilemap::{AtlasHandle, TileKind, SCALE, TILE_SIZE},
-    ui::{UiAssets, BUTTON_TEXT},
+    ui::{slice_image_mode, UiAssets, BUTTON_TEXT},
     util::cleanup,
     GameState,
 };
@@ -94,9 +94,9 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
                     },
                     ImageNode {
                         image: ui_assets.nine_button.clone(),
+                        image_mode: slice_image_mode(),
                         ..default()
                     },
-                    // TODO 9 slice
                     RadioButton { selected: i == 1 },
                     ToolButton,
                     kind,

@@ -3,7 +3,7 @@ use crate::{
     settings::{DifficultySetting, MusicSetting, ParticlesSetting, SfxSetting},
     sound::{MusicController, SoundAssets},
     tilemap::{AtlasHandle, Map, TileEntities, TilemapBundle, TilemapHandle},
-    ui::{UiAssets, BUTTON_TEXT, TITLE_TEXT},
+    ui::{slice_image_mode, UiAssets, BUTTON_TEXT, TITLE_TEXT},
     GameState,
 };
 use bevy::{
@@ -89,6 +89,7 @@ fn setup_menu(
         },
         ImageNode {
             image: ui_assets.nine_button.clone(),
+            image_mode: slice_image_mode(),
             ..default()
         },
     );
@@ -125,9 +126,9 @@ fn setup_menu(
             },
             ImageNode {
                 image: ui_assets.nine_panel.clone(),
+                image_mode: slice_image_mode(),
                 ..default()
             },
-            // TODO 9 slice
             StateScoped(GameState::MainMenu),
         ))
         .id();
@@ -147,12 +148,7 @@ fn setup_menu(
         .id();
 
     let play_button = commands
-        .spawn((
-            Button,
-            button_node.clone(),
-            // TODO 9 slice
-            PlayButton,
-        ))
+        .spawn((Button, button_node.clone(), PlayButton))
         .with_children(|parent| {
             parent.spawn((Text::new("Play"), button_text_style.clone()));
         })
@@ -192,12 +188,7 @@ fn setup_menu(
         .id();
 
     let particles_button = commands
-        .spawn((
-            Button,
-            button_node.clone(),
-            // TODO 9 slice
-            ParticlesSettingButton,
-        ))
+        .spawn((Button, button_node.clone(), ParticlesSettingButton))
         .with_children(|parent| {
             parent.spawn((
                 Text::new(format!("{}", *particles)),
@@ -208,12 +199,7 @@ fn setup_menu(
         .id();
 
     let difficulty_button = commands
-        .spawn((
-            Button,
-            button_node.clone(),
-            // TODO 9 slice
-            DifficultySettingButton,
-        ))
+        .spawn((Button, button_node.clone(), DifficultySettingButton))
         .with_children(|parent| {
             parent.spawn((
                 Text::new(format!("{}", *difficulty)),
@@ -224,12 +210,7 @@ fn setup_menu(
         .id();
 
     let sfx_button = commands
-        .spawn((
-            Button,
-            button_node.clone(),
-            // TODO 9 slice
-            SfxSettingButton,
-        ))
+        .spawn((Button, button_node.clone(), SfxSettingButton))
         .with_children(|parent| {
             parent.spawn((
                 Text::new(format!("Sfx {}%", **sfx)),
@@ -240,12 +221,7 @@ fn setup_menu(
         .id();
 
     let music_button = commands
-        .spawn((
-            Button,
-            button_node,
-            // TODO 9 slice
-            MusicSettingButton,
-        ))
+        .spawn((Button, button_node, MusicSettingButton))
         .with_children(|parent| {
             parent.spawn((
                 Text::new(format!("Music {}%", **music)),
