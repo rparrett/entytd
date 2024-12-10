@@ -1,6 +1,9 @@
 use bevy::{prelude::*, render::camera::ScalingMode};
 
-use crate::{tilemap::Map, GameState};
+use crate::{
+    tilemap::{Map, TilemapHandle},
+    GameState,
+};
 
 pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
@@ -11,9 +14,11 @@ impl Plugin for CameraPlugin {
 }
 
 fn spawn(mut commands: Commands) {
-    let mut camera = Camera2dBundle::default();
-    camera.projection.scaling_mode = ScalingMode::FixedHorizontal(1280.);
-    commands.spawn(camera);
+    let mut projection = OrthographicProjection::default_2d();
+    projection.scaling_mode = ScalingMode::FixedHorizontal {
+        viewport_width: 1280.,
+    };
+    commands.spawn((Camera2d, projection, Msaa::Off));
 }
 
 pub fn update(
@@ -21,7 +26,7 @@ pub fn update(
     mut query: Query<(&OrthographicProjection, &mut Transform), With<Camera2d>>,
     time: Res<Time>,
     tilemaps: Res<Assets<Map>>,
-    tilemap_query: Query<&Handle<Map>>,
+    tilemap_query: Query<&TilemapHandle>,
     window_query: Query<&Window>,
 ) {
     let Ok((projection, mut transform)) = query.get_single_mut() else {
@@ -44,7 +49,7 @@ pub fn update(
             min_speed
         };
 
-        transform.translation += dir.extend(0.) * time.delta_seconds() * speed;
+        transform.translation += dir.extend(0.) * time.delta_secs() * speed;
     }
 
     let Ok(window) = window_query.get_single() else {
@@ -59,7 +64,7 @@ pub fn update(
 
         let threshold = 0.8;
         if normalized_length.x.abs() >= threshold {
-            transform.translation.x += time.delta_seconds()
+            transform.translation.x += time.delta_secs()
                 * normalized_length
                     .x
                     .abs()
@@ -67,7 +72,7 @@ pub fn update(
                     .copysign(normalized_length.x);
         }
         if normalized_length.y.abs() >= threshold {
-            transform.translation.y -= time.delta_seconds()
+            transform.translation.y -= time.delta_secs()
                 * normalized_length
                     .y
                     .abs()
@@ -80,7 +85,7 @@ pub fn update(
         return;
     };
 
-    let Some(tilemap) = tilemaps.get(tilemap_handle) else {
+    let Some(tilemap) = tilemaps.get(&tilemap_handle.0) else {
         return;
     };
 

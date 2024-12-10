@@ -4,7 +4,6 @@ use bevy::{
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     prelude::*,
 };
-use bevy_nine_slice_ui::NineSliceUiTexture;
 
 use crate::{
     currency::Currency,
@@ -13,7 +12,7 @@ use crate::{
     home::Home,
     tilemap::{AtlasHandle, SCALE, TILE_SIZE},
     tool_selector::SelectedTool,
-    ui::{self, UiAssets, TITLE_TEXT},
+    ui::{self, slice_image_mode, UiAssets, TITLE_TEXT},
     waves::Waves,
     worker::{Idle, Worker},
     GameState,
@@ -95,18 +94,15 @@ impl Default for FpsUpdateTimer {
 fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHandle>) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    flex_direction: FlexDirection::Column,
-                    height: Val::Percent(100.),
-                    width: Val::Px(100.),
-                    left: Val::Px(5.),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    row_gap: Val::Px(5.),
-                    ..default()
-                },
+            Node {
+                position_type: PositionType::Absolute,
+                flex_direction: FlexDirection::Column,
+                height: Val::Percent(100.),
+                width: Val::Px(100.),
+                left: Val::Px(5.),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                row_gap: Val::Px(5.),
                 ..default()
             },
             HudRoot,
@@ -115,18 +111,19 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
         .with_children(|parent| {
             parent
                 .spawn((
-                    NodeBundle {
-                        style: Style {
-                            width: Val::Percent(100.),
-                            flex_direction: FlexDirection::Column,
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::FlexStart,
-                            padding: UiRect::all(Val::Px(6.)),
-                            ..default()
-                        },
+                    Node {
+                        width: Val::Percent(100.),
+                        flex_direction: FlexDirection::Column,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::FlexStart,
+                        padding: UiRect::all(Val::Px(6.)),
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(assets.nine_panel.clone()),
+                    ImageNode {
+                        image: assets.nine_panel.clone(),
+                        image_mode: slice_image_mode(),
+                        ..default()
+                    },
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -141,18 +138,20 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
 
             parent
                 .spawn((
-                    NodeBundle {
-                        style: Style {
-                            width: Val::Percent(100.),
-                            flex_direction: FlexDirection::Column,
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::FlexStart,
-                            padding: UiRect::all(Val::Px(6.)),
-                            ..default()
-                        },
+                    Node {
+                        width: Val::Percent(100.),
+                        flex_direction: FlexDirection::Column,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::FlexStart,
+                        padding: UiRect::all(Val::Px(6.)),
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(assets.nine_panel.clone()),
+                    ImageNode {
+                        image: assets.nine_panel.clone(),
+                        image_mode: slice_image_mode(),
+                        ..default()
+                    },
+                    // 9 slice
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -172,18 +171,19 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
 
             parent
                 .spawn((
-                    NodeBundle {
-                        style: Style {
-                            width: Val::Percent(100.),
-                            flex_direction: FlexDirection::Column,
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::FlexStart,
-                            padding: UiRect::all(Val::Px(6.)),
-                            ..default()
-                        },
+                    Node {
+                        width: Val::Percent(100.),
+                        flex_direction: FlexDirection::Column,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::FlexStart,
+                        padding: UiRect::all(Val::Px(6.)),
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(assets.nine_panel.clone()),
+                    ImageNode {
+                        image: assets.nine_panel.clone(),
+                        image_mode: slice_image_mode(),
+                        ..default()
+                    },
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -194,18 +194,19 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
 
             parent
                 .spawn((
-                    NodeBundle {
-                        style: Style {
-                            width: Val::Percent(100.),
-                            flex_direction: FlexDirection::Column,
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::FlexStart,
-                            padding: UiRect::all(Val::Px(6.)),
-                            ..default()
-                        },
+                    Node {
+                        width: Val::Percent(100.),
+                        flex_direction: FlexDirection::Column,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::FlexStart,
+                        padding: UiRect::all(Val::Px(6.)),
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(assets.nine_panel.clone()),
+                    ImageNode {
+                        image: assets.nine_panel.clone(),
+                        image_mode: slice_image_mode(),
+                        ..default()
+                    },
                     HudContainer,
                 ))
                 .with_children(|parent| {
@@ -227,13 +228,10 @@ fn init_hud_item<M: Component + Default>(
 ) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    margin: UiRect::all(Val::Px(5.)),
-                    ..default()
-                },
+            Node {
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                margin: UiRect::all(Val::Px(5.)),
                 ..default()
             },
             Name::new("HudItem"),
@@ -241,29 +239,38 @@ fn init_hud_item<M: Component + Default>(
         ))
         .with_children(|parent| {
             parent.spawn((
-                ImageBundle {
-                    style: Style {
-                        width: Val::Px(TILE_SIZE.x * SCALE.x),
-                        height: Val::Px(TILE_SIZE.y * SCALE.y),
-                        margin: UiRect::right(Val::Px(5.)),
+                Node {
+                    width: Val::Px(TILE_SIZE.x * SCALE.x),
+                    height: Val::Px(TILE_SIZE.y * SCALE.y),
+                    margin: UiRect::right(Val::Px(5.)),
+                    ..default()
+                },
+                ImageNode {
+                    image: atlas_handle.image.clone(),
+                    texture_atlas: Some(TextureAtlas {
+                        layout: atlas_handle.layout.clone(),
+                        index: atlas_index,
+                    }),
+                    ..default()
+                },
+            ));
+            parent
+                .spawn((
+                    Text::new(text),
+                    TextFont {
+                        font_size: 15.0,
                         ..default()
                     },
-                    image: atlas_handle.image.clone().into(),
-                    ..default()
-                },
-                TextureAtlas {
-                    layout: atlas_handle.layout.clone(),
-                    index: atlas_index,
-                },
-            ));
-            parent.spawn(TextBundle::from_section(
-                text,
-                TextStyle {
-                    font_size: 18.0,
-                    color: TITLE_TEXT,
-                    ..default()
-                },
-            ));
+                    TextColor(TITLE_TEXT),
+                ))
+                .with_child((
+                    TextSpan::default(),
+                    TextFont {
+                        font_size: 15.0,
+                        ..default()
+                    },
+                    TextColor(TITLE_TEXT),
+                ));
         });
 }
 
@@ -288,7 +295,7 @@ fn update_entity_count(
         return;
     };
 
-    text.sections[0].value = format!("{}", entities.iter().len());
+    text.0 = format!("{}", entities.iter().len());
 }
 
 fn update_idle_workers(
@@ -297,7 +304,7 @@ fn update_idle_workers(
     added_idle: Query<(), Added<Idle>>,
     removed_idle: RemovedComponents<Idle>,
     item_query: Query<&Children, With<IdleWorkers>>,
-    mut text_query: Query<&mut Text>,
+    mut text_query: Query<(&mut Text, &mut TextColor)>,
 ) {
     if added_idle.is_empty() && removed_idle.is_empty() {
         return;
@@ -308,15 +315,15 @@ fn update_idle_workers(
     };
 
     let mut text_iter = text_query.iter_many_mut(children);
-    let Some(mut text) = text_iter.fetch_next() else {
+    let Some((mut text, mut text_color)) = text_iter.fetch_next() else {
         return;
     };
 
     let idle = has_idle.iter().count();
     let total = idle + hasnt_idle.iter().count();
 
-    text.sections[0].value = format!("{}/{}", idle, total);
-    text.sections[0].style.color = if idle != total {
+    text.0 = format!("{}/{}", idle, total);
+    text_color.0 = if idle != total {
         ui::TITLE_TEXT
     } else {
         bevy::color::palettes::css::RED.into()
@@ -349,7 +356,7 @@ fn update_fps(
         return;
     };
 
-    text.sections[0].value = format!("{fps:.1}");
+    text.0 = format!("{fps:.1}");
 }
 
 fn update_home_hit_points(
@@ -377,14 +384,15 @@ fn update_home_hit_points(
 
     // TODO color
 
-    text.sections[0].value = format!("{current}/{max}");
+    text.0 = format!("{current}/{max}");
 }
 
 fn update_stone(
     currency: Res<Currency>,
     item_query: Query<&Children, With<Stone>>,
-    mut text_query: Query<&mut Text>,
+    text_query: Query<Entity, With<Text>>,
     selected_tool: Res<SelectedTool>,
+    mut writer: TextUiWriter,
 ) {
     if !currency.is_changed() && !selected_tool.is_changed() {
         return;
@@ -394,41 +402,32 @@ fn update_stone(
         return;
     };
 
-    let mut text_iter = text_query.iter_many_mut(children);
-    let Some(mut text) = text_iter.fetch_next() else {
+    let mut text_iter = text_query.iter_many(children);
+    let Some(text_entity) = text_iter.next() else {
         return;
     };
 
-    text.sections[0].value = format!("{}", currency.stone);
+    *writer.text(text_entity, 0) = format!("{}", currency.stone);
 
-    if text.sections.len() <= 1 {
-        text.sections.push(TextSection {
-            value: "".to_string(),
-            style: TextStyle {
-                font_size: 16.0,
-                ..default()
-            },
-        });
-    } else {
-        let price = DesignationKind::from(selected_tool.0).price();
-        if price.stone > 0 {
-            text.sections[1].value = format!("-{}", price.stone);
-            text.sections[1].style.color = if currency.stone >= price.stone {
-                Color::srgb(0.0, 0.9, 0.0)
-            } else {
-                Color::srgb(0.9, 0.0, 0.0)
-            };
+    let price = DesignationKind::from(selected_tool.0).price();
+    if price.stone > 0 {
+        *writer.text(text_entity, 1) = format!("-{}", price.stone);
+        writer.color(text_entity, 1).0 = if currency.stone >= price.stone {
+            Color::srgb(0.0, 0.9, 0.0)
         } else {
-            text.sections[1].value.clear();
-        }
+            Color::srgb(0.9, 0.0, 0.0)
+        };
+    } else {
+        writer.text(text_entity, 1).clear();
     }
 }
 
 fn update_metal(
     currency: Res<Currency>,
     item_query: Query<&Children, With<Metal>>,
-    mut text_query: Query<&mut Text>,
+    text_query: Query<Entity, With<Text>>,
     selected_tool: Res<SelectedTool>,
+    mut writer: TextUiWriter,
 ) {
     if !currency.is_changed() && !selected_tool.is_changed() {
         return;
@@ -438,41 +437,32 @@ fn update_metal(
         return;
     };
 
-    let mut text_iter = text_query.iter_many_mut(children);
-    let Some(mut text) = text_iter.fetch_next() else {
+    let mut text_iter = text_query.iter_many(children);
+    let Some(text_entity) = text_iter.next() else {
         return;
     };
 
-    text.sections[0].value = format!("{}", currency.metal);
+    *writer.text(text_entity, 0) = format!("{}", currency.metal);
 
-    if text.sections.len() <= 1 {
-        text.sections.push(TextSection {
-            value: "".to_string(),
-            style: TextStyle {
-                font_size: 16.0,
-                ..default()
-            },
-        });
-    } else {
-        let price = DesignationKind::from(selected_tool.0).price();
-        if price.metal > 0 {
-            text.sections[1].value = format!("-{}", price.metal);
-            text.sections[1].style.color = if currency.metal >= price.metal {
-                Color::srgb(0.0, 0.9, 0.0)
-            } else {
-                Color::srgb(0.9, 0.0, 0.0)
-            };
+    let price = DesignationKind::from(selected_tool.0).price();
+    if price.metal > 0 {
+        *writer.text(text_entity, 1) = format!("-{}", price.metal);
+        writer.color(text_entity, 1).0 = if currency.metal >= price.metal {
+            Color::srgb(0.0, 0.9, 0.0)
         } else {
-            text.sections[1].value.clear();
-        }
+            Color::srgb(0.9, 0.0, 0.0)
+        };
+    } else {
+        writer.text(text_entity, 1).clear();
     }
 }
 
 fn update_crystal(
     currency: Res<Currency>,
     item_query: Query<&Children, With<Crystal>>,
-    mut text_query: Query<&mut Text>,
+    text_query: Query<Entity, With<Text>>,
     selected_tool: Res<SelectedTool>,
+    mut writer: TextUiWriter,
 ) {
     if !currency.is_changed() && !selected_tool.is_changed() {
         return;
@@ -482,33 +472,23 @@ fn update_crystal(
         return;
     };
 
-    let mut text_iter = text_query.iter_many_mut(children);
-    let Some(mut text) = text_iter.fetch_next() else {
+    let mut text_iter = text_query.iter_many(children);
+    let Some(text_entity) = text_iter.next() else {
         return;
     };
 
-    text.sections[0].value = format!("{}", currency.crystal);
+    *writer.text(text_entity, 0) = format!("{}", currency.crystal);
 
-    if text.sections.len() <= 1 {
-        text.sections.push(TextSection {
-            value: "".to_string(),
-            style: TextStyle {
-                font_size: 16.0,
-                ..default()
-            },
-        });
-    } else {
-        let price = DesignationKind::from(selected_tool.0).price();
-        if price.crystal > 0 {
-            text.sections[1].value = format!("-{}", price.crystal);
-            text.sections[1].style.color = if currency.crystal >= price.crystal {
-                Color::srgb(0.0, 0.9, 0.0)
-            } else {
-                Color::srgb(0.9, 0.0, 0.0)
-            };
+    let price = DesignationKind::from(selected_tool.0).price();
+    if price.crystal > 0 {
+        *writer.text(text_entity, 1) = format!("-{}", price.crystal);
+        writer.color(text_entity, 1).0 = if currency.crystal >= price.crystal {
+            Color::srgb(0.0, 0.9, 0.0)
         } else {
-            text.sections[1].value.clear();
-        }
+            Color::srgb(0.9, 0.0, 0.0)
+        };
+    } else {
+        writer.text(text_entity, 1).clear();
     }
 }
 
@@ -539,7 +519,7 @@ fn update_wave_count(
     let num = waves.waves.len();
     let current = (waves.current + 1).min(num);
 
-    text.sections[0].value = format!("{}/{}", current, num);
+    text.0 = format!("{}/{}", current, num);
 }
 
 fn cleanup(mut commands: Commands, query: Query<Entity, With<HudRoot>>) {

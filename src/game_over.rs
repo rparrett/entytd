@@ -1,11 +1,10 @@
 use bevy::prelude::*;
-use bevy_nine_slice_ui::NineSliceUiTexture;
 
 use crate::{
     game::Won,
     settings::DifficultySetting,
     stats::Stats,
-    ui::{UiAssets, BUTTON_TEXT, TITLE_TEXT},
+    ui::{slice_image_mode, UiAssets, BUTTON_TEXT, TITLE_TEXT},
     GameState,
 };
 
@@ -27,7 +26,7 @@ fn init(
     stats: Res<Stats>,
     difficulty: Res<DifficultySetting>,
 ) {
-    let button_style = Style {
+    let button_style = Node {
         width: Val::Px(250.0),
         height: Val::Px(45.0),
         margin: UiRect::all(Val::Px(5.0)),
@@ -36,130 +35,119 @@ fn init(
         ..default()
     };
 
-    let button_text_style = TextStyle {
-        font_size: 18.0,
-        color: BUTTON_TEXT,
-        ..default()
-    };
+    let button_text_style = (
+        TextFont {
+            font_size: 15.0,
+            ..default()
+        },
+        TextColor(BUTTON_TEXT),
+    );
 
-    let title_text_style = TextStyle {
-        font_size: 18.0,
-        color: TITLE_TEXT,
-        ..default()
-    };
+    let title_text_style = (
+        TextFont {
+            font_size: 15.0,
+            ..default()
+        },
+        TextColor(TITLE_TEXT),
+    );
 
     let container = commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    margin: UiRect::all(Val::Auto),
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::Center,
-                    padding: UiRect::all(Val::Px(20.)),
-                    row_gap: Val::Px(10.),
-                    ..default()
-                },
+            Node {
+                margin: UiRect::all(Val::Auto),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                padding: UiRect::all(Val::Px(20.)),
+                row_gap: Val::Px(10.),
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_panel.clone()),
+            ImageNode {
+                image: ui_assets.nine_panel.clone(),
+                image_mode: slice_image_mode(),
+                ..default()
+            },
             StateScoped(GameState::GameOver),
         ))
         .id();
 
     let title = commands
-        .spawn(TextBundle::from_section(
-            if won.0 {
+        .spawn((
+            Text::new(if won.0 {
                 "You win!".to_string()
             } else {
                 "You lose!".to_string()
-            },
+            }),
             title_text_style.clone(),
         ))
         .id();
 
     let stats_container = commands
-        .spawn(NodeBundle {
-            style: Style {
-                display: Display::Grid,
-                grid_template_columns: vec![GridTrack::flex(1.0), GridTrack::min_content()],
-                row_gap: Val::Px(5.),
-                column_gap: Val::Px(40.),
-                ..default()
-            },
+        .spawn(Node {
+            display: Display::Grid,
+            grid_template_columns: vec![GridTrack::flex(1.0), GridTrack::min_content()],
+            row_gap: Val::Px(5.),
+            column_gap: Val::Px(40.),
             ..default()
         })
         .id();
 
     let kills_label = commands
-        .spawn(TextBundle::from_section(
-            "Enemies Defeated",
-            title_text_style.clone(),
-        ))
+        .spawn((Text::new("Enemies Defeated"), title_text_style.clone()))
         .id();
     let kills = commands
-        .spawn(TextBundle::from_section(
-            format!("{}", stats.kills),
+        .spawn((
+            Text::new(format!("{}", stats.kills)),
             title_text_style.clone(),
         ))
         .id();
 
     let mined_label = commands
-        .spawn(TextBundle::from_section(
-            "Resources Mined",
-            title_text_style.clone(),
-        ))
+        .spawn((Text::new("Resources Mined"), title_text_style.clone()))
         .id();
     let mined = commands
-        .spawn(TextBundle::from_section(
-            format!("{}", stats.mined),
+        .spawn((
+            Text::new(format!("{}", stats.mined)),
             title_text_style.clone(),
         ))
         .id();
 
     let built_label = commands
-        .spawn(TextBundle::from_section(
-            "Towers Built",
-            title_text_style.clone(),
-        ))
+        .spawn((Text::new("Towers Built"), title_text_style.clone()))
         .id();
     let built = commands
-        .spawn(TextBundle::from_section(
-            format!("{}", stats.towers),
+        .spawn((
+            Text::new(format!("{}", stats.towers)),
             title_text_style.clone(),
         ))
         .id();
 
     let difficulty_label = commands
-        .spawn(TextBundle::from_section(
-            "Difficulty",
-            title_text_style.clone(),
-        ))
+        .spawn((Text::new("Difficulty"), title_text_style.clone()))
         .id();
     let difficulty = commands
-        .spawn(TextBundle::from_section(
-            format!("{}", *difficulty),
+        .spawn((
+            Text::new(format!("{}", *difficulty)),
             title_text_style.clone(),
         ))
         .id();
 
     let play_button = commands
         .spawn((
-            ButtonBundle {
-                style: button_style.clone(),
+            Button,
+            button_style.clone(),
+            ImageNode {
+                image: ui_assets.nine_button.clone(),
+                image_mode: slice_image_mode(),
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
             MenuButton,
         ))
         .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "Back to menu",
-                button_text_style.clone(),
-            ));
+            parent.spawn((Text::new("Back to menu"), button_text_style.clone()));
         })
         .id();
 
-    commands.entity(stats_container).push_children(&[
+    commands.entity(stats_container).add_children(&[
         difficulty_label,
         difficulty,
         kills_label,
@@ -172,7 +160,7 @@ fn init(
 
     commands
         .entity(container)
-        .push_children(&[title, stats_container, play_button]);
+        .add_children(&[title, stats_container, play_button]);
 }
 
 fn menu_button(

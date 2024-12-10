@@ -6,7 +6,7 @@ use crate::{
     hit_points::HitPoints,
     home::Home,
     movement::{MovingProgress, Speed},
-    particle::{ParticleBundle, ParticleKind},
+    particle::ParticleKind,
     pathfinding::{enemy_cost_fn, heuristic, NeighborCostIter, PathState},
     settings::{DifficultySetting, ParticlesSetting},
     stats::Stats,
@@ -30,7 +30,18 @@ impl Plugin for EnemyPlugin {
     }
 }
 
+// TODO consider combining with EnemyKind
 #[derive(Component, Default)]
+#[require(
+    Sprite,
+    HitPoints,
+    EnemyKind,
+    TilePos,
+    MovingProgress,
+    Speed,
+    AttackCooldown,
+    Behavior
+)]
 pub struct Enemy;
 
 #[derive(Component, Default, Deserialize, Copy, Clone)]
@@ -90,20 +101,7 @@ impl Default for EnemyRng {
     }
 }
 
-#[derive(Bundle, Default)]
-pub struct EnemyBundle {
-    sprite: SpriteBundle,
-    texture: TextureAtlas,
-    hit_points: HitPoints,
-    enemy: Enemy,
-    kind: EnemyKind,
-    pos: TilePos,
-    moving_animation: MovingProgress,
-    speed: Speed,
-    attack_cooldown: AttackCooldown,
-    behavior: Behavior,
-}
-
+// TODO consider replacing with OnAdd observer
 fn spawn(
     mut commands: Commands,
     mut events: EventReader<SpawnEnemyEvent>,
@@ -125,26 +123,24 @@ fn spawn(
         };
 
         commands.spawn((
-            EnemyBundle {
-                sprite: SpriteBundle {
-                    texture: atlas_handle.image.clone(),
-                    transform: Transform {
-                        translation: world.extend(1.),
-                        scale: crate::tilemap::SCALE.extend(1.),
-                        ..default()
-                    },
-                    ..default()
-                },
-                texture: TextureAtlas {
+            Sprite {
+                image: atlas_handle.image.clone(),
+                texture_atlas: Some(TextureAtlas {
                     layout: atlas_handle.layout.clone(),
                     index: event.kind.atlas_index(),
-                },
-                hit_points: HitPoints::full(hp),
-                kind: event.kind,
-                pos: event.pos,
-                speed: Speed(2.),
+                }),
                 ..default()
             },
+            Transform {
+                translation: world.extend(1.),
+                scale: crate::tilemap::SCALE.extend(1.),
+                ..default()
+            },
+            Enemy,
+            HitPoints::full(hp),
+            event.kind,
+            event.pos,
+            Speed(2.),
             #[cfg(feature = "inspector")]
             Name::new("Enemy"),
         ));
@@ -264,9 +260,9 @@ fn attack(
             particle_settings.hit_amt()
         };
         for _ in 0..amt {
-            commands.spawn(ParticleBundle::new(
+            commands.spawn((
                 ParticleKind::Home,
-                map.pos_to_world(*home_pos),
+                Transform::from_translation(map.pos_to_world(*home_pos).extend(0.)),
             ));
         }
 

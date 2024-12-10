@@ -12,12 +12,12 @@ impl Plugin for HomePlugin {
 #[derive(Component)]
 pub struct Home;
 
-fn update_sprites(
-    mut query: Query<(&mut TextureAtlas, &HitPoints), (Changed<HitPoints>, With<Home>)>,
-) {
-    for (mut atlas, hitpoints) in &mut query {
+fn update_sprites(mut query: Query<(&mut Sprite, &HitPoints), (Changed<HitPoints>, With<Home>)>) {
+    for (mut sprite, hitpoints) in &mut query {
         if hitpoints.is_zero() {
-            atlas.index = TileKind::HomeDead.atlas_index();
+            if let Some(ref mut texture_atlas) = sprite.texture_atlas {
+                texture_atlas.index = TileKind::HomeDead.atlas_index();
+            }
         }
     }
 }

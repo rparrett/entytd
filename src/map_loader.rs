@@ -1,6 +1,6 @@
 use crate::tilemap::Map;
 use bevy::{
-    asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext},
+    asset::{io::Reader, AssetLoader, LoadContext},
     prelude::*,
 };
 use image::{GenericImageView, ImageError, Pixel};
@@ -30,16 +30,16 @@ impl AssetLoader for MapFileLoader {
     type Asset = Map;
     type Settings = ();
     type Error = MapFileLoaderError;
-    async fn load<'a>(
-        &'a self,
-        reader: &'a mut Reader<'_>,
-        _settings: &'a (),
-        _load_context: &'a mut LoadContext<'_>,
+    async fn load(
+        &self,
+        reader: &mut dyn Reader,
+        _settings: &(),
+        _load_context: &mut LoadContext<'_>,
     ) -> Result<Self::Asset, Self::Error> {
         let mut bytes = Vec::new();
         reader.read_to_end(&mut bytes).await?;
 
-        let mut reader = image::io::Reader::new(std::io::Cursor::new(bytes));
+        let mut reader = image::ImageReader::new(std::io::Cursor::new(bytes));
         reader.set_format(image::ImageFormat::Png);
         reader.no_limits();
         let dyn_img = reader.decode()?;

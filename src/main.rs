@@ -3,7 +3,6 @@
 
 use bevy::{asset::AssetMetaCheck, diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 
-use bevy_nine_slice_ui::NineSliceUiPlugin;
 use camera::CameraPlugin;
 use currency::CurrencyPlugin;
 use cursor::CursorPlugin;
@@ -145,15 +144,12 @@ fn main() {
         TutorialPlugin,
     ));
 
-    app.add_plugins(NineSliceUiPlugin::default());
-
     #[cfg(feature = "inspector")]
     app.add_plugins(
         WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
     );
 
-    app.insert_resource(Msaa::Off)
-        .insert_resource(ClearColor(Color::BLACK))
+    app.insert_resource(ClearColor(Color::BLACK))
         .init_state::<GameState>()
         .enable_state_scoped_entities::<GameState>();
 

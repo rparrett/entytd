@@ -52,7 +52,7 @@ fn cursor(
         return;
     }
 
-    let Some(world) = camera.viewport_to_world_2d(&camera_transform, cursor.viewport_pos) else {
+    let Ok(world) = camera.viewport_to_world_2d(&camera_transform, cursor.viewport_pos) else {
         return;
     };
 

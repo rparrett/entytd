@@ -125,34 +125,27 @@ struct DesignationToolState {
 fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>, ui_assets: Res<UiAssets>) {
     commands
         .spawn((
-            SpriteBundle {
-                sprite: Sprite {
-                    color: DesignationKind::Dig.not_ok_color(),
-                    ..default()
-                },
-                texture: atlas_handle.image.clone(),
-                visibility: Visibility::Hidden,
-                transform: Transform::from_xyz(0., 0., layer::CURSOR)
-                    .with_scale(crate::tilemap::SCALE.extend(1.)),
+            Sprite {
+                color: DesignationKind::Dig.not_ok_color(),
+                image: atlas_handle.image.clone(),
+                texture_atlas: Some(TextureAtlas {
+                    layout: atlas_handle.layout.clone(),
+                    index: DesignationKind::Dig.not_ok_atlas_index(),
+                }),
                 ..default()
             },
-            TextureAtlas {
-                layout: atlas_handle.layout.clone(),
-                index: DesignationKind::Dig.not_ok_atlas_index(),
-            },
+            Visibility::Hidden,
+            Transform::from_xyz(0., 0., layer::CURSOR).with_scale(crate::tilemap::SCALE.extend(1.)),
             DesignateToolCursor,
         ))
         .with_children(|parent| {
             parent.spawn((
-                SpriteBundle {
-                    sprite: Sprite {
-                        color: DesignationKind::BuildTower.ok_color(),
-                        ..default()
-                    },
-                    texture: ui_assets.range_indicator_24.clone(),
-                    visibility: Visibility::Inherited,
+                Sprite {
+                    color: DesignationKind::BuildTower.ok_color(),
+                    image: ui_assets.range_indicator_24.clone(),
                     ..default()
                 },
+                Visibility::Inherited,
                 DesignateToolRange,
             ));
         });
@@ -161,7 +154,7 @@ fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>, ui_assets
 fn update_cursor(
     selected_tool: Res<SelectedTool>,
     cursor_snapped: Res<CursorSnapped>,
-    mut query: Query<(&mut Transform, &mut TextureAtlas, &mut Sprite), With<DesignateToolCursor>>,
+    mut query: Query<(&mut Transform, &mut Sprite), With<DesignateToolCursor>>,
     mut range_query: Query<&mut Visibility, With<DesignateToolRange>>,
     tilemap_query: Query<&Map>,
     currency: Res<Currency>,
@@ -170,7 +163,7 @@ fn update_cursor(
         return;
     }
 
-    for (mut transform, mut atlas, mut sprite) in &mut query {
+    for (mut transform, mut sprite) in &mut query {
         let Some(snapped) = cursor_snapped.world_pos else {
             continue;
         };
@@ -201,12 +194,17 @@ fn update_cursor(
         let has_money = currency.has(&designation.price());
 
         // TODO separate cursor for the no-money situation?
-
+        // TODO cleanup with DesignationKind::atlas_index(ok: bool)
         if ok && has_money {
-            atlas.index = designation.ok_atlas_index();
+            if let Some(ref mut atlas) = sprite.texture_atlas {
+                atlas.index = designation.ok_atlas_index();
+            }
+
             sprite.color = designation.ok_color();
         } else {
-            atlas.index = designation.not_ok_atlas_index();
+            if let Some(ref mut atlas) = sprite.texture_atlas {
+                atlas.index = designation.not_ok_atlas_index();
+            }
             sprite.color = designation.not_ok_color();
         }
 
@@ -309,11 +307,10 @@ fn designate(
             .unwrap_or(false)
         {
             if buttons.just_pressed(MouseButton::Left) {
-                commands.spawn(AudioBundle {
-                    source: sound_assets.bad.clone(),
-                    settings: PlaybackSettings::DESPAWN
-                        .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
-                });
+                commands.spawn((
+                    AudioPlayer(sound_assets.bad.clone()),
+                    PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+                ));
             }
 
             return;
@@ -349,11 +346,10 @@ fn designate(
 
     if !ok {
         if buttons.just_pressed(MouseButton::Left) {
-            commands.spawn(AudioBundle {
-                source: sound_assets.bad.clone(),
-                settings: PlaybackSettings::DESPAWN
-                    .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
-            });
+            commands.spawn((
+                AudioPlayer(sound_assets.bad.clone()),
+                PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+            ));
         }
         return;
     }
@@ -361,31 +357,27 @@ fn designate(
     let designation_kind = DesignationKind::from(selected_tool.0);
     if currency.try_sub(&designation_kind.price()).is_err() {
         if buttons.just_pressed(MouseButton::Left) {
-            commands.spawn(AudioBundle {
-                source: sound_assets.bad.clone(),
-                settings: PlaybackSettings::DESPAWN
-                    .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
-            });
+            commands.spawn((
+                AudioPlayer(sound_assets.bad.clone()),
+                PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+            ));
         }
         return;
     }
 
     let id = commands
         .spawn((
-            SpriteBundle {
-                sprite: Sprite {
-                    color: designation_kind.ok_color(),
-                    ..default()
-                },
-                texture: atlas_handle.image.clone(),
-                transform: Transform::from_translation(world_pos_snapped.extend(layer::BLUEPRINT))
-                    .with_scale(crate::tilemap::SCALE.extend(1.)),
+            Sprite {
+                image: atlas_handle.image.clone(),
+                color: designation_kind.ok_color(),
+                texture_atlas: Some(TextureAtlas {
+                    layout: atlas_handle.layout.clone(),
+                    index: designation_kind.ok_atlas_index(),
+                }),
                 ..default()
             },
-            TextureAtlas {
-                layout: atlas_handle.layout.clone(),
-                index: designation_kind.ok_atlas_index(),
-            },
+            Transform::from_translation(world_pos_snapped.extend(layer::BLUEPRINT))
+                .with_scale(crate::tilemap::SCALE.extend(1.)),
             DesignationMarker,
             #[cfg(feature = "inspector")]
             Name::new("DesignationMarker"),

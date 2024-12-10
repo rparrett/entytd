@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use bevy::{audio::Volume, prelude::*};
-use bevy_nine_slice_ui::NineSliceUiTexture;
 use serde::Deserialize;
 
 use crate::{
@@ -9,7 +8,7 @@ use crate::{
     settings::SfxSetting,
     sound::SoundAssets,
     tilemap::{AtlasHandle, TilePos, SCALE, TILE_SIZE},
-    ui::{UiAssets, TITLE_TEXT},
+    ui::{slice_image_mode, UiAssets, TITLE_TEXT},
     waves::{WaveStartEvent, Waves},
     GameState,
 };
@@ -159,11 +158,10 @@ fn spawn(
         let next = waves.advance();
 
         if next.is_some() {
-            commands.spawn(AudioBundle {
-                source: sound_assets.wave.clone(),
-                settings: PlaybackSettings::DESPAWN
-                    .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
-            });
+            commands.spawn((
+                AudioPlayer(sound_assets.wave.clone()),
+                PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+            ));
         }
     }
 }
@@ -191,52 +189,52 @@ fn add_spawner_ui(
     for entity in &query {
         let ui_entity = commands
             .spawn((
-                NodeBundle {
-                    style: Style {
-                        display: Display::None,
-                        position_type: PositionType::Absolute,
-                        width: Val::Px(SPAWNER_UI_SIZE.x),
-                        height: Val::Px(SPAWNER_UI_SIZE.y),
-                        flex_direction: FlexDirection::Column,
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
+                Node {
+                    display: Display::None,
+                    position_type: PositionType::Absolute,
+                    width: Val::Px(SPAWNER_UI_SIZE.x),
+                    height: Val::Px(SPAWNER_UI_SIZE.y),
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
                     ..default()
                 },
-                NineSliceUiTexture::from_image(ui_assets.nine_panel_warning.clone()),
+                ImageNode {
+                    image: ui_assets.nine_panel_warning.clone(),
+                    image_mode: slice_image_mode(),
+                    ..default()
+                },
                 SpawnerContainer,
             ))
             .with_children(|parent| {
                 parent.spawn((
-                    ImageBundle {
-                        style: Style {
-                            width: Val::Px(TILE_SIZE.x * SCALE.x),
-                            height: Val::Px(TILE_SIZE.y * SCALE.y),
-                            ..default()
-                        },
-                        image: atlas_handle.image.clone().into(),
+                    Node {
+                        width: Val::Px(TILE_SIZE.x * SCALE.x),
+                        height: Val::Px(TILE_SIZE.y * SCALE.y),
                         ..default()
                     },
-                    TextureAtlas {
-                        layout: atlas_handle.layout.clone(),
-                        index: 103 * 8,
+                    ImageNode {
+                        image: atlas_handle.image.clone(),
+                        texture_atlas: Some(TextureAtlas {
+                            layout: atlas_handle.layout.clone(),
+                            index: 103 * 8,
+                        }),
+                        ..default()
                     },
                     SpawnerPortrait,
                 ));
                 parent.spawn((
-                    TextBundle::from_section(
-                        "10.1",
-                        TextStyle {
-                            font_size: 18.0,
-                            color: TITLE_TEXT,
-                            ..default()
-                        },
-                    )
-                    .with_style(Style {
+                    Node {
                         margin: UiRect::top(Val::Px(6.)),
                         ..default()
-                    }),
+                    },
+                    Text::new("10.1"),
+                    TextFont {
+                        font_size: 15.0,
+
+                        ..default()
+                    },
+                    TextColor(TITLE_TEXT),
                     SpawnerDelayText,
                 ));
             })
@@ -248,15 +246,15 @@ fn add_spawner_ui(
 
 fn update_spawner_ui(
     query: Query<(&Transform, &SpawnerIndex, &SpawnerUi)>,
-    mut ui_query: Query<(&mut Style, &Children), With<SpawnerContainer>>,
-    mut ui_atlas_query: Query<&mut TextureAtlas, With<SpawnerPortrait>>,
+    mut ui_query: Query<(&mut Node, &Children), With<SpawnerContainer>>,
+    mut ui_atlas_query: Query<&mut ImageNode, With<SpawnerPortrait>>,
     mut ui_text_query: Query<&mut Text, With<SpawnerDelayText>>,
     spawners: Res<SpawnerStates>,
     camera_query: Query<(&Camera, &GlobalTransform, &OrthographicProjection), With<Camera2d>>,
     spawning_paused: Res<SpawningPaused>,
 ) {
     for (_, index, ui_entity) in &query {
-        let Ok((mut container_style, children)) = ui_query.get_mut(ui_entity.0) else {
+        let Ok((mut container_node, children)) = ui_query.get_mut(ui_entity.0) else {
             continue;
         };
 
@@ -270,20 +268,24 @@ fn update_spawner_ui(
         };
 
         if !spawning_paused.0 && state.remaining > 0 && !state.delay_timer.finished() {
-            container_style.display = Display::Flex;
+            container_node.display = Display::Flex;
         } else {
-            container_style.display = Display::None;
+            container_node.display = Display::None;
             continue;
         }
 
         let mut image_iter = ui_atlas_query.iter_many_mut(children);
-        let Some(mut atlas) = image_iter.fetch_next() else {
+        let Some(mut image_node) = image_iter.fetch_next() else {
+            continue;
+        };
+
+        let Some(ref mut atlas) = image_node.texture_atlas else {
             continue;
         };
 
         atlas.index = state.spawn.kind.atlas_index();
 
-        text.sections[0].value = format!("{:.1}", state.delay_timer.remaining_secs());
+        text.0 = format!("{:.1}", state.delay_timer.remaining_secs());
     }
 
     let Ok((camera, camera_transform, projection)) = camera_query.get_single() else {
@@ -305,7 +307,7 @@ fn update_spawner_ui(
             continue;
         };
 
-        let Some(viewport) = camera.world_to_viewport(camera_transform, clamped.extend(0.)) else {
+        let Ok(viewport) = camera.world_to_viewport(camera_transform, clamped.extend(0.)) else {
             continue;
         };
 
@@ -321,11 +323,10 @@ fn first_wave_audio(
     sound_assets: Res<SoundAssets>,
 ) {
     if paused.is_changed() && !paused.0 {
-        commands.spawn(AudioBundle {
-            source: sound_assets.wave.clone(),
-            settings: PlaybackSettings::DESPAWN
-                .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
-        });
+        commands.spawn((
+            AudioPlayer(sound_assets.wave.clone()),
+            PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+        ));
     }
 }
 

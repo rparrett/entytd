@@ -52,7 +52,7 @@ fn movement(
         let mut current = path_state.path[path_state.index];
         let mut next = path_state.path[path_state.index + 1];
 
-        animation.0 += time.delta_seconds() * speed.0;
+        animation.0 += time.delta_secs() * speed.0;
 
         while animation.0 > 1.0 {
             path_state.index += 1;

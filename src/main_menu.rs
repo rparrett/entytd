@@ -2,15 +2,14 @@ use crate::{
     loading::LoadingAssets,
     settings::{DifficultySetting, MusicSetting, ParticlesSetting, SfxSetting},
     sound::{MusicController, SoundAssets},
-    tilemap::{AtlasHandle, Map, TileEntities, TilemapBundle},
-    ui::{UiAssets, BUTTON_TEXT, TITLE_TEXT},
+    tilemap::{AtlasHandle, Map, TileEntities, TilemapBundle, TilemapHandle},
+    ui::{slice_image_mode, UiAssets, BUTTON_TEXT, TITLE_TEXT},
     GameState,
 };
 use bevy::{
     audio::{AudioSink, Volume},
     prelude::*,
 };
-use bevy_nine_slice_ui::NineSliceUiTexture;
 use grid::Grid;
 
 pub struct MainMenuPlugin;
@@ -79,169 +78,160 @@ fn setup_menu(
     particles: Res<ParticlesSetting>,
     ui_assets: Res<UiAssets>,
 ) {
-    let button_style = Style {
-        width: Val::Px(250.0),
-        height: Val::Px(45.0),
-        margin: UiRect::all(Val::Px(5.0)),
-        justify_content: JustifyContent::Center,
-        align_items: AlignItems::Center,
-        ..default()
-    };
-    let button_text_style = TextStyle {
-        font_size: 18.0,
-        color: BUTTON_TEXT,
-        ..default()
-    };
-    let title_text_style = TextStyle {
-        font_size: 18.0,
-        color: TITLE_TEXT,
-        ..default()
-    };
-    let subtitle_text_style = TextStyle {
-        font_size: 18.0,
-        color: TITLE_TEXT,
-        ..default()
-    };
+    let button_node = (
+        Node {
+            width: Val::Px(250.0),
+            height: Val::Px(45.0),
+            margin: UiRect::all(Val::Px(5.0)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        ImageNode {
+            image: ui_assets.nine_button.clone(),
+            image_mode: slice_image_mode(),
+            ..default()
+        },
+    );
+    let button_text_style = (
+        TextFont {
+            font_size: 15.0,
+            ..default()
+        },
+        TextColor(BUTTON_TEXT),
+    );
+    let title_text_style = (
+        TextFont {
+            font_size: 15.0,
+            ..default()
+        },
+        TextColor(TITLE_TEXT),
+    );
+    let subtitle_text_style = (
+        TextFont {
+            font_size: 15.0,
+            ..default()
+        },
+        TextColor(TITLE_TEXT),
+    );
 
     let container = commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    margin: UiRect::all(Val::Auto),
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::Center,
-                    padding: UiRect::all(Val::Px(20.)),
-                    ..default()
-                },
+            Node {
+                margin: UiRect::all(Val::Auto),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                padding: UiRect::all(Val::Px(20.)),
                 ..default()
             },
-            NineSliceUiTexture::from_image(ui_assets.nine_panel.clone()),
+            ImageNode {
+                image: ui_assets.nine_panel.clone(),
+                image_mode: slice_image_mode(),
+                ..default()
+            },
             StateScoped(GameState::MainMenu),
         ))
         .id();
 
     let title = commands
-        .spawn(
-            TextBundle::from_section("Enty TD", title_text_style).with_style(Style {
+        .spawn((
+            Text::new("Enty TD"),
+            title_text_style,
+            Node {
                 margin: UiRect {
                     bottom: Val::Px(10.0),
                     ..default()
                 },
                 ..default()
-            }),
-        )
+            },
+        ))
         .id();
 
     let play_button = commands
-        .spawn((
-            ButtonBundle {
-                style: button_style.clone(),
-                ..default()
-            },
-            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
-            PlayButton,
-        ))
+        .spawn((Button, button_node.clone(), PlayButton))
         .with_children(|parent| {
-            parent.spawn(TextBundle::from_section("Play", button_text_style.clone()));
+            parent.spawn((Text::new("Play"), button_text_style.clone()));
         })
         .id();
 
     let audio_settings_title = commands
-        .spawn(
-            TextBundle::from_section("Audio", subtitle_text_style.clone()).with_style(Style {
+        .spawn((
+            Text::new("Audio"),
+            subtitle_text_style.clone(),
+            Node {
                 margin: UiRect::all(Val::Px(10.0)),
                 ..default()
-            }),
-        )
+            },
+        ))
         .id();
 
     let difficulty_title = commands
-        .spawn(
-            TextBundle::from_section("Difficulty", subtitle_text_style.clone()).with_style(Style {
+        .spawn((
+            Text::new("Difficulty"),
+            subtitle_text_style.clone(),
+            Node {
                 margin: UiRect::all(Val::Px(10.0)),
                 ..default()
-            }),
-        )
+            },
+        ))
         .id();
 
     let graphics_title = commands
-        .spawn(
-            TextBundle::from_section("Graphics", subtitle_text_style).with_style(Style {
+        .spawn((
+            Text::new("Graphics"),
+            subtitle_text_style,
+            Node {
                 margin: UiRect::all(Val::Px(10.0)),
                 ..default()
-            }),
-        )
+            },
+        ))
         .id();
 
     let particles_button = commands
-        .spawn((
-            ButtonBundle {
-                style: button_style.clone(),
-                ..default()
-            },
-            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
-            ParticlesSettingButton,
-        ))
+        .spawn((Button, button_node.clone(), ParticlesSettingButton))
         .with_children(|parent| {
             parent.spawn((
-                TextBundle::from_section(format!("{}", *particles), button_text_style.clone()),
+                Text::new(format!("{}", *particles)),
+                button_text_style.clone(),
                 ParticlesSettingButtonText,
             ));
         })
         .id();
 
     let difficulty_button = commands
-        .spawn((
-            ButtonBundle {
-                style: button_style.clone(),
-                ..default()
-            },
-            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
-            DifficultySettingButton,
-        ))
+        .spawn((Button, button_node.clone(), DifficultySettingButton))
         .with_children(|parent| {
             parent.spawn((
-                TextBundle::from_section(format!("{}", *difficulty), button_text_style.clone()),
+                Text::new(format!("{}", *difficulty)),
+                button_text_style.clone(),
                 DifficultySettingButtonText,
             ));
         })
         .id();
 
     let sfx_button = commands
-        .spawn((
-            ButtonBundle {
-                style: button_style.clone(),
-                ..default()
-            },
-            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
-            SfxSettingButton,
-        ))
+        .spawn((Button, button_node.clone(), SfxSettingButton))
         .with_children(|parent| {
             parent.spawn((
-                TextBundle::from_section(format!("Sfx {}%", **sfx), button_text_style.clone()),
+                Text::new(format!("Sfx {}%", **sfx)),
+                button_text_style.clone(),
                 SfxSettingButtonText,
             ));
         })
         .id();
 
     let music_button = commands
-        .spawn((
-            ButtonBundle {
-                style: button_style,
-                ..default()
-            },
-            NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
-            MusicSettingButton,
-        ))
+        .spawn((Button, button_node, MusicSettingButton))
         .with_children(|parent| {
             parent.spawn((
-                TextBundle::from_section(format!("Music {}%", **music), button_text_style),
+                Text::new(format!("Music {}%", **music)),
+                button_text_style,
                 MusicSettingButtonText,
             ));
         })
         .id();
 
-    commands.entity(container).push_children(&[
+    commands.entity(container).add_children(&[
         title,
         play_button,
         difficulty_title,
@@ -279,7 +269,7 @@ fn sfx_button(
             }
 
             for mut text in text_query.iter_mut() {
-                text.sections[0].value = format!("Sfx {}%", **sfx_setting);
+                text.0 = format!("Sfx {}%", **sfx_setting);
             }
         }
     }
@@ -299,7 +289,7 @@ fn music_button(
             }
 
             for mut text in text_query.iter_mut() {
-                text.sections[0].value = format!("Music {}%", **music_setting);
+                text.0 = format!("Music {}%", **music_setting);
             }
         }
     }
@@ -318,7 +308,7 @@ fn difficulty_button(
             *difficulty_setting = difficulty_setting.next();
 
             for mut text in text_query.iter_mut() {
-                text.sections[0].value = format!("{}", *difficulty_setting);
+                text.0 = format!("{}", *difficulty_setting);
             }
         }
     }
@@ -337,7 +327,7 @@ fn particles_button(
             *particles_setting = particles_setting.next();
 
             for mut text in text_query.iter_mut() {
-                text.sections[0].value = format!("{}", *particles_setting);
+                text.0 = format!("{}", *particles_setting);
             }
         }
     }
@@ -354,7 +344,7 @@ fn init_background(
     let entities = TileEntities(Grid::new(tiles.0.rows(), tiles.0.cols()));
 
     commands.spawn(TilemapBundle {
-        tilemap_handle: assets.background.clone(),
+        tilemap_handle: TilemapHandle(assets.background.clone()),
         atlas_handle: atlas_handle.clone(),
         tiles,
         entities,
@@ -385,10 +375,10 @@ fn sfx_volume(
         return;
     }
 
-    commands.spawn(AudioBundle {
-        source: sound_assets.pickaxe.clone(),
-        settings: PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
-    });
+    commands.spawn((
+        AudioPlayer(sound_assets.pickaxe.clone()),
+        PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+    ));
 }
 
 fn music_volume(

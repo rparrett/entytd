@@ -29,6 +29,7 @@ impl Default for ParticleRng {
 }
 
 #[derive(Component, Default)]
+#[require(Sprite, Velocity, Life)]
 pub enum ParticleKind {
     #[default]
     Stone,
@@ -49,37 +50,6 @@ impl ParticleKind {
             Self::Crystal => Color::srgb(0.37, 0.69, 0.84),
             Self::Metal => Color::srgb(0.84, 0.73, 0.37),
             Self::Purple => Color::srgb(0.74, 0., 0.71),
-        }
-    }
-}
-
-#[derive(Bundle, Default)]
-pub struct ParticleBundle {
-    sprite: SpriteBundle,
-    texture: TextureAtlas,
-    kind: ParticleKind,
-    velocity: Velocity,
-    life: Life,
-}
-impl ParticleBundle {
-    pub fn new(kind: ParticleKind, pos: Vec2) -> Self {
-        ParticleBundle {
-            sprite: SpriteBundle {
-                sprite: Sprite {
-                    color: kind.color(),
-                    ..default()
-                },
-                transform: Transform::from_translation(pos.extend(layer::PARTICLE))
-                    .with_scale(SCALE.extend(1.)),
-                visibility: Visibility::Hidden,
-                ..default()
-            },
-            texture: TextureAtlas {
-                index: 103 * 49 + 53,
-                ..default()
-            },
-            kind,
-            ..default()
         }
     }
 }
@@ -107,8 +77,7 @@ fn update_particles(
         &mut Life,
         &mut Transform,
         &mut Velocity,
-        &mut TextureAtlas,
-        &mut Handle<Image>,
+        &mut Sprite,
         &mut Visibility,
         Ref<ParticleKind>,
     )>,
@@ -116,27 +85,28 @@ fn update_particles(
     atlas_handle: Res<AtlasHandle>,
     time: Res<Time>,
 ) {
-    for (
-        entity,
-        mut life,
-        mut transform,
-        mut velocity,
-        mut atlas,
-        mut image_handle,
-        mut visibility,
-        kind,
-    ) in &mut query
+    for (entity, mut life, mut transform, mut velocity, mut sprite, mut visibility, kind) in
+        &mut query
     {
+        // TODO split into OnAdd observer?
+        // Everything except the random velocity could be done in a simple function returning an
+        // impl Bundle.
         if kind.is_added() {
             velocity.0 =
                 Vec2::new(rng.0.gen::<f32>() - 0.5, 1.0).normalize() * (rng.0.gen::<f32>() + 1.0);
-            atlas.layout = atlas_handle.layout.clone();
-            *image_handle = atlas_handle.image.clone();
+            sprite.texture_atlas = Some(TextureAtlas {
+                layout: atlas_handle.layout.clone(),
+                index: 103 * 49 + 53,
+            });
+            sprite.image = atlas_handle.image.clone();
+            sprite.color = kind.color();
+            transform.scale = SCALE.extend(1.);
+            transform.translation.z = layer::PARTICLE;
             *visibility = Visibility::Visible;
             continue;
         }
 
-        let dt = time.delta_seconds();
+        let dt = time.delta_secs();
 
         life.0 -= dt;
         if life.0 <= 0.0 {

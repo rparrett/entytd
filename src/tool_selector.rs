@@ -1,10 +1,9 @@
 use bevy::prelude::*;
-use bevy_nine_slice_ui::NineSliceUiTexture;
 
 use crate::{
     radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
     tilemap::{AtlasHandle, TileKind, SCALE, TILE_SIZE},
-    ui::{UiAssets, BUTTON_TEXT},
+    ui::{slice_image_mode, UiAssets, BUTTON_TEXT},
     util::cleanup,
     GameState,
 };
@@ -67,17 +66,14 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
 
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    flex_direction: FlexDirection::Column,
-                    height: Val::Percent(100.),
-                    right: Val::Px(5.),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    row_gap: Val::Px(5.),
-                    ..default()
-                },
+            Node {
+                position_type: PositionType::Absolute,
+                flex_direction: FlexDirection::Column,
+                height: Val::Percent(100.),
+                right: Val::Px(5.),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                row_gap: Val::Px(5.),
                 ..default()
             },
             ToolContainer,
@@ -87,18 +83,20 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
                 let kind = Tool::from_index(i);
 
                 let mut button_command = parent.spawn((
-                    ButtonBundle {
-                        style: Style {
-                            width: Val::Px(64.0),
-                            height: Val::Px(64.0),
-                            flex_direction: FlexDirection::Column,
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            ..default()
-                        },
+                    Button,
+                    Node {
+                        width: Val::Px(64.0),
+                        height: Val::Px(64.0),
+                        flex_direction: FlexDirection::Column,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
                         ..default()
                     },
-                    NineSliceUiTexture::from_image(ui_assets.nine_button.clone()),
+                    ImageNode {
+                        image: ui_assets.nine_button.clone(),
+                        image_mode: slice_image_mode(),
+                        ..default()
+                    },
                     RadioButton { selected: i == 1 },
                     ToolButton,
                     kind,
@@ -106,35 +104,33 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
 
                 button_command.with_children(|parent| {
                     parent.spawn((
-                        ImageBundle {
-                            style: Style {
-                                width: Val::Px(TILE_SIZE.x * SCALE.x),
-                                height: Val::Px(TILE_SIZE.y * SCALE.y),
-                                ..default()
-                            },
-                            image: atlas_handle.image.clone().into(),
+                        Node {
+                            width: Val::Px(TILE_SIZE.x * SCALE.x),
+                            height: Val::Px(TILE_SIZE.y * SCALE.y),
                             ..default()
                         },
-                        TextureAtlas {
-                            layout: atlas_handle.layout.clone(),
-                            index: kind.atlas_index(),
+                        ImageNode {
+                            image: atlas_handle.image.clone(),
+                            texture_atlas: Some(TextureAtlas {
+                                layout: atlas_handle.layout.clone(),
+                                index: kind.atlas_index(),
+                            }),
+                            ..default()
                         },
                         ToolPortrait,
                     ));
-                    parent.spawn(
-                        TextBundle::from_section(
-                            format!("{}", i),
-                            TextStyle {
-                                font_size: 18.0,
-                                color: BUTTON_TEXT,
-                                ..default()
-                            },
-                        )
-                        .with_style(Style {
+                    parent.spawn((
+                        Text::new(format!("{}", i)),
+                        TextFont {
+                            font_size: 15.0,
+                            ..default()
+                        },
+                        TextColor(BUTTON_TEXT),
+                        Node {
                             margin: UiRect::top(Val::Px(6.)),
                             ..default()
-                        }),
-                    );
+                        },
+                    ));
                 });
 
                 let entity = button_command.id();
@@ -157,17 +153,14 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
 }
 
 fn update_style(
-    mut query: Query<
-        (&RadioButton, &mut NineSliceUiTexture),
-        (Changed<RadioButton>, With<ToolButton>),
-    >,
+    mut query: Query<(&RadioButton, &mut ImageNode), (Changed<RadioButton>, With<ToolButton>)>,
     ui_assets: Res<UiAssets>,
 ) {
-    for (radio, mut texture) in query.iter_mut() {
+    for (radio, mut image_node) in query.iter_mut() {
         if radio.selected {
-            *texture = NineSliceUiTexture::from_image(ui_assets.nine_button_selected.clone());
+            image_node.image = ui_assets.nine_button_selected.clone();
         } else {
-            *texture = NineSliceUiTexture::from_image(ui_assets.nine_button.clone());
+            image_node.image = ui_assets.nine_button.clone();
         }
     }
 }

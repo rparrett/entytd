@@ -37,6 +37,7 @@ impl Plugin for WorkerPlugin {
 const WORKER_SPRITES: [usize; 2] = [103 * 14, 103 * 15];
 
 #[derive(Component, Default)]
+#[require(Sprite, HitPoints, TilePos, MovingProgress, Speed, WorkCooldown)]
 pub struct Worker;
 
 #[derive(Component)]
@@ -55,19 +56,6 @@ impl Default for WorkCooldown {
         Self(Timer::from_seconds(1., TimerMode::Once))
     }
 }
-
-#[derive(Bundle, Default)]
-pub struct WorkerBundle {
-    sprite: SpriteBundle,
-    texture: TextureAtlas,
-    hit_points: HitPoints,
-    worker: Worker,
-    pos: TilePos,
-    moving_animation: MovingProgress,
-    speed: Speed,
-    work_cooldown: WorkCooldown,
-}
-
 #[derive(Event)]
 pub struct SpawnWorkerEvent;
 
@@ -114,27 +102,25 @@ fn spawn(
         let world = tilemap.pos_to_world(pos);
 
         commands.spawn((
-            WorkerBundle {
-                sprite: SpriteBundle {
-                    texture: atlas_handle.image.clone(),
-                    sprite: Sprite { color, ..default() },
-                    transform: Transform {
-                        // Give workers a random z value so their display order is stable as
-                        // entities are added/removed from the view/world.
-                        translation: world.extend(layer::MOBS + rng.0.gen::<f32>()),
-                        scale: crate::tilemap::SCALE.extend(1.),
-                        ..default()
-                    },
-                    ..default()
-                },
-                texture: TextureAtlas {
+            Worker,
+            Sprite {
+                image: atlas_handle.image.clone(),
+                color,
+                texture_atlas: Some(TextureAtlas {
                     layout: atlas_handle.layout.clone(),
                     index,
-                },
-                hit_points: HitPoints::full(2),
-                pos,
+                }),
                 ..default()
             },
+            Transform {
+                // Give workers a random z value so their display order is stable as
+                // entities are added/removed from the view/world.
+                translation: world.extend(layer::MOBS + rng.0.gen::<f32>()),
+                scale: crate::tilemap::SCALE.extend(1.),
+                ..default()
+            },
+            HitPoints::full(2),
+            pos,
             Idle,
             #[cfg(feature = "inspector")]
             Name::new("Worker"),
@@ -305,11 +291,10 @@ fn do_job(
                     damage: 1,
                 });
 
-                commands.spawn(AudioBundle {
-                    source: sound_assets.pickaxe.clone(),
-                    settings: PlaybackSettings::DESPAWN
-                        .with_volume(Volume::new(**sfx_setting as f32 / 100.)),
-                });
+                commands.spawn((
+                    AudioPlayer(sound_assets.pickaxe.clone()),
+                    PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+                ));
 
                 cooldown.0.reset();
             }

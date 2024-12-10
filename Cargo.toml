@@ -4,14 +4,13 @@ version = "0.3.0"
 edition = "2021"
 
 [dependencies]
-bevy_common_assets = { version = "0.11.0", features = ["ron"] }
-bevy_nine_slice_ui = "0.7.0"
-bevy_pipelines_ready = "0.4.0"
+bevy_common_assets = { version = "0.12.0", features = ["ron"] }
+bevy_pipelines_ready = "0.5.0"
 rand = { version = "0.8.5", default-features = false, features = [
     "std",
     "small_rng",
 ] }
-image = "*"
+image = { version = "*", default-features = false }
 pathfinding = "4.10.0"
 serde = "*"
 ron = "*"
@@ -25,7 +24,7 @@ inspector = ["bevy-inspector-egui"]
 recording = []
 
 [dependencies.bevy]
-version = "0.14"
+version = "0.15"
 default-features = false
 features = [
     "bevy_asset",
@@ -41,6 +40,7 @@ features = [
     "bevy_text",
     "bevy_ui",
     "bevy_winit",
+    "bevy_window",
     "default_font",
     "multi_threaded",
     "png",
@@ -52,7 +52,7 @@ features = [
 ]
 
 [dependencies.bevy-inspector-egui]
-version = "0.25.0"
+version = "0.28.0"
 default-features = false
 optional = true
 
