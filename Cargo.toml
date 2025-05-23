@@ -13,7 +13,7 @@ rand = { version = "0.8.5", default-features = false, features = [
 image = { version = "*", default-features = false }
 pathfinding = "4.10.0"
 serde = "*"
-ron = "*"
+ron = "0.8"
 strum = "0.26.0"
 strum_macros = "0.26.0"
 grid = "0.14.0"
