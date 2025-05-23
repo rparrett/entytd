@@ -4,8 +4,8 @@ version = "0.3.0"
 edition = "2021"
 
 [dependencies]
-bevy_common_assets = { version = "0.12.0", features = ["ron"] }
-bevy_pipelines_ready = "0.5.0"
+bevy_common_assets = { version = "0.13.0", features = ["ron"] }
+bevy_pipelines_ready = "0.6.0"
 rand = { version = "0.8.5", default-features = false, features = [
     "std",
     "small_rng",
@@ -24,7 +24,7 @@ inspector = ["bevy-inspector-egui"]
 recording = []
 
 [dependencies.bevy]
-version = "0.15"
+version = "0.16"
 default-features = false
 features = [
     "bevy_asset",
@@ -52,7 +52,7 @@ features = [
 ]
 
 [dependencies.bevy-inspector-egui]
-version = "0.28.0"
+version = "0.31.0"
 default-features = false
 optional = true
 
