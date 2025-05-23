@@ -1,7 +1,7 @@
 use bevy::{
     audio::Volume,
+    platform::collections::{HashMap, HashSet},
     prelude::*,
-    utils::{HashMap, HashSet},
 };
 
 use crate::{
@@ -175,7 +175,7 @@ fn update_cursor(
         transform.translation.x = snapped.x;
         transform.translation.y = snapped.y;
 
-        let Ok(tilemap) = tilemap_query.get_single() else {
+        let Ok(tilemap) = tilemap_query.single() else {
             return;
         };
 
@@ -229,7 +229,7 @@ fn show_cursor(
         return;
     };
 
-    let Ok(mut visibility) = query.get_single_mut() else {
+    let Ok(mut visibility) = query.single_mut() else {
         return;
     };
 
@@ -309,7 +309,8 @@ fn designate(
             if buttons.just_pressed(MouseButton::Left) {
                 commands.spawn((
                     AudioPlayer(sound_assets.bad.clone()),
-                    PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+                    PlaybackSettings::DESPAWN
+                        .with_volume(Volume::Linear(**sfx_setting as f32 / 100.)),
                 ));
             }
 
@@ -330,7 +331,7 @@ fn designate(
         return;
     }
 
-    let Ok(tilemap) = tilemap_query.get_single() else {
+    let Ok(tilemap) = tilemap_query.single() else {
         return;
     };
 
@@ -348,7 +349,7 @@ fn designate(
         if buttons.just_pressed(MouseButton::Left) {
             commands.spawn((
                 AudioPlayer(sound_assets.bad.clone()),
-                PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+                PlaybackSettings::DESPAWN.with_volume(Volume::Linear(**sfx_setting as f32 / 100.)),
             ));
         }
         return;
@@ -359,7 +360,7 @@ fn designate(
         if buttons.just_pressed(MouseButton::Left) {
             commands.spawn((
                 AudioPlayer(sound_assets.bad.clone()),
-                PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+                PlaybackSettings::DESPAWN.with_volume(Volume::Linear(**sfx_setting as f32 / 100.)),
             ));
         }
         return;
@@ -402,7 +403,7 @@ fn cleanup(
     mut designations: ResMut<Designations>,
 ) {
     for entity in &query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
     designations.0.clear();
 }
