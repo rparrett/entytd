@@ -142,7 +142,7 @@ fn spawn(
                 continue;
             };
 
-            events.send(SpawnEnemyEvent {
+            events.write(SpawnEnemyEvent {
                 pos: *pos,
                 kind: state.spawn.kind,
                 hp: state.spawn.hp,
@@ -160,7 +160,7 @@ fn spawn(
         if next.is_some() {
             commands.spawn((
                 AudioPlayer(sound_assets.wave.clone()),
-                PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+                PlaybackSettings::DESPAWN.with_volume(Volume::Linear(**sfx_setting as f32 / 100.)),
             ));
         }
     }
@@ -250,7 +250,7 @@ fn update_spawner_ui(
     mut ui_atlas_query: Query<&mut ImageNode, With<SpawnerPortrait>>,
     mut ui_text_query: Query<&mut Text, With<SpawnerDelayText>>,
     spawners: Res<SpawnerStates>,
-    camera_query: Query<(&Camera, &GlobalTransform, &OrthographicProjection), With<Camera2d>>,
+    camera_query: Query<(&Camera, &GlobalTransform, &Projection), With<Camera2d>>,
     spawning_paused: Res<SpawningPaused>,
 ) {
     for (_, index, ui_entity) in &query {
@@ -288,7 +288,9 @@ fn update_spawner_ui(
         text.0 = format!("{:.1}", state.delay_timer.remaining_secs());
     }
 
-    let Ok((camera, camera_transform, projection)) = camera_query.get_single() else {
+    let Ok((camera, camera_transform, Projection::Orthographic(projection))) =
+        camera_query.single()
+    else {
         return;
     };
 
@@ -325,7 +327,7 @@ fn first_wave_audio(
     if paused.is_changed() && !paused.0 {
         commands.spawn((
             AudioPlayer(sound_assets.wave.clone()),
-            PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+            PlaybackSettings::DESPAWN.with_volume(Volume::Linear(**sfx_setting as f32 / 100.)),
         ));
     }
 }
@@ -338,7 +340,7 @@ fn cleanup(
     mut paused: ResMut<SpawningPaused>,
 ) {
     for entity in &query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 
     states.states.clear();
