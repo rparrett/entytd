@@ -33,7 +33,6 @@ features = [
     "bevy_log",
     "bevy_gilrs",
     "bevy_gizmos",
-    "bevy_pbr",
     "bevy_render",
     "bevy_scene",
     "bevy_sprite",
