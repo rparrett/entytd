@@ -75,7 +75,7 @@ fn start_music(
 
     commands.spawn((
         AudioPlayer(audio_assets.bgm.clone()),
-        PlaybackSettings::LOOP.with_volume(Volume::new(initial_volume)),
+        PlaybackSettings::LOOP.with_volume(Volume::Linear(initial_volume)),
         MusicController,
         MusicFade::default(),
     ));
@@ -83,16 +83,16 @@ fn start_music(
 
 fn fade_music(
     mut commands: Commands,
-    mut query: Query<(Entity, &AudioSink, &mut MusicFade), With<MusicController>>,
+    mut query: Query<(Entity, &mut AudioSink, &mut MusicFade), With<MusicController>>,
     music_setting: Res<MusicSetting>,
     time: Res<Time>,
 ) {
-    if let Ok((entity, sink, mut fade)) = query.get_single_mut() {
+    if let Ok((entity, mut sink, mut fade)) = query.single_mut() {
         fade.remaining -= time.delta_secs();
 
         let progress = (1.0 - fade.remaining / fade.seconds).min(1.);
 
-        sink.set_volume(progress * **music_setting as f32 / 100.);
+        sink.set_volume(Volume::Linear(progress * **music_setting as f32 / 100.));
 
         if progress >= 1.0 {
             commands.entity(entity).remove::<MusicFade>();

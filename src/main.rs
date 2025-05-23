@@ -104,7 +104,7 @@ fn main() {
                 meta_check: AssetMetaCheck::Never,
                 ..default()
             }),
-        FrameTimeDiagnosticsPlugin,
+        FrameTimeDiagnosticsPlugin::default(),
     ));
 
     app.add_plugins((
