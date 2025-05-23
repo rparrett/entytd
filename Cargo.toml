@@ -55,6 +55,7 @@ features = [
 [dependencies.bevy-inspector-egui]
 version = "0.31.0"
 default-features = false
+features = ["bevy_render"]
 optional = true
 
 [lints.clippy]
