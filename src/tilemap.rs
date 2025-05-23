@@ -391,7 +391,7 @@ pub fn process_loaded_maps(
             }
 
             for entity in tile_entities.0.iter().flatten() {
-                commands.entity(*entity).despawn_recursive();
+                commands.entity(*entity).despawn();
             }
 
             let Some(map) = maps.get(&map_handle.0) else {
