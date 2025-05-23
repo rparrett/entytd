@@ -205,6 +205,14 @@ fn hud_item(
     atlas_handle: &AtlasHandle,
     atlas_index: usize,
 ) -> impl Bundle {
+    let font = (
+        TextFont {
+            font_size: 15.0,
+            ..default()
+        },
+        TextColor(TITLE_TEXT),
+    );
+
     (
         Node {
             justify_content: JustifyContent::Center,
@@ -213,8 +221,9 @@ fn hud_item(
             ..default()
         },
         Name::new("HudItem"),
-        Children::spawn(Spawn((
-            (
+        Children::spawn((
+            Spawn((
+                Name::new("HudItemImage"),
                 Node {
                     width: Val::Px(TILE_SIZE.x * SCALE.x),
                     height: Val::Px(TILE_SIZE.y * SCALE.y),
@@ -229,24 +238,18 @@ fn hud_item(
                     }),
                     ..default()
                 },
-            ),
-            (
+            )),
+            Spawn((
+                Name::new("HudItemLabel"),
                 Text::new(text),
-                TextFont {
-                    font_size: 15.0,
-                    ..default()
-                },
-                TextColor(TITLE_TEXT),
+                font.clone(),
                 Children::spawn(Spawn((
+                    Name::new("HudItemValue"),
                     TextSpan::default(),
-                    TextFont {
-                        font_size: 15.0,
-                        ..default()
-                    },
-                    TextColor(TITLE_TEXT),
+                    font,
                 ))),
-            ),
-        ))),
+            )),
+        )),
     )
 }
 
