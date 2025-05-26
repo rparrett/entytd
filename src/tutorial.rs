@@ -119,7 +119,7 @@ pub fn camera(
 
             commands.spawn((
                 AudioPlayer(sound_assets.tutorial.clone()),
-                PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+                PlaybackSettings::DESPAWN.with_volume(Volume::Linear(**sfx_setting as f32 / 100.)),
             ));
         }
         TutorialState::CameraTwo if (moving && fast) => {
@@ -127,7 +127,7 @@ pub fn camera(
 
             commands.spawn((
                 AudioPlayer(sound_assets.tutorial.clone()),
-                PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+                PlaybackSettings::DESPAWN.with_volume(Volume::Linear(**sfx_setting as f32 / 100.)),
             ));
         }
         _ => {}
@@ -162,7 +162,7 @@ pub fn dug_more(
 
         commands.spawn((
             AudioPlayer(sound_assets.tutorial.clone()),
-            PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+            PlaybackSettings::DESPAWN.with_volume(Volume::Linear(**sfx_setting as f32 / 100.)),
         ));
     }
 }
@@ -186,7 +186,7 @@ fn update(
 ) {
     if matches!(*tutorial_state, TutorialState::Done) {
         for entity in &scene_query {
-            commands.entity(entity).despawn_recursive();
+            commands.entity(entity).despawn();
         }
         setting.0 = true;
         return;

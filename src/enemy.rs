@@ -110,7 +110,7 @@ fn spawn(
     difficulty: Res<DifficultySetting>,
 ) {
     for event in events.read() {
-        let Ok(tilemap) = tilemap_query.get_single() else {
+        let Ok(tilemap) = tilemap_query.single() else {
             continue;
         };
 
@@ -161,7 +161,7 @@ fn pathfinding(
             continue;
         }
 
-        let Ok(map) = tilemap_query.get_single() else {
+        let Ok(map) = tilemap_query.single() else {
             return;
         };
 
@@ -248,7 +248,7 @@ fn attack(
             continue;
         }
 
-        let Ok(map) = tilemap_query.get_single() else {
+        let Ok(map) = tilemap_query.single() else {
             continue;
         };
 

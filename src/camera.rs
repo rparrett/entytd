@@ -18,18 +18,18 @@ fn spawn(mut commands: Commands) {
     projection.scaling_mode = ScalingMode::FixedHorizontal {
         viewport_width: 1280.,
     };
-    commands.spawn((Camera2d, projection, Msaa::Off));
+    commands.spawn((Camera2d, Projection::Orthographic(projection), Msaa::Off));
 }
 
 pub fn update(
     keys: Res<ButtonInput<KeyCode>>,
-    mut query: Query<(&OrthographicProjection, &mut Transform), With<Camera2d>>,
+    mut query: Query<(&Projection, &mut Transform), With<Camera2d>>,
     time: Res<Time>,
     tilemaps: Res<Assets<Map>>,
     tilemap_query: Query<&TilemapHandle>,
     window_query: Query<&Window>,
 ) {
-    let Ok((projection, mut transform)) = query.get_single_mut() else {
+    let Ok((Projection::Orthographic(projection), mut transform)) = query.single_mut() else {
         return;
     };
 
@@ -52,7 +52,7 @@ pub fn update(
         transform.translation += dir.extend(0.) * time.delta_secs() * speed;
     }
 
-    let Ok(window) = window_query.get_single() else {
+    let Ok(window) = window_query.single() else {
         return;
     };
 
@@ -81,7 +81,7 @@ pub fn update(
         }
     }
 
-    let Ok(tilemap_handle) = tilemap_query.get_single() else {
+    let Ok(tilemap_handle) = tilemap_query.single() else {
         return;
     };
 

@@ -119,7 +119,7 @@ fn build_tower(
     atlas_handle: Res<AtlasHandle>,
 ) {
     for event in events.read() {
-        let Ok((mut tilemap, mut tile_entities)) = tilemap_query.get_single_mut() else {
+        let Ok((mut tilemap, mut tile_entities)) = tilemap_query.single_mut() else {
             continue;
         };
 

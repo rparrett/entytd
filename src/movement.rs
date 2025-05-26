@@ -38,7 +38,7 @@ fn movement(
     tilemap_query: Query<&Map>,
     time: Res<Time>,
 ) {
-    let Ok(map) = tilemap_query.get_single() else {
+    let Ok(map) = tilemap_query.single() else {
         return;
     };
 

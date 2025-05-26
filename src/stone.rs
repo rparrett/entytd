@@ -69,7 +69,7 @@ fn hit_events(
     mut stats: ResMut<Stats>,
 ) {
     for event in reader.read() {
-        let Ok((mut map, entities)) = tilemap_query.get_single_mut() else {
+        let Ok((mut map, entities)) = tilemap_query.single_mut() else {
             return;
         };
 
@@ -181,7 +181,7 @@ fn hit_events(
                 };
 
                 if matches!(kind, TileKind::CrystalHidden | TileKind::MetalHidden) {
-                    writer.send(RevealStoneEvent(*entity));
+                    writer.write(RevealStoneEvent(*entity));
                 }
             }
         }

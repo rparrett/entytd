@@ -44,7 +44,7 @@ fn cursor(
         changed = true;
     }
 
-    let Ok((camera, camera_transform)) = camera_query.get_single() else {
+    let Ok((camera, camera_transform)) = camera_query.single() else {
         return;
     };
 

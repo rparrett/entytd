@@ -127,13 +127,8 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     HudContainer,
                 ))
                 .with_children(|parent| {
-                    init_hud_item::<EntityCount>(
-                        parent,
-                        "0".to_string(),
-                        &atlas_handle,
-                        103 * 47 + 101,
-                    );
-                    init_hud_item::<Fps>(parent, "0".to_string(), &atlas_handle, 103 * 49 + 78);
+                    parent.spawn((hud_item("0", &atlas_handle, 103 * 47 + 101), EntityCount));
+                    parent.spawn((hud_item("0", &atlas_handle, 103 * 49 + 78), Fps));
                 });
 
             parent
@@ -155,18 +150,8 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     HudContainer,
                 ))
                 .with_children(|parent| {
-                    init_hud_item::<HomeHitPoints>(
-                        parent,
-                        "0/0".to_string(),
-                        &atlas_handle,
-                        103 * 33 + 24,
-                    );
-                    init_hud_item::<IdleWorkers>(
-                        parent,
-                        "0/0".to_string(),
-                        &atlas_handle,
-                        103 * 15 + 24,
-                    );
+                    parent.spawn((hud_item("0/0", &atlas_handle, 103 * 33 + 24), HomeHitPoints));
+                    parent.spawn((hud_item("0/0", &atlas_handle, 103 * 15 + 24), IdleWorkers));
                 });
 
             parent
@@ -187,9 +172,9 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     HudContainer,
                 ))
                 .with_children(|parent| {
-                    init_hud_item::<Stone>(parent, "0".to_string(), &atlas_handle, 103 * 2 + 5);
-                    init_hud_item::<Metal>(parent, "0".to_string(), &atlas_handle, 103 * 25 + 6);
-                    init_hud_item::<Crystal>(parent, "0".to_string(), &atlas_handle, 103 * 24);
+                    parent.spawn((hud_item("0", &atlas_handle, 103 * 2 + 5), Stone));
+                    parent.spawn((hud_item("0", &atlas_handle, 103 * 25 + 6), Metal));
+                    parent.spawn((hud_item("0", &atlas_handle, 103 * 24), Crystal));
                 });
 
             parent
@@ -210,35 +195,35 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     HudContainer,
                 ))
                 .with_children(|parent| {
-                    init_hud_item::<WaveCount>(
-                        parent,
-                        "0/0".to_string(),
-                        &atlas_handle,
-                        103 * 48 + 94,
-                    );
+                    parent.spawn((hud_item("0/0", &atlas_handle, 103 * 48 + 94), WaveCount));
                 });
         });
 }
 
-fn init_hud_item<M: Component + Default>(
-    commands: &mut ChildBuilder,
-    text: String,
+fn hud_item(
+    text: impl Into<String>,
     atlas_handle: &AtlasHandle,
     atlas_index: usize,
-) {
-    commands
-        .spawn((
-            Node {
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                margin: UiRect::all(Val::Px(5.)),
-                ..default()
-            },
-            Name::new("HudItem"),
-            M::default(),
-        ))
-        .with_children(|parent| {
-            parent.spawn((
+) -> impl Bundle {
+    let font = (
+        TextFont {
+            font_size: 15.0,
+            ..default()
+        },
+        TextColor(TITLE_TEXT),
+    );
+
+    (
+        Node {
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            margin: UiRect::all(Val::Px(5.)),
+            ..default()
+        },
+        Name::new("HudItem"),
+        Children::spawn((
+            Spawn((
+                Name::new("HudItemImage"),
                 Node {
                     width: Val::Px(TILE_SIZE.x * SCALE.x),
                     height: Val::Px(TILE_SIZE.y * SCALE.y),
@@ -253,25 +238,19 @@ fn init_hud_item<M: Component + Default>(
                     }),
                     ..default()
                 },
-            ));
-            parent
-                .spawn((
-                    Text::new(text),
-                    TextFont {
-                        font_size: 15.0,
-                        ..default()
-                    },
-                    TextColor(TITLE_TEXT),
-                ))
-                .with_child((
+            )),
+            Spawn((
+                Name::new("HudItemLabel"),
+                Text::new(text),
+                font.clone(),
+                Children::spawn(Spawn((
+                    Name::new("HudItemValue"),
                     TextSpan::default(),
-                    TextFont {
-                        font_size: 15.0,
-                        ..default()
-                    },
-                    TextColor(TITLE_TEXT),
-                ));
-        });
+                    font,
+                ))),
+            )),
+        )),
+    )
 }
 
 fn update_entity_count(
@@ -286,7 +265,7 @@ fn update_entity_count(
         return;
     }
 
-    let Ok(children) = item_query.get_single() else {
+    let Ok(children) = item_query.single() else {
         return;
     };
 
@@ -310,7 +289,7 @@ fn update_idle_workers(
         return;
     }
 
-    let Ok(children) = item_query.get_single() else {
+    let Ok(children) = item_query.single() else {
         return;
     };
 
@@ -347,7 +326,7 @@ fn update_fps(
         .and_then(|d| d.smoothed())
         .unwrap_or(0.0);
 
-    let Ok(children) = item_query.get_single() else {
+    let Ok(children) = item_query.single() else {
         return;
     };
 
@@ -373,7 +352,7 @@ fn update_home_hit_points(
         .iter()
         .fold((0, 0), |sum, hp| (sum.0 + hp.current, sum.1 + hp.max));
 
-    let Ok(children) = item_query.get_single() else {
+    let Ok(children) = item_query.single() else {
         return;
     };
 
@@ -398,7 +377,7 @@ fn update_stone(
         return;
     }
 
-    let Ok(children) = item_query.get_single() else {
+    let Ok(children) = item_query.single() else {
         return;
     };
 
@@ -433,7 +412,7 @@ fn update_metal(
         return;
     }
 
-    let Ok(children) = item_query.get_single() else {
+    let Ok(children) = item_query.single() else {
         return;
     };
 
@@ -468,7 +447,7 @@ fn update_crystal(
         return;
     }
 
-    let Ok(children) = item_query.get_single() else {
+    let Ok(children) = item_query.single() else {
         return;
     };
 
@@ -505,7 +484,7 @@ fn update_wave_count(
         return;
     }
 
-    let Ok(children) = item_query.get_single() else {
+    let Ok(children) = item_query.single() else {
         return;
     };
 
@@ -524,6 +503,6 @@ fn update_wave_count(
 
 fn cleanup(mut commands: Commands, query: Query<Entity, With<HudRoot>>) {
     for entity in &query {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }

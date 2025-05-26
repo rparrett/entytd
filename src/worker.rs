@@ -87,7 +87,7 @@ fn spawn(
     }
 
     for _ in events.read() {
-        let Ok(tilemap) = tilemap_query.get_single() else {
+        let Ok(tilemap) = tilemap_query.single() else {
             continue;
         };
 
@@ -139,7 +139,7 @@ fn init(
     };
 
     for _ in 0..level.workers {
-        events.send(SpawnWorkerEvent);
+        events.write(SpawnWorkerEvent);
     }
 }
 
@@ -149,7 +149,7 @@ fn find_job(
     mut designations: ResMut<Designations>,
     tilemap_query: Query<&Map>,
 ) {
-    let Ok(map) = tilemap_query.get_single() else {
+    let Ok(map) = tilemap_query.single() else {
         return;
     };
 
@@ -253,7 +253,7 @@ fn do_job(
         return;
     }
 
-    let Ok(map_entities) = tilemap_query.get_single_mut() else {
+    let Ok(map_entities) = tilemap_query.single_mut() else {
         return;
     };
 
@@ -286,14 +286,15 @@ fn do_job(
                     continue;
                 }
 
-                events.send(HitStoneEvent {
+                events.write(HitStoneEvent {
                     entity: tile_entity,
                     damage: 1,
                 });
 
                 commands.spawn((
                     AudioPlayer(sound_assets.pickaxe.clone()),
-                    PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+                    PlaybackSettings::DESPAWN
+                        .with_volume(Volume::Linear(**sfx_setting as f32 / 100.)),
                 ));
 
                 cooldown.0.reset();
@@ -333,7 +334,7 @@ fn do_job(
 
                 if hit_points.is_zero() {
                     stats.towers += 1;
-                    tower_events.send(BuildTowerEvent(*pos));
+                    tower_events.write(BuildTowerEvent(*pos));
                 }
 
                 cooldown.0.reset();

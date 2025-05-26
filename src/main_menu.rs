@@ -377,20 +377,20 @@ fn sfx_volume(
 
     commands.spawn((
         AudioPlayer(sound_assets.pickaxe.clone()),
-        PlaybackSettings::DESPAWN.with_volume(Volume::new(**sfx_setting as f32 / 100.)),
+        PlaybackSettings::DESPAWN.with_volume(Volume::Linear(**sfx_setting as f32 / 100.)),
     ));
 }
 
 fn music_volume(
     music_setting: Res<MusicSetting>,
-    music_query: Query<&AudioSink, With<MusicController>>,
+    mut music_query: Query<&mut AudioSink, With<MusicController>>,
 ) {
     // Do not run when MusicSetting is first added by SavePlugin
     if !music_setting.is_changed() || music_setting.is_added() {
         return;
     }
 
-    if let Ok(sink) = music_query.get_single() {
-        sink.set_volume(**music_setting as f32 / 100.);
+    if let Ok(mut sink) = music_query.single_mut() {
+        sink.set_volume(Volume::Linear(**music_setting as f32 / 100.));
     }
 }
