@@ -1,9 +1,21 @@
 use std::fmt::Display;
 
 use bevy::prelude::*;
-use serde::{Deserialize, Serialize};
+use bevy_simple_prefs::{Prefs, PrefsPlugin};
 
-#[derive(Resource, Deref, DerefMut, Debug, Serialize, Deserialize, Clone)]
+pub struct SettingsPlugin;
+impl Plugin for SettingsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins(PrefsPlugin::<Settings> {
+            // for compatibility with previous versions
+            path: "save.ron".into(),
+            local_storage_key: "undefended-save".into(),
+            ..default()
+        });
+    }
+}
+
+#[derive(Resource, Reflect, Clone, Eq, PartialEq, Debug, Deref, DerefMut)]
 pub struct MusicSetting(u8);
 impl Default for MusicSetting {
     fn default() -> Self {
@@ -11,14 +23,14 @@ impl Default for MusicSetting {
     }
 }
 
-#[derive(Resource, Deref, DerefMut, Debug, Serialize, Deserialize, Clone)]
+#[derive(Resource, Reflect, Clone, Eq, PartialEq, Debug, Deref, DerefMut)]
 pub struct SfxSetting(u8);
 impl Default for SfxSetting {
     fn default() -> Self {
         Self(50)
     }
 }
-#[derive(Resource, Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(Resource, Reflect, Clone, Eq, PartialEq, Debug, Default)]
 pub enum DifficultySetting {
     #[default]
     Normal,
@@ -47,7 +59,7 @@ impl Display for DifficultySetting {
         )
     }
 }
-#[derive(Resource, Default, Serialize, Deserialize, Debug, Clone)]
+#[derive(Resource, Reflect, Clone, Eq, PartialEq, Debug, Default)]
 pub enum ParticlesSetting {
     #[default]
     Lots,
@@ -91,5 +103,14 @@ impl Display for ParticlesSetting {
         )
     }
 }
-#[derive(Resource, Default, Serialize, Deserialize, Debug, Clone)]
+#[derive(Resource, Reflect, Clone, Eq, PartialEq, Debug, Default)]
 pub struct TutorialFinishedSetting(pub bool);
+
+#[derive(Prefs, Reflect, Default)]
+struct Settings {
+    sfx: SfxSetting,
+    music: MusicSetting,
+    particles: ParticlesSetting,
+    difficulty: DifficultySetting,
+    tutorial_finished: TutorialFinishedSetting,
+}
