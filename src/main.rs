@@ -20,7 +20,7 @@ use movement::MovementPlugin;
 use particle::ParticlePlugin;
 use pathfinding::PathfindingPlugin;
 use radio_button::RadioButtonPlugin;
-use save::SavePlugin;
+use settings::SettingsPlugin;
 use sound::MusicPlugin;
 use spawner::SpawnerPlugin;
 use stats::StatsPlugin;
@@ -58,7 +58,6 @@ mod movement;
 mod particle;
 mod pathfinding;
 mod radio_button;
-mod save;
 mod settings;
 mod sound;
 mod spawner;
@@ -126,7 +125,7 @@ fn main() {
     app.add_plugins((
         TowerPlugin,
         ParticlePlugin,
-        SavePlugin,
+        SettingsPlugin,
         MusicPlugin,
         GameOverPlugin,
         GamePlugin,
