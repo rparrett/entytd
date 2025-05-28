@@ -4,6 +4,7 @@ use serde::Deserialize;
 
 use crate::{
     level::{LevelConfig, LevelHandle},
+    main_menu::MainMenuAssets,
     movement::{MovingProgress, Speed},
     pathfinding::{critter_cost_fn, heuristic, NeighborCostIter, PathState, SquareAreaCostIter},
     tilemap::{AtlasHandle, Map, TilePos},
@@ -18,11 +19,14 @@ impl Plugin for CritterPlugin {
         app.add_event::<SpawnCritterEvent>()
             .init_resource::<CritterRng>()
             .add_systems(OnEnter(GameState::Playing), setup)
+            .add_systems(OnEnter(GameState::MainMenu), setup_main_menu)
             .add_systems(
                 Update,
-                (spawn, pathfinding, behavior, idle).run_if(in_state(GameState::Playing)),
+                (spawn, pathfinding, behavior, idle)
+                    .run_if(in_state(GameState::Playing).or(in_state(GameState::MainMenu))),
             )
-            .add_systems(OnExit(GameState::GameOver), cleanup::<CritterKind>);
+            .add_systems(OnExit(GameState::GameOver), cleanup::<CritterKind>)
+            .add_systems(OnExit(GameState::MainMenu), cleanup::<CritterKind>);
     }
 }
 
@@ -39,7 +43,7 @@ impl CritterKind {
         match self {
             Self::Llama => 103 * 18 + 5,
             Self::Snake => 103 * 18 + 2,
-            Self::Whale => 103 * 16 + 10,
+            Self::Whale => 103 * 18 + 10,
         }
     }
 }
@@ -91,6 +95,25 @@ fn setup(
     }
 }
 
+fn setup_main_menu(
+    mut events: EventWriter<SpawnCritterEvent>,
+    main_menu_assets: Res<MainMenuAssets>,
+    levels: Res<Assets<LevelConfig>>,
+) {
+    let Some(level) = levels.get(&main_menu_assets.level) else {
+        warn!("Couldn't find level when spawning critters.");
+        return;
+    };
+
+    for (pos, kind) in &level.critters {
+        info!("spawning crits");
+        events.write(SpawnCritterEvent {
+            kind: *kind,
+            pos: *pos,
+        });
+    }
+}
+
 // TODO consider replacing with OnAdd observer
 fn spawn(
     mut commands: Commands,
@@ -102,6 +125,8 @@ fn spawn(
         let Ok(tilemap) = tilemap_query.single() else {
             continue;
         };
+
+        info!("definitely spawning a crit");
 
         let world = tilemap.pos_to_world(event.pos);
 

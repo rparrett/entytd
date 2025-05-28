@@ -1,4 +1,5 @@
 use crate::{
+    level::LevelConfig,
     loading::LoadingAssets,
     settings::{DifficultySetting, MusicSetting, ParticlesSetting, SfxSetting},
     sound::{MusicController, SoundAssets},
@@ -35,19 +36,22 @@ impl Plugin for MainMenuPlugin {
 }
 
 #[derive(Resource)]
-struct MainMenuAssets {
-    background: Handle<Map>,
+pub struct MainMenuAssets {
+    pub map: Handle<Map>,
+    pub level: Handle<LevelConfig>,
 }
 impl FromWorld for MainMenuAssets {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.resource::<AssetServer>();
 
-        let background = asset_server.load("levels/menu.map.png");
+        let level = asset_server.load("levels/menu.level.ron");
+        let map = asset_server.load("levels/menu.map.png");
 
         let mut loading_assets = world.resource_mut::<LoadingAssets>();
-        loading_assets.0.push(background.id().into());
+        loading_assets.0.push(level.id().into());
+        loading_assets.0.push(map.id().into());
 
-        MainMenuAssets { background }
+        MainMenuAssets { level, map }
     }
 }
 
@@ -340,11 +344,11 @@ fn init_background(
     assets: Res<MainMenuAssets>,
     maps: Res<Assets<Map>>,
 ) {
-    let tiles = maps.get(&assets.background).unwrap().clone();
+    let tiles = maps.get(&assets.map).unwrap().clone();
     let entities = TileEntities(Grid::new(tiles.0.rows(), tiles.0.cols()));
 
     commands.spawn(TilemapBundle {
-        tilemap_handle: TilemapHandle(assets.background.clone()),
+        tilemap_handle: TilemapHandle(assets.map.clone()),
         atlas_handle: atlas_handle.clone(),
         tiles,
         entities,
