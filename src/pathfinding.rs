@@ -172,3 +172,59 @@ where
         None
     }
 }
+
+pub struct SquareAreaCostIter<F> {
+    origin: TilePos,
+    half_size: isize,
+    dx: isize,
+    dy: isize,
+    cost_fn: F,
+}
+
+impl<F> SquareAreaCostIter<F>
+where
+    F: Fn((isize, isize)) -> isize,
+{
+    pub fn new(origin: TilePos, half_size: isize, cost_fn: F) -> Self {
+        Self {
+            origin,
+            half_size,
+            dx: -half_size,
+            dy: -half_size,
+            cost_fn,
+        }
+    }
+}
+
+impl<F> Iterator for SquareAreaCostIter<F>
+where
+    F: Fn((isize, isize)) -> isize,
+{
+    type Item = (TilePos, u32);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        while self.dy <= self.half_size {
+            while self.dx <= self.half_size {
+                let offset = (self.dx, self.dy);
+                let tile_pos = offset + self.origin;
+
+                self.dx += 1;
+
+                if offset == (0, 0) {
+                    continue; // skip the origin tile
+                }
+
+                let cost = (self.cost_fn)(tile_pos);
+                if cost == -1 {
+                    continue;
+                }
+
+                return Some((TilePos::from(tile_pos), cost as u32));
+            }
+            self.dx = -self.half_size;
+            self.dy += 1;
+        }
+
+        None
+    }
+}

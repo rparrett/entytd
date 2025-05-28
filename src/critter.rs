@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::{
     movement::{MovingProgress, Speed},
-    pathfinding::{critter_cost_fn, heuristic, NeighborCostIter, PathState},
+    pathfinding::{critter_cost_fn, heuristic, NeighborCostIter, PathState, SquareAreaCostIter},
     tilemap::{AtlasHandle, Map, TilePos},
     util::cleanup,
     GameState,
@@ -118,7 +118,7 @@ fn spawn(
 
 fn pathfinding(
     mut commands: Commands,
-    query: Query<(Entity, &TilePos, &CritterBehavior, &CritterKind), (Without<PathState>)>,
+    query: Query<(Entity, &TilePos, &CritterBehavior, &CritterKind), Without<PathState>>,
     tilemap_query: Query<&Map>,
     mut rng: ResMut<CritterRng>,
 ) {
@@ -132,17 +132,12 @@ fn pathfinding(
         };
 
         // Choose a random neighboring tile
-        // TODO A cost iterator with a configurable radius so we can walk further
-        // would be nice
-        let neighbors = NeighborCostIter::new(*pos, critter_cost_fn(map, *kind))
-            .filter(|(_, cost)| *cost > 0)
-            .collect::<Vec<_>>();
+        let neighbors =
+            SquareAreaCostIter::new(*pos, 2, critter_cost_fn(map, *kind)).collect::<Vec<_>>();
         let Some((goal, _)) = neighbors.choose(&mut rng.0) else {
             return;
         };
 
-        // Doing pathfinding here is slightly silly while we're only moving
-        // one tile at a time.
         let Some(result) = astar(
             pos,
             |p| NeighborCostIter::new(*p, critter_cost_fn(map, *kind)),
