@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    critter::CritterKind,
     enemy::EnemyKind,
     tilemap::{Map, TileKind, TilePos},
 };
@@ -100,6 +101,21 @@ pub fn worker_cost_fn(map: &Map) -> impl '_ + Fn((isize, isize)) -> isize {
             | TileKind::HomeTwo
             | TileKind::HomeDead
             | TileKind::Tower => 5,
+            _ => -1,
+        }
+    }
+}
+
+pub fn critter_cost_fn(map: &Map, kind: CritterKind) -> impl '_ + Fn((isize, isize)) -> isize {
+    move |pos| {
+        let Some(tile) = map.0.get(pos.1, pos.0) else {
+            return -1;
+        };
+
+        match (tile, kind) {
+            (TileKind::Forest | TileKind::GrassA | TileKind::GrassB, CritterKind::Snake) => 1,
+            (TileKind::River, CritterKind::Whale) => 1,
+            (TileKind::GrassA | TileKind::GrassB, CritterKind::Llama) => 1,
             _ => -1,
         }
     }

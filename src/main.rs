@@ -4,6 +4,7 @@
 use bevy::{asset::AssetMetaCheck, diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 
 use camera::CameraPlugin;
+use critter::CritterPlugin;
 use currency::CurrencyPlugin;
 use cursor::CursorPlugin;
 use designate_tool::DesignateToolPlugin;
@@ -40,6 +41,7 @@ use {
 };
 
 mod camera;
+mod critter;
 mod currency;
 mod cursor;
 mod designate_tool;
@@ -115,6 +117,7 @@ fn main() {
         HomePlugin,
         WavesPlugin,
         EnemyPlugin,
+        CritterPlugin,
         LevelPlugin,
         PathfindingPlugin,
         WorkerPlugin,
