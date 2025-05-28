@@ -1,0 +1,15 @@
+LevelConfig (
+    map: "levels/menu.map.png",
+    workers: 0,
+    currency: Currency (
+        stone: 0,
+        metal: 0,
+        crystal: 0
+    ),
+    waves: [],
+    critters: [
+        (TilePos ( x: 45, y: 10 ), Snake),
+        (TilePos ( x: 38, y: 18 ), Whale),
+        (TilePos ( x: 6, y: 10 ), Llama),
+    ]
+)
