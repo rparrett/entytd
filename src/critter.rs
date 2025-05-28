@@ -172,7 +172,8 @@ fn pathfinding(
         let neighbors =
             SquareAreaCostIter::new(*pos, 2, critter_cost_fn(map, *kind)).collect::<Vec<_>>();
         let Some((goal, _)) = neighbors.choose(&mut rng.0) else {
-            return;
+            warn!("Critter is stuck.");
+            continue;
         };
 
         let Some(result) = astar(
