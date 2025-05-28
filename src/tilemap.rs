@@ -9,6 +9,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use grid::Grid;
+use serde::Deserialize;
 use strum_macros::EnumIter;
 
 pub struct TilemapPlugin;
@@ -244,7 +245,20 @@ impl Map {
 #[derive(Component)]
 pub struct TileEntities(pub Grid<Option<Entity>>);
 
-#[derive(Reflect, Component, Debug, Clone, Copy, Default, Hash, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(
+    Reflect,
+    Component,
+    Deserialize,
+    Debug,
+    Clone,
+    Copy,
+    Default,
+    Hash,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+)]
 pub struct TilePos {
     pub x: usize,
     pub y: usize,

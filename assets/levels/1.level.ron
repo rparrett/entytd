@@ -429,5 +429,6 @@ LevelConfig (
                 ),
             ]
         ),
-    ]
+    ],
+    critters: [(TilePos ( x: 85, y: 40 ), Snake)]
 )

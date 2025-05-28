@@ -3,8 +3,10 @@ use bevy_common_assets::ron::RonAssetPlugin;
 use serde::Deserialize;
 
 use crate::{
+    critter::CritterKind,
     currency::Currency,
     loading::{LoadingAssets, LoadingResources},
+    tilemap::TilePos,
     waves::Wave,
     GameState,
 };
@@ -24,6 +26,7 @@ pub struct LevelConfig {
     pub workers: usize,
     pub currency: Currency,
     pub waves: Vec<Wave>,
+    pub critters: Vec<(TilePos, CritterKind)>,
 }
 
 #[derive(Resource)]

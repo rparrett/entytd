@@ -3,6 +3,7 @@ use rand::{rngs::SmallRng, seq::SliceRandom, SeedableRng};
 use serde::Deserialize;
 
 use crate::{
+    level::{LevelConfig, LevelHandle},
     movement::{MovingProgress, Speed},
     pathfinding::{critter_cost_fn, heuristic, NeighborCostIter, PathState, SquareAreaCostIter},
     tilemap::{AtlasHandle, Map, TilePos},
@@ -72,11 +73,21 @@ impl Default for CritterRng {
     }
 }
 
-fn setup(mut events: EventWriter<SpawnCritterEvent>) {
-    events.write(SpawnCritterEvent {
-        kind: CritterKind::Snake,
-        pos: TilePos { x: 85, y: 40 },
-    });
+fn setup(
+    mut events: EventWriter<SpawnCritterEvent>,
+    level_handle: Res<LevelHandle>,
+    level_configs: Res<Assets<LevelConfig>>,
+) {
+    let Some(level) = level_configs.get(&level_handle.0) else {
+        return;
+    };
+
+    for (pos, kind) in &level.critters {
+        events.write(SpawnCritterEvent {
+            kind: *kind,
+            pos: *pos,
+        });
+    }
 }
 
 // TODO consider replacing with OnAdd observer

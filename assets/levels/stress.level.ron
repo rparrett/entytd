@@ -251,5 +251,6 @@ LevelConfig (
                 ),
             ]
         ),
-    ]
+    ],
+    critters: []
 )
