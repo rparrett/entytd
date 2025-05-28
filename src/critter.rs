@@ -76,9 +76,10 @@ impl Default for CritterRng {
 fn setup(
     mut events: EventWriter<SpawnCritterEvent>,
     level_handle: Res<LevelHandle>,
-    level_configs: Res<Assets<LevelConfig>>,
+    levels: Res<Assets<LevelConfig>>,
 ) {
-    let Some(level) = level_configs.get(&level_handle.0) else {
+    let Some(level) = levels.get(&level_handle.0) else {
+        warn!("Couldn't find level when spawning critters.");
         return;
     };
 
