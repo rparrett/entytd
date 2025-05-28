@@ -1,5 +1,7 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
-use rand::{rngs::SmallRng, seq::SliceRandom, SeedableRng};
+use rand::{rngs::SmallRng, seq::SliceRandom, Rng, SeedableRng};
 use serde::Deserialize;
 
 use crate::{
@@ -30,7 +32,7 @@ impl Plugin for CritterPlugin {
     }
 }
 
-#[derive(Component, Default, Deserialize, Copy, Clone)]
+#[derive(Component, Default, Deserialize, Debug, Copy, Clone)]
 #[require(Sprite, TilePos, MovingProgress, Speed, IdleTimer, CritterBehavior)]
 pub enum CritterKind {
     #[default]
@@ -106,7 +108,6 @@ fn setup_main_menu(
     };
 
     for (pos, kind) in &level.critters {
-        info!("spawning crits");
         events.write(SpawnCritterEvent {
             kind: *kind,
             pos: *pos,
@@ -120,13 +121,12 @@ fn spawn(
     mut events: EventReader<SpawnCritterEvent>,
     atlas_handle: Res<AtlasHandle>,
     tilemap_query: Query<&Map>,
+    mut rng: ResMut<CritterRng>,
 ) {
     for event in events.read() {
         let Ok(tilemap) = tilemap_query.single() else {
             continue;
         };
-
-        info!("definitely spawning a crit");
 
         let world = tilemap.pos_to_world(event.pos);
 
@@ -144,6 +144,10 @@ fn spawn(
                 scale: crate::tilemap::SCALE.extend(1.),
                 ..default()
             },
+            IdleTimer(Timer::new(
+                Duration::from_secs_f32(rng.0.gen_range(4.0..14.0)),
+                TimerMode::Once,
+            )),
             event.kind,
             event.pos,
             Speed(1.),
@@ -172,7 +176,7 @@ fn pathfinding(
         let neighbors =
             SquareAreaCostIter::new(*pos, 2, critter_cost_fn(map, *kind)).collect::<Vec<_>>();
         let Some((goal, _)) = neighbors.choose(&mut rng.0) else {
-            warn!("Critter is stuck.");
+            warn!("{:?} is stuck.", kind);
             continue;
         };
 
@@ -182,11 +186,11 @@ fn pathfinding(
             |p| heuristic(*p, *goal),
             |p| *p == *goal,
         ) else {
-            warn!("Critter unable to find path to goal.");
+            warn!("{:?} is unable to find path to goal.", kind);
             continue;
         };
 
-        // The Critter may have died and been despawned in the same frame.
+        // The critter may have been despawned in the same frame.
         commands
             .entity(entity)
             .try_insert(PathState::from(result.0));
@@ -214,7 +218,7 @@ fn behavior(
 fn idle(mut critters: Query<(&mut CritterBehavior, &mut IdleTimer)>, time: Res<Time>) {
     for (mut behavior, mut timer) in critters
         .iter_mut()
-        .filter(|(behavior, _t)| matches!(**behavior, CritterBehavior::Idle))
+        .filter(|(behavior, _)| matches!(**behavior, CritterBehavior::Idle))
     {
         timer.0.tick(time.delta());
         if timer.0.just_finished() {
