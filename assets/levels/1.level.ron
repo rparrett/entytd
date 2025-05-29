@@ -429,5 +429,10 @@ LevelConfig (
                 ),
             ]
         ),
+    ],
+    critters: [
+        (TilePos ( x: 86, y: 19 ), Snake),
+        (TilePos ( x: 76, y: 37 ), Llama),
+        (TilePos ( x: 74, y: 54 ), Whale)
     ]
 )
