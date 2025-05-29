@@ -113,9 +113,9 @@ pub fn critter_cost_fn(map: &Map, kind: CritterKind) -> impl '_ + Fn((isize, isi
         };
 
         match (tile, kind) {
-            (TileKind::Forest | TileKind::GrassA | TileKind::GrassB, CritterKind::Snake) => 1,
-            (TileKind::River, CritterKind::Whale) => 1,
-            (TileKind::GrassA | TileKind::GrassB, CritterKind::Llama) => 1,
+            (TileKind::Forest | TileKind::GrassA | TileKind::GrassB, CritterKind::Snake)
+            | (TileKind::River, CritterKind::Whale)
+            | (TileKind::GrassA | TileKind::GrassB, CritterKind::Llama) => 1,
             _ => -1,
         }
     }
