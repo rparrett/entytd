@@ -363,7 +363,6 @@ fn designate(
             Transform::from_translation(world_pos_snapped.extend(layer::BLUEPRINT))
                 .with_scale(crate::tilemap::SCALE.extend(1.)),
             DesignationMarker,
-            #[cfg(feature = "inspector")]
             Name::new("DesignationMarker"),
         ))
         .id();
