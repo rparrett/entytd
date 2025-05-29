@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     designate_tool::Designations,
-    enemy::{Enemy, EnemyKind},
+    enemy::EnemyKind,
     hit_points::HitPoints,
     layer,
     movement::Speed,
@@ -65,7 +65,7 @@ fn attack(
     mut commands: Commands,
     mut query: Query<(&Transform, &Range, &Upgrades, &mut CooldownTimer), With<Tower>>,
     time: Res<Time>,
-    enemies: Query<(Entity, &Transform), With<Enemy>>,
+    enemies: Query<(Entity, &Transform), With<EnemyKind>>,
     atlas_handle: Res<AtlasHandle>,
 ) {
     for (transform, range, upgrades, mut timer) in &mut query {
@@ -175,10 +175,7 @@ fn build_tower(
 fn bullet_movement(
     mut commands: Commands,
     mut query: Query<(Entity, &Bullet, &Speed, &mut Transform)>,
-    mut enemy_query: Query<
-        (&mut HitPoints, &Transform, &EnemyKind),
-        (With<Enemy>, Without<Bullet>),
-    >,
+    mut enemy_query: Query<(&mut HitPoints, &Transform, &EnemyKind), Without<Bullet>>,
     time: Res<Time>,
     particle_settings: Res<ParticlesSetting>,
 ) {
