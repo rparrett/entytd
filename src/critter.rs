@@ -151,7 +151,6 @@ fn spawn(
             event.kind,
             event.pos,
             Speed(1.),
-            #[cfg(feature = "inspector")]
             Name::new("Critter"),
         ));
     }

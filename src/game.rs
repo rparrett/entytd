@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    enemy::Enemy, hit_points::HitPoints, home::Home, spawner::SpawnerStates, waves::Waves,
+    enemy::EnemyKind, hit_points::HitPoints, home::Home, spawner::SpawnerStates, waves::Waves,
     GameState,
 };
 
@@ -21,7 +21,7 @@ pub struct Won(pub bool);
 fn check_win(
     waves: Res<Waves>,
     spawners: Res<SpawnerStates>,
-    enemies: Query<(), With<Enemy>>,
+    enemies: Query<(), With<EnemyKind>>,
     mut won: ResMut<Won>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {

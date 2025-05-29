@@ -26,25 +26,20 @@ impl Plugin for EnemyPlugin {
                 (spawn, pathfinding, behavior, tick_cooldown, attack, die)
                     .run_if(in_state(GameState::Playing)),
             )
-            .add_systems(OnExit(GameState::GameOver), cleanup::<Enemy>);
+            .add_systems(OnExit(GameState::GameOver), cleanup::<EnemyKind>);
     }
 }
 
-// TODO consider combining with EnemyKind
-#[derive(Component, Default)]
+#[derive(Component, Default, Deserialize, Copy, Clone)]
 #[require(
     Sprite,
     HitPoints,
-    EnemyKind,
     TilePos,
     MovingProgress,
     Speed,
     AttackCooldown,
     Behavior
 )]
-pub struct Enemy;
-
-#[derive(Component, Default, Deserialize, Copy, Clone)]
 pub enum EnemyKind {
     #[default]
     Skeleton,
@@ -136,12 +131,10 @@ fn spawn(
                 scale: crate::tilemap::SCALE.extend(1.),
                 ..default()
             },
-            Enemy,
             HitPoints::full(hp),
             event.kind,
             event.pos,
             Speed(2.),
-            #[cfg(feature = "inspector")]
             Name::new("Enemy"),
         ));
     }
@@ -149,7 +142,7 @@ fn spawn(
 
 fn pathfinding(
     mut commands: Commands,
-    query: Query<(Entity, &TilePos, &Behavior, &EnemyKind), (With<Enemy>, Without<PathState>)>,
+    query: Query<(Entity, &TilePos, &Behavior, &EnemyKind), Without<PathState>>,
     tilemap_query: Query<&Map>,
     home_query: Query<(&TilePos, &HitPoints), With<Home>>,
     mut rng: ResMut<EnemyRng>,
@@ -203,7 +196,7 @@ fn pathfinding(
 
 fn behavior(
     mut removed: RemovedComponents<PathState>,
-    mut query: Query<&mut Behavior, (With<Enemy>, Without<PathState>)>,
+    mut query: Query<&mut Behavior, Without<PathState>>,
 ) {
     // just assume that we've reached the home whenever a PathState is removed.
 
@@ -217,10 +210,7 @@ fn behavior(
 
 fn attack(
     mut commands: Commands,
-    mut query: Query<
-        (Entity, &Behavior, &mut AttackCooldown, &TilePos),
-        (With<Enemy>, Without<PathState>),
-    >,
+    mut query: Query<(Entity, &Behavior, &mut AttackCooldown, &TilePos), Without<PathState>>,
     mut home_query: Query<(&mut HitPoints, &TilePos), With<Home>>,
     tilemap_query: Query<&Map>,
     particle_settings: Res<ParticlesSetting>,
@@ -277,7 +267,7 @@ fn attack(
 
 fn die(
     mut commands: Commands,
-    query: Query<(Entity, &HitPoints), With<Enemy>>,
+    query: Query<(Entity, &HitPoints), With<EnemyKind>>,
     mut stats: ResMut<Stats>,
 ) {
     for (entity, hp) in &query {

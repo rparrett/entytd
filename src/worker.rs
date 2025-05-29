@@ -122,7 +122,6 @@ fn spawn(
             HitPoints::full(2),
             pos,
             Idle,
-            #[cfg(feature = "inspector")]
             Name::new("Worker"),
         ));
     }

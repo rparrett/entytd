@@ -438,7 +438,6 @@ pub fn process_loaded_maps(
                         },
                         TilePos { x, y },
                         *tile,
-                        #[cfg(feature = "inspector")]
                         Name::new("Tile"),
                     ));
 
@@ -447,33 +446,19 @@ pub fn process_loaded_maps(
                             command.insert((
                                 Spawner,
                                 SpawnerIndex(spawner_index),
-                                #[cfg(feature = "inspector")]
                                 Name::new("SpawnerTile"),
                             ));
 
                             spawner_index += 1;
                         }
                         TileKind::Home | TileKind::HomeTwo => {
-                            command.insert((
-                                Home,
-                                HitPoints::full(30),
-                                #[cfg(feature = "inspector")]
-                                Name::new("HomeTile"),
-                            ));
+                            command.insert((Home, HitPoints::full(30), Name::new("HomeTile")));
                         }
                         TileKind::Stone => {
-                            command.insert((
-                                HitPoints::full(8),
-                                #[cfg(feature = "inspector")]
-                                Name::new("StoneTile"),
-                            ));
+                            command.insert((HitPoints::full(8), Name::new("StoneTile")));
                         }
                         TileKind::CrystalHidden | TileKind::MetalHidden => {
-                            command.insert((
-                                HitPoints::full(40),
-                                #[cfg(feature = "inspector")]
-                                Name::new("ResourceTile"),
-                            ));
+                            command.insert((HitPoints::full(40), Name::new("ResourceTile")));
                         }
                         _ => {}
                     }

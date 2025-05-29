@@ -62,32 +62,24 @@ impl From<Tool> for DesignationKind {
     }
 }
 impl DesignationKind {
-    fn ok_color(&self) -> Color {
-        match self {
-            DesignationKind::Dig => DESIGNATE_DIG_OK,
-            DesignationKind::BuildTower => Color::srgb_u8(82, 94, 173),
-            DesignationKind::Dance => DESIGNATE_DANCE_OK,
+    fn atlas_index(&self, ok: bool) -> usize {
+        match ok {
+            true => match self {
+                DesignationKind::Dig => TileKind::WhitePickaxe.atlas_index(),
+                DesignationKind::BuildTower => TileKind::TowerBlueprint.atlas_index(),
+                DesignationKind::Dance => TileKind::White.atlas_index(),
+            },
+            false => TileKind::WhiteCircleNo.atlas_index(),
         }
     }
-    fn ok_atlas_index(&self) -> usize {
-        match self {
-            DesignationKind::Dig => TileKind::WhitePickaxe.atlas_index(),
-            DesignationKind::BuildTower => TileKind::TowerBlueprint.atlas_index(),
-            DesignationKind::Dance => TileKind::White.atlas_index(),
-        }
-    }
-    fn not_ok_color(&self) -> Color {
-        match self {
-            DesignationKind::Dig | DesignationKind::BuildTower | DesignationKind::Dance => {
-                DESIGNATE_NOT_OK
-            }
-        }
-    }
-    fn not_ok_atlas_index(&self) -> usize {
-        match self {
-            DesignationKind::Dig | DesignationKind::BuildTower | DesignationKind::Dance => {
-                TileKind::WhiteCircleNo.atlas_index()
-            }
+    fn color(&self, ok: bool) -> Color {
+        match ok {
+            true => match self {
+                DesignationKind::Dig => DESIGNATE_DIG_OK,
+                DesignationKind::BuildTower => Color::srgb_u8(82, 94, 173),
+                DesignationKind::Dance => DESIGNATE_DANCE_OK,
+            },
+            false => DESIGNATE_NOT_OK,
         }
     }
     pub fn price(&self) -> Currency {
@@ -126,11 +118,11 @@ fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>, ui_assets
     commands
         .spawn((
             Sprite {
-                color: DesignationKind::Dig.not_ok_color(),
+                color: DesignationKind::Dig.color(false),
                 image: atlas_handle.image.clone(),
                 texture_atlas: Some(TextureAtlas {
                     layout: atlas_handle.layout.clone(),
-                    index: DesignationKind::Dig.not_ok_atlas_index(),
+                    index: DesignationKind::Dig.atlas_index(false),
                 }),
                 ..default()
             },
@@ -141,7 +133,7 @@ fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>, ui_assets
         .with_children(|parent| {
             parent.spawn((
                 Sprite {
-                    color: DesignationKind::BuildTower.ok_color(),
+                    color: DesignationKind::BuildTower.color(true),
                     image: ui_assets.range_indicator_24.clone(),
                     ..default()
                 },
@@ -194,19 +186,10 @@ fn update_cursor(
         let has_money = currency.has(&designation.price());
 
         // TODO separate cursor for the no-money situation?
-        // TODO cleanup with DesignationKind::atlas_index(ok: bool)
-        if ok && has_money {
-            if let Some(ref mut atlas) = sprite.texture_atlas {
-                atlas.index = designation.ok_atlas_index();
-            }
-
-            sprite.color = designation.ok_color();
-        } else {
-            if let Some(ref mut atlas) = sprite.texture_atlas {
-                atlas.index = designation.not_ok_atlas_index();
-            }
-            sprite.color = designation.not_ok_color();
+        if let Some(ref mut atlas) = sprite.texture_atlas {
+            atlas.index = designation.atlas_index(ok && has_money);
         }
+        sprite.color = designation.color(ok && has_money);
 
         for mut visibility in &mut range_query {
             match selected_tool.0 {
@@ -370,17 +353,16 @@ fn designate(
         .spawn((
             Sprite {
                 image: atlas_handle.image.clone(),
-                color: designation_kind.ok_color(),
+                color: designation_kind.color(true),
                 texture_atlas: Some(TextureAtlas {
                     layout: atlas_handle.layout.clone(),
-                    index: designation_kind.ok_atlas_index(),
+                    index: designation_kind.atlas_index(true),
                 }),
                 ..default()
             },
             Transform::from_translation(world_pos_snapped.extend(layer::BLUEPRINT))
                 .with_scale(crate::tilemap::SCALE.extend(1.)),
             DesignationMarker,
-            #[cfg(feature = "inspector")]
             Name::new("DesignationMarker"),
         ))
         .id();
