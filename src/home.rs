@@ -15,8 +15,9 @@ pub struct Home;
 fn update_sprites(mut query: Query<(&mut Sprite, &HitPoints), (Changed<HitPoints>, With<Home>)>) {
     for (mut sprite, hitpoints) in &mut query {
         if hitpoints.is_zero()
-            && let Some(ref mut texture_atlas) = sprite.texture_atlas {
-                texture_atlas.index = TileKind::HomeDead.atlas_index();
-            }
+            && let Some(ref mut texture_atlas) = sprite.texture_atlas
+        {
+            texture_atlas.index = TileKind::HomeDead.atlas_index();
+        }
     }
 }
