@@ -16,10 +16,10 @@ getrandom = { version = "0.3", features = ["wasm_js"] }
 image = { version = "*", default-features = false }
 pathfinding = "4.10.0"
 serde = "*"
-ron = "0.8"
+ron = "0.11"
 strum = "0.27.1"
 strum_macros = "0.27.1"
-grid = "0.17.0"
+grid = "1"
 thiserror = "1.0"
 
 
