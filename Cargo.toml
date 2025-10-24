@@ -49,6 +49,7 @@ features = [
     "vorbis",
     "webgl2",
     "x11",
+    "wayland",
     "zstd_rust",
 ]
 
