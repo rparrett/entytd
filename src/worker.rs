@@ -15,11 +15,7 @@ use crate::{
 };
 use bevy::{audio::Volume, prelude::*};
 use pathfinding::prelude::astar;
-use rand::{
-    rngs::SmallRng,
-    seq::{IndexedRandom, SliceRandom},
-    Rng, SeedableRng,
-};
+use rand::{rngs::SmallRng, seq::IndexedRandom, Rng, SeedableRng};
 
 pub struct WorkerPlugin;
 impl Plugin for WorkerPlugin {

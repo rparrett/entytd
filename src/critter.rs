@@ -1,11 +1,7 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use rand::{
-    rngs::SmallRng,
-    seq::{IndexedRandom, SliceRandom},
-    Rng, SeedableRng,
-};
+use rand::{rngs::SmallRng, seq::IndexedRandom, Rng, SeedableRng};
 use serde::Deserialize;
 
 use crate::{
