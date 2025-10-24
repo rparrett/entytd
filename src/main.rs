@@ -148,9 +148,7 @@ fn main() {
 
     #[cfg(feature = "inspector")]
     app.add_plugins((
-        bevy_inspector_egui::bevy_egui::EguiPlugin {
-            enable_multipass_for_primary_context: true,
-        },
+        bevy_inspector_egui::bevy_egui::EguiPlugin::default(),
         WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
     ));
 
