@@ -4,13 +4,13 @@ use bevy::{audio::Volume, prelude::*};
 use serde::Deserialize;
 
 use crate::{
+    GameState,
     enemy::{EnemyKind, SpawnEnemyMessage},
     settings::SfxSetting,
     sound::SoundAssets,
-    tilemap::{AtlasHandle, TilePos, SCALE, TILE_SIZE},
-    ui::{slice_image_mode, UiAssets, TITLE_TEXT},
+    tilemap::{AtlasHandle, SCALE, TILE_SIZE, TilePos},
+    ui::{TITLE_TEXT, UiAssets, slice_image_mode},
     waves::{WaveStartMessage, Waves},
-    GameState,
 };
 
 const SPAWNER_UI_SIZE: Vec2 = Vec2::new(64., 64.);

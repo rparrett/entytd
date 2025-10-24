@@ -1,11 +1,11 @@
 use crate::{
+    GameState,
     hit_points::HitPoints,
     home::Home,
     layer,
     level::{LevelConfig, LevelHandle},
     loading::LoadingAssets,
     spawner::{Spawner, SpawnerIndex},
-    GameState,
 };
 use bevy::prelude::*;
 use grid::Grid;

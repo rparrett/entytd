@@ -1,11 +1,10 @@
 use bevy::prelude::*;
-use rand::{rngs::SmallRng, Rng, SeedableRng};
+use rand::{Rng, SeedableRng, rngs::SmallRng};
 
 use crate::{
-    layer,
+    GameState, layer,
     settings::ParticlesSetting,
     tilemap::{AtlasHandle, SCALE},
-    GameState,
 };
 
 pub struct ParticlePlugin;

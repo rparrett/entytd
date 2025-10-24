@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use serde::Deserialize;
 
 use crate::{
-    level::{LevelConfig, LevelHandle},
     GameState,
+    level::{LevelConfig, LevelHandle},
 };
 
 pub struct CurrencyPlugin;

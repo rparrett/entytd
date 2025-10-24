@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    GameState,
     designate_tool::Designations,
     enemy::EnemyKind,
     hit_points::HitPoints,
@@ -8,9 +9,8 @@ use crate::{
     movement::Speed,
     particle::ParticleKind,
     settings::ParticlesSetting,
-    tilemap::{AtlasHandle, Map, TileEntities, TileKind, TilePos, SCALE, TILE_SIZE},
+    tilemap::{AtlasHandle, Map, SCALE, TILE_SIZE, TileEntities, TileKind, TilePos},
     util::cleanup,
-    GameState,
 };
 
 pub struct TowerPlugin;

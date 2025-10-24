@@ -3,10 +3,10 @@ use bevy_pipelines_ready::{PipelinesReady, PipelinesReadyPlugin};
 use strum::IntoEnumIterator;
 
 use crate::{
+    GameState,
     enemy::EnemyKind,
     tilemap::{AtlasHandle, TileKind},
-    ui::{slice_image_mode, UiAssets},
-    GameState,
+    ui::{UiAssets, slice_image_mode},
 };
 
 #[cfg(not(target_arch = "wasm32"))]

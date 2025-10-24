@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use serde::Deserialize;
 
 use crate::{
+    GameState,
     level::{LevelConfig, LevelHandle},
     spawner::Spawn,
-    GameState,
 };
 
 pub struct WavesPlugin;

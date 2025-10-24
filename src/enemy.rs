@@ -1,18 +1,18 @@
 use bevy::prelude::*;
-use rand::{rngs::SmallRng, seq::IndexedRandom, SeedableRng};
+use rand::{SeedableRng, rngs::SmallRng, seq::IndexedRandom};
 use serde::Deserialize;
 
 use crate::{
+    GameState,
     hit_points::HitPoints,
     home::Home,
     movement::{MovingProgress, Speed},
     particle::ParticleKind,
-    pathfinding::{enemy_cost_fn, heuristic, NeighborCostIter, PathState},
+    pathfinding::{NeighborCostIter, PathState, enemy_cost_fn, heuristic},
     settings::{DifficultySetting, ParticlesSetting},
     stats::Stats,
     tilemap::{AtlasHandle, Map, TilePos},
     util::cleanup,
-    GameState,
 };
 use pathfinding::prelude::astar;
 

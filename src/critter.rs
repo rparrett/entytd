@@ -1,17 +1,17 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use rand::{rngs::SmallRng, seq::IndexedRandom, Rng, SeedableRng};
+use rand::{Rng, SeedableRng, rngs::SmallRng, seq::IndexedRandom};
 use serde::Deserialize;
 
 use crate::{
+    GameState,
     level::{LevelConfig, LevelHandle},
     main_menu::MainMenuAssets,
     movement::{MovingProgress, Speed},
-    pathfinding::{critter_cost_fn, heuristic, NeighborCostIter, PathState, SquareAreaCostIter},
+    pathfinding::{NeighborCostIter, PathState, SquareAreaCostIter, critter_cost_fn, heuristic},
     tilemap::{AtlasHandle, Map, TilePos},
     util::cleanup,
-    GameState,
 };
 use pathfinding::prelude::astar;
 

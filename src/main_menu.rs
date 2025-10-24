@@ -1,11 +1,11 @@
 use crate::{
+    GameState,
     level::LevelConfig,
     loading::LoadingAssets,
     settings::{DifficultySetting, MusicSetting, ParticlesSetting, SfxSetting},
     sound::{MusicController, SoundAssets},
     tilemap::{AtlasHandle, Map, TileEntities, TilemapBundle, TilemapHandle},
-    ui::{slice_image_mode, UiAssets, BUTTON_TEXT, TITLE_TEXT},
-    GameState,
+    ui::{BUTTON_TEXT, TITLE_TEXT, UiAssets, slice_image_mode},
 };
 use bevy::{
     audio::{AudioSink, Volume},

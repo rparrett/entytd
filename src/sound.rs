@@ -1,6 +1,6 @@
 use bevy::{audio::Volume, prelude::*};
 
-use crate::{loading::LoadingAssets, settings::MusicSetting, GameState};
+use crate::{GameState, loading::LoadingAssets, settings::MusicSetting};
 
 pub struct MusicPlugin;
 impl Plugin for MusicPlugin {

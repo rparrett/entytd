@@ -1,21 +1,21 @@
 use crate::{
+    GameState,
     designate_tool::{DesignationKind, Designations},
     hit_points::HitPoints,
     layer,
     level::{LevelConfig, LevelHandle},
     movement::{MovingProgress, Speed},
-    pathfinding::{heuristic, worker_cost_fn, NeighborCostIter, PathState},
+    pathfinding::{NeighborCostIter, PathState, heuristic, worker_cost_fn},
     settings::SfxSetting,
     sound::SoundAssets,
     stats::Stats,
     stone::HitStoneMessage,
     tilemap::{AtlasHandle, Map, TileEntities, TileKind, TilePos},
     tower::BuildTowerMessage,
-    GameState,
 };
 use bevy::{audio::Volume, prelude::*};
 use pathfinding::prelude::astar;
-use rand::{rngs::SmallRng, seq::IndexedRandom, Rng, SeedableRng};
+use rand::{Rng, SeedableRng, rngs::SmallRng, seq::IndexedRandom};
 
 pub struct WorkerPlugin;
 impl Plugin for WorkerPlugin {

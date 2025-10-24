@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    GameState,
     currency::Currency,
     designate_tool::Designations,
     hit_points::HitPoints,
@@ -9,7 +10,6 @@ use crate::{
     spawner::SpawningPaused,
     stats::Stats,
     tilemap::{Map, TileEntities, TileKind, TilePos},
-    GameState,
 };
 
 pub struct StonePlugin;
