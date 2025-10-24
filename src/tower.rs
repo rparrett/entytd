@@ -16,7 +16,7 @@ use crate::{
 pub struct TowerPlugin;
 impl Plugin for TowerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<BuildTowerEvent>()
+        app.add_message::<BuildTowerMessage>()
             .add_systems(
                 Update,
                 (build_tower, attack, bullet_movement).run_if(in_state(GameState::Playing)),
@@ -59,7 +59,7 @@ struct Bullet {
 }
 
 #[derive(Message, Debug)]
-pub struct BuildTowerEvent(pub TilePos);
+pub struct BuildTowerMessage(pub TilePos);
 
 fn attack(
     mut commands: Commands,
@@ -70,7 +70,7 @@ fn attack(
 ) {
     for (transform, range, upgrades, mut timer) in &mut query {
         timer.0.tick(time.delta());
-        if !timer.0.finished() {
+        if !timer.0.is_finished() {
             continue;
         }
 
@@ -113,19 +113,19 @@ fn attack(
 
 fn build_tower(
     mut commands: Commands,
-    mut events: EventReader<BuildTowerEvent>,
+    mut messages: MessageReader<BuildTowerMessage>,
     mut designations: ResMut<Designations>,
     mut tilemap_query: Query<(&mut Map, &mut TileEntities)>,
     atlas_handle: Res<AtlasHandle>,
 ) {
-    for event in events.read() {
+    for message in messages.read() {
         let Ok((mut tilemap, mut tile_entities)) = tilemap_query.single_mut() else {
             continue;
         };
 
-        let world = tilemap.pos_to_world(event.0).extend(layer::BACKGROUND);
+        let world = tilemap.pos_to_world(message.0).extend(layer::BACKGROUND);
 
-        let Some(tile_kind) = tilemap.0.get_mut(event.0.y, event.0.x) else {
+        let Some(tile_kind) = tilemap.0.get_mut(message.0.y, message.0.x) else {
             continue;
         };
 
@@ -133,7 +133,7 @@ fn build_tower(
             continue;
         }
 
-        let Some(maybe_tile_entity) = tile_entities.0.get_mut(event.0.y, event.0.x) else {
+        let Some(maybe_tile_entity) = tile_entities.0.get_mut(message.0.y, message.0.x) else {
             continue;
         };
 
@@ -154,7 +154,7 @@ fn build_tower(
                     }),
                     ..default()
                 },
-                event.0,
+                message.0,
                 Transform {
                     scale: SCALE.extend(1.),
                     translation: world,
@@ -166,7 +166,7 @@ fn build_tower(
         *maybe_tile_entity = Some(id);
         *tile_kind = TileKind::Tower;
 
-        if let Some(designation) = designations.0.remove(&event.0) {
+        if let Some(designation) = designations.0.remove(&message.0) {
             commands.entity(designation.indicator).despawn();
         }
     }

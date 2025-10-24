@@ -19,7 +19,7 @@ use pathfinding::prelude::astar;
 pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnEnemyEvent>()
+        app.add_message::<SpawnEnemyMessage>()
             .init_resource::<EnemyRng>()
             .add_systems(
                 Update,
@@ -67,7 +67,7 @@ impl EnemyKind {
 }
 
 #[derive(Message)]
-pub struct SpawnEnemyEvent {
+pub struct SpawnEnemyMessage {
     pub kind: EnemyKind,
     pub pos: TilePos,
     pub hp: u32,
@@ -99,22 +99,22 @@ impl Default for EnemyRng {
 // TODO consider replacing with OnAdd observer
 fn spawn(
     mut commands: Commands,
-    mut events: EventReader<SpawnEnemyEvent>,
+    mut messages: MessageReader<SpawnEnemyMessage>,
     atlas_handle: Res<AtlasHandle>,
     tilemap_query: Query<&Map>,
     difficulty: Res<DifficultySetting>,
 ) {
-    for event in events.read() {
+    for message in messages.read() {
         let Ok(tilemap) = tilemap_query.single() else {
             continue;
         };
 
-        let world = tilemap.pos_to_world(event.pos);
+        let world = tilemap.pos_to_world(message.pos);
 
         let hp = match *difficulty {
-            DifficultySetting::Hard => event.hp,
-            DifficultySetting::Normal => ((event.hp as f32 * 0.75).floor() as u32).max(1),
-            DifficultySetting::Impossible => ((event.hp as f32 * 1.25).floor() as u32).max(1),
+            DifficultySetting::Hard => message.hp,
+            DifficultySetting::Normal => ((message.hp as f32 * 0.75).floor() as u32).max(1),
+            DifficultySetting::Impossible => ((message.hp as f32 * 1.25).floor() as u32).max(1),
         };
 
         commands.spawn((
@@ -122,7 +122,7 @@ fn spawn(
                 image: atlas_handle.image.clone(),
                 texture_atlas: Some(TextureAtlas {
                     layout: atlas_handle.layout.clone(),
-                    index: event.kind.atlas_index(),
+                    index: message.kind.atlas_index(),
                 }),
                 ..default()
             },
@@ -132,8 +132,8 @@ fn spawn(
                 ..default()
             },
             HitPoints::full(hp),
-            event.kind,
-            event.pos,
+            message.kind,
+            message.pos,
             Speed(2.),
             Name::new("Enemy"),
         ));
@@ -220,7 +220,7 @@ fn attack(
             continue;
         }
 
-        if !cooldown.0.finished() {
+        if !cooldown.0.is_finished() {
             continue;
         }
 

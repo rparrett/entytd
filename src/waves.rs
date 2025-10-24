@@ -43,7 +43,7 @@ pub struct Wave {
 }
 
 #[derive(Message)]
-pub struct WaveStartEvent;
+pub struct WaveStartMessage;
 
 pub fn init(
     mut commands: Commands,

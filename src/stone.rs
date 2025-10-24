@@ -15,8 +15,8 @@ use crate::{
 pub struct StonePlugin;
 impl Plugin for StonePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<HitStoneEvent>()
-            .add_event::<RevealStoneEvent>()
+        app.add_message::<HitStoneMessage>()
+            .add_message::<RevealStoneMessage>()
             .add_systems(
                 Update,
                 (hit_events, reveal_events).run_if(in_state(GameState::Playing)),
@@ -48,18 +48,18 @@ impl From<&HitPoints> for StoneHealth {
 }
 
 #[derive(Message)]
-pub struct HitStoneEvent {
+pub struct HitStoneMessage {
     pub entity: Entity,
     pub damage: u32,
 }
 
 #[derive(Message)]
-pub struct RevealStoneEvent(Entity);
+pub struct RevealStoneMessage(Entity);
 
 fn hit_events(
     mut commands: Commands,
-    mut reader: EventReader<HitStoneEvent>,
-    mut writer: EventWriter<RevealStoneEvent>,
+    mut hit_reader: MessageReader<HitStoneMessage>,
+    mut reveal_writer: MessageWriter<RevealStoneMessage>,
     mut query: Query<(&mut HitPoints, &TilePos, &mut TileKind, &mut Sprite)>,
     mut designations: ResMut<Designations>,
     mut tilemap_query: Query<(&mut Map, &TileEntities)>,
@@ -68,7 +68,7 @@ fn hit_events(
     mut spawning_paused: ResMut<SpawningPaused>,
     mut stats: ResMut<Stats>,
 ) {
-    for event in reader.read() {
+    for event in hit_reader.read() {
         let Ok((mut map, entities)) = tilemap_query.single_mut() else {
             return;
         };
@@ -181,7 +181,7 @@ fn hit_events(
                 };
 
                 if matches!(kind, TileKind::CrystalHidden | TileKind::MetalHidden) {
-                    writer.write(RevealStoneEvent(*entity));
+                    reveal_writer.write(RevealStoneMessage(*entity));
                 }
             }
         }
@@ -189,11 +189,11 @@ fn hit_events(
 }
 
 fn reveal_events(
-    mut reader: EventReader<RevealStoneEvent>,
+    mut messages: MessageReader<RevealStoneMessage>,
     mut query: Query<(&mut TileKind, &mut Sprite)>,
 ) {
-    for event in reader.read() {
-        let Ok((mut kind, mut sprite)) = query.get_mut(event.0) else {
+    for message in messages.read() {
+        let Ok((mut kind, mut sprite)) = query.get_mut(message.0) else {
             continue;
         };
 

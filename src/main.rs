@@ -155,8 +155,7 @@ fn main() {
     ));
 
     app.insert_resource(ClearColor(Color::BLACK))
-        .init_state::<GameState>()
-        .enable_state_scoped_entities::<GameState>();
+        .init_state::<GameState>();
 
     app.run();
 }
