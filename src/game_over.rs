@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 
 use crate::{
+    GameState,
     game::Won,
     settings::DifficultySetting,
     stats::Stats,
-    ui::{slice_image_mode, UiAssets, BUTTON_TEXT, TITLE_TEXT},
-    GameState,
+    ui::{BUTTON_TEXT, TITLE_TEXT, UiAssets, slice_image_mode},
 };
 
 pub struct GameOverPlugin;
@@ -66,7 +66,7 @@ fn init(
                 image_mode: slice_image_mode(),
                 ..default()
             },
-            StateScoped(GameState::GameOver),
+            DespawnOnExit(GameState::GameOver),
         ))
         .id();
 

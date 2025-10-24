@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 use crate::{
-    enemy::EnemyKind, hit_points::HitPoints, home::Home, spawner::SpawnerStates, waves::Waves,
-    GameState,
+    GameState, enemy::EnemyKind, hit_points::HitPoints, home::Home, spawner::SpawnerStates,
+    waves::Waves,
 };
 
 pub struct GamePlugin;

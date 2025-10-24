@@ -1,8 +1,8 @@
-use bevy::{prelude::*, render::camera::ScalingMode};
+use bevy::{camera::ScalingMode, prelude::*};
 
 use crate::{
-    tilemap::{Map, TilemapHandle},
     GameState,
+    tilemap::{Map, TilemapHandle},
 };
 
 pub struct CameraPlugin;

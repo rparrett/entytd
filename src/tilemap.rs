@@ -1,11 +1,11 @@
 use crate::{
+    GameState,
     hit_points::HitPoints,
     home::Home,
     layer,
     level::{LevelConfig, LevelHandle},
     loading::LoadingAssets,
     spawner::{Spawner, SpawnerIndex},
-    GameState,
 };
 use bevy::prelude::*;
 use grid::Grid;
@@ -368,14 +368,14 @@ fn queue_load(
 
 pub fn process_loaded_maps(
     mut commands: Commands,
-    mut map_events: EventReader<AssetEvent<Map>>,
+    mut map_messages: MessageReader<AssetEvent<Map>>,
     maps: Res<Assets<Map>>,
     mut map_query: Query<(&TilemapHandle, &AtlasHandle, &mut TileEntities)>,
     new_maps: Query<&TilemapHandle, Added<TilemapHandle>>,
 ) {
     let mut changed_maps = Vec::<AssetId<Map>>::default();
-    for event in map_events.read() {
-        match event {
+    for message in map_messages.read() {
+        match message {
             AssetEvent::Added { id } => {
                 info!("Map added.");
                 changed_maps.push(*id);

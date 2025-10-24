@@ -5,6 +5,7 @@ use bevy::{
 };
 
 use crate::{
+    GameState,
     currency::Currency,
     cursor::CursorSnapped,
     layer,
@@ -13,7 +14,6 @@ use crate::{
     tilemap::{AtlasHandle, Map, TileKind, TilePos},
     tool_selector::{SelectedTool, Tool},
     ui::UiAssets,
-    GameState,
 };
 
 const DESIGNATE_DIG_OK: Color = Color::srgba(0., 1.0, 1.0, 0.5);

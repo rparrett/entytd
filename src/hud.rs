@@ -6,16 +6,16 @@ use bevy::{
 };
 
 use crate::{
+    GameState,
     currency::Currency,
     designate_tool::DesignationKind,
     hit_points::HitPoints,
     home::Home,
     tilemap::{AtlasHandle, SCALE, TILE_SIZE},
     tool_selector::SelectedTool,
-    ui::{self, slice_image_mode, UiAssets, TITLE_TEXT},
+    ui::{self, TITLE_TEXT, UiAssets, slice_image_mode},
     waves::Waves,
     worker::{Idle, Worker},
-    GameState,
 };
 
 pub struct HudPlugin;

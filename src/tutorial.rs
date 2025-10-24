@@ -1,14 +1,14 @@
 use bevy::{audio::Volume, prelude::*};
 
 use crate::{
+    GameState,
     currency::Currency,
     designate_tool::{DesignationKind, Designations},
     settings::{SfxSetting, TutorialFinishedSetting},
     sound::SoundAssets,
     spawner::SpawningPaused,
-    ui::{slice_image_mode, UiAssets, TITLE_TEXT},
+    ui::{TITLE_TEXT, UiAssets, slice_image_mode},
     util::cleanup,
-    GameState,
 };
 
 pub struct TutorialPlugin;

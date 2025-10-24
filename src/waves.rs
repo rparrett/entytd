@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use serde::Deserialize;
 
 use crate::{
+    GameState,
     level::{LevelConfig, LevelHandle},
     spawner::Spawn,
-    GameState,
 };
 
 pub struct WavesPlugin;
@@ -42,8 +42,8 @@ pub struct Wave {
     pub spawns: Vec<Spawn>,
 }
 
-#[derive(Event)]
-pub struct WaveStartEvent;
+#[derive(Message)]
+pub struct WaveStartMessage;
 
 pub fn init(
     mut commands: Commands,
