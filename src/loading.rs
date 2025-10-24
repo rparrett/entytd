@@ -98,7 +98,7 @@ fn init_loading_scene(
                 image_mode: slice_image_mode(),
                 ..default()
             },
-            StateScoped(GameState::Loading),
+            DespawnOnExit(GameState::Loading),
         ))
         .with_children(|parent| {
             parent.spawn(Text::new("Loading..."));

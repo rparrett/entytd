@@ -47,13 +47,13 @@ impl From<&HitPoints> for StoneHealth {
     }
 }
 
-#[derive(Event)]
+#[derive(Message)]
 pub struct HitStoneEvent {
     pub entity: Entity,
     pub damage: u32,
 }
 
-#[derive(Event)]
+#[derive(Message)]
 pub struct RevealStoneEvent(Entity);
 
 fn hit_events(

@@ -42,7 +42,7 @@ pub struct Wave {
     pub spawns: Vec<Spawn>,
 }
 
-#[derive(Event)]
+#[derive(Message)]
 pub struct WaveStartEvent;
 
 pub fn init(

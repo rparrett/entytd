@@ -15,7 +15,11 @@ use crate::{
 };
 use bevy::{audio::Volume, prelude::*};
 use pathfinding::prelude::astar;
-use rand::{rngs::SmallRng, seq::SliceRandom, Rng, SeedableRng};
+use rand::{
+    rngs::SmallRng,
+    seq::{IndexedRandom, SliceRandom},
+    Rng, SeedableRng,
+};
 
 pub struct WorkerPlugin;
 impl Plugin for WorkerPlugin {
@@ -56,7 +60,7 @@ impl Default for WorkCooldown {
         Self(Timer::from_seconds(1., TimerMode::Once))
     }
 }
-#[derive(Event)]
+#[derive(Message)]
 pub struct SpawnWorkerEvent;
 
 #[derive(Resource)]
@@ -71,7 +75,7 @@ impl Default for WorkerSortTimer {
 pub struct WorkerRng(SmallRng);
 impl Default for WorkerRng {
     fn default() -> Self {
-        Self(SmallRng::from_entropy())
+        Self(SmallRng::from_os_rng())
     }
 }
 

@@ -133,7 +133,7 @@ fn setup_menu(
                 image_mode: slice_image_mode(),
                 ..default()
             },
-            StateScoped(GameState::MainMenu),
+            DespawnOnExit(GameState::MainMenu),
         ))
         .id();
 

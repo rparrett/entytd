@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use rand::{rngs::SmallRng, seq::SliceRandom, SeedableRng};
+use rand::{rngs::SmallRng, seq::IndexedRandom, SeedableRng};
 use serde::Deserialize;
 
 use crate::{
@@ -66,7 +66,7 @@ impl EnemyKind {
     }
 }
 
-#[derive(Event)]
+#[derive(Message)]
 pub struct SpawnEnemyEvent {
     pub kind: EnemyKind,
     pub pos: TilePos,
@@ -92,7 +92,7 @@ impl Default for AttackCooldown {
 pub struct EnemyRng(SmallRng);
 impl Default for EnemyRng {
     fn default() -> Self {
-        Self(SmallRng::from_entropy())
+        Self(SmallRng::from_os_rng())
     }
 }
 

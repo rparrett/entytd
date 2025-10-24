@@ -4,12 +4,15 @@ version = "0.3.0"
 edition = "2021"
 
 [dependencies]
-bevy_common_assets = { version = "0.13.0", features = ["ron"] }
-bevy_pipelines_ready = "0.6.0"
-rand = { version = "0.8.5", default-features = false, features = [
+bevy_common_assets = { version = "0.14.0", features = ["ron"] }
+bevy_pipelines_ready = "0.7.0"
+bevy_simple_prefs = "0.7.0"
+rand = { version = "0.9", default-features = false, features = [
     "std",
     "small_rng",
+    "os_rng",
 ] }
+getrandom = { version = "0.3", features = ["wasm_js"] }
 image = { version = "*", default-features = false }
 pathfinding = "4.10.0"
 serde = "*"
@@ -18,25 +21,25 @@ strum = "0.27.1"
 strum_macros = "0.27.1"
 grid = "0.17.0"
 thiserror = "1.0"
-bevy_simple_prefs = "0.6.0"
+
 
 [features]
 inspector = ["bevy-inspector-egui"]
 recording = []
 
 [dependencies.bevy]
-version = "0.16"
+version = "0.17"
 default-features = false
 features = [
     "bevy_asset",
     "bevy_audio",
-    "bevy_core_pipeline",
     "bevy_log",
-    "bevy_render",
     "bevy_sprite",
+    "bevy_sprite_render",
     "bevy_state",
     "bevy_text",
     "bevy_ui",
+    "bevy_ui_render",
     "bevy_winit",
     "bevy_window",
     "default_font",
@@ -46,11 +49,11 @@ features = [
     "vorbis",
     "webgl2",
     "x11",
-    "zstd",
+    "zstd_rust",
 ]
 
 [dependencies.bevy-inspector-egui]
-version = "0.31.0"
+version = "0.35.0"
 default-features = false
 features = ["bevy_render"]
 optional = true

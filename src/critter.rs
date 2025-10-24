@@ -1,7 +1,11 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use rand::{rngs::SmallRng, seq::SliceRandom, Rng, SeedableRng};
+use rand::{
+    rngs::SmallRng,
+    seq::{IndexedRandom, SliceRandom},
+    Rng, SeedableRng,
+};
 use serde::Deserialize;
 
 use crate::{
@@ -50,7 +54,7 @@ impl CritterKind {
     }
 }
 
-#[derive(Event)]
+#[derive(Message)]
 pub struct SpawnCritterEvent {
     pub kind: CritterKind,
     pub pos: TilePos,
@@ -75,7 +79,7 @@ impl Default for IdleTimer {
 pub struct CritterRng(SmallRng);
 impl Default for CritterRng {
     fn default() -> Self {
-        Self(SmallRng::from_entropy())
+        Self(SmallRng::from_os_rng())
     }
 }
 

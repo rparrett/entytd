@@ -66,7 +66,7 @@ fn init(
                 image_mode: slice_image_mode(),
                 ..default()
             },
-            StateScoped(GameState::GameOver),
+            DespawnOnExit(GameState::GameOver),
         ))
         .id();
 

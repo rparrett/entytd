@@ -58,7 +58,7 @@ struct Bullet {
     target: Entity,
 }
 
-#[derive(Event, Debug)]
+#[derive(Message, Debug)]
 pub struct BuildTowerEvent(pub TilePos);
 
 fn attack(
