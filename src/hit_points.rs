@@ -1,10 +1,5 @@
 use bevy::prelude::*;
 
-pub struct HitPointsPlugin;
-impl Plugin for HitPointsPlugin {
-    fn build(&self, _app: &mut App) {}
-}
-
 #[derive(Component, Debug)]
 pub struct HitPoints {
     pub current: u32,
