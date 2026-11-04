@@ -4,9 +4,8 @@ version = "0.3.0"
 edition = "2024"
 
 [dependencies]
-bevy_common_assets = { version = "0.14.0", features = ["ron"] }
-bevy_pipelines_ready = "0.7.0"
-bevy_simple_prefs = "0.7.0"
+bevy_common_assets = { version = "0.16.0", features = ["ron"] }
+bevy_pipelines_ready = "0.8.0"
 rand = { version = "0.10.3", default-features = false, features = [
     "std",
     "thread_rng",
@@ -19,13 +18,14 @@ strum = "0.28"
 strum_macros = "0.28"
 grid = "1.0"
 thiserror = "2.0"
+bevy_simple_prefs = "0.8.0"
 
 [features]
-inspector = ["bevy-inspector-egui"]
+inspector = ["bevy-inspector-egui", "bevy/bevy_mikktspace"]
 recording = []
 
 [dependencies.bevy]
-version = "0.17"
+version = "0.18"
 default-features = false
 features = [
     "bevy_asset",
@@ -51,7 +51,7 @@ features = [
 ]
 
 [dependencies.bevy-inspector-egui]
-version = "0.35.0"
+version = "0.36.0"
 default-features = false
 features = ["bevy_render"]
 optional = true

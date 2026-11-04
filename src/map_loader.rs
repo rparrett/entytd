@@ -13,7 +13,7 @@ impl Plugin for MapFileLoaderPlugin {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, TypePath)]
 pub struct MapFileLoader;
 
 /// Possible errors that can be produced by [`MapFileLoader`]
