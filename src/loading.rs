@@ -3,10 +3,10 @@ use bevy_pipelines_ready::{PipelinesReady, PipelinesReadyPlugin};
 use strum::IntoEnumIterator;
 
 use crate::{
+    GameState,
     enemy::EnemyKind,
     tilemap::{AtlasHandle, TileKind},
-    ui::{slice_image_mode, UiAssets},
-    GameState,
+    ui::{UiAssets, slice_image_mode},
 };
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -98,7 +98,7 @@ fn init_loading_scene(
                 image_mode: slice_image_mode(),
                 ..default()
             },
-            StateScoped(GameState::Loading),
+            DespawnOnExit(GameState::Loading),
         ))
         .with_children(|parent| {
             parent.spawn(Text::new("Loading..."));

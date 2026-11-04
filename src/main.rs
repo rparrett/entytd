@@ -148,15 +148,12 @@ fn main() {
 
     #[cfg(feature = "inspector")]
     app.add_plugins((
-        bevy_inspector_egui::bevy_egui::EguiPlugin {
-            enable_multipass_for_primary_context: true,
-        },
+        bevy_inspector_egui::bevy_egui::EguiPlugin::default(),
         WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
     ));
 
     app.insert_resource(ClearColor(Color::BLACK))
-        .init_state::<GameState>()
-        .enable_state_scoped_entities::<GameState>();
+        .init_state::<GameState>();
 
     app.run();
 }

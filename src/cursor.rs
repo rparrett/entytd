@@ -23,7 +23,7 @@ pub struct CursorSnapped {
 }
 
 fn cursor(
-    mut events: EventReader<CursorMoved>,
+    mut messages: MessageReader<CursorMoved>,
     camera_query: Query<(&Camera, Ref<GlobalTransform>)>,
     maybe_tilemap_handle: Option<Res<TilemapHandle>>,
     tilemaps: Res<Assets<Map>>,
@@ -32,8 +32,8 @@ fn cursor(
     added_window: Query<&Window, Added<Window>>,
 ) {
     let mut changed = false;
-    for event in events.read() {
-        cursor.viewport_pos = event.position;
+    for message in messages.read() {
+        cursor.viewport_pos = message.position;
         changed = true;
     }
 

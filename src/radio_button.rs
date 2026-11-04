@@ -36,12 +36,12 @@ fn radio_button_group_system(
 ) {
     let mut unselect = vec![];
     for (entity, radio, group_rel) in q.p0().iter() {
-        if let Ok(radio_group) = q_radio_group.get(group_rel.0) {
-            if radio.selected {
-                for other_entity in radio_group.entities.iter() {
-                    if *other_entity != entity {
-                        unselect.push(*other_entity);
-                    }
+        if let Ok(radio_group) = q_radio_group.get(group_rel.0)
+            && radio.selected
+        {
+            for other_entity in radio_group.entities.iter() {
+                if *other_entity != entity {
+                    unselect.push(*other_entity);
                 }
             }
         }

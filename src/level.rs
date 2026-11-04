@@ -3,12 +3,12 @@ use bevy_common_assets::ron::RonAssetPlugin;
 use serde::Deserialize;
 
 use crate::{
+    GameState,
     critter::CritterKind,
     currency::Currency,
     loading::{LoadingAssets, LoadingResources},
     tilemap::TilePos,
     waves::Wave,
-    GameState,
 };
 
 pub struct LevelPlugin;

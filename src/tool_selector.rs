@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 
 use crate::{
-    radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
-    tilemap::{AtlasHandle, TileKind, SCALE, TILE_SIZE},
-    ui::{slice_image_mode, UiAssets, BUTTON_TEXT},
-    util::cleanup,
     GameState,
+    radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
+    tilemap::{AtlasHandle, SCALE, TILE_SIZE, TileKind},
+    ui::{BUTTON_TEXT, UiAssets, slice_image_mode},
+    util::cleanup,
 };
 
 pub struct ToolSelectorPlugin;

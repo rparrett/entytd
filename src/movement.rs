@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 
 use crate::{
+    GameState,
     pathfinding::PathState,
     tilemap::{Map, TilePos},
-    GameState,
 };
 
 /// This is the speed in "tiles lengths per second."

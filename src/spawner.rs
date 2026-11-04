@@ -4,13 +4,13 @@ use bevy::{audio::Volume, prelude::*};
 use serde::Deserialize;
 
 use crate::{
-    enemy::{EnemyKind, SpawnEnemyEvent},
+    GameState,
+    enemy::{EnemyKind, SpawnEnemyMessage},
     settings::SfxSetting,
     sound::SoundAssets,
-    tilemap::{AtlasHandle, TilePos, SCALE, TILE_SIZE},
-    ui::{slice_image_mode, UiAssets, TITLE_TEXT},
-    waves::{WaveStartEvent, Waves},
-    GameState,
+    tilemap::{AtlasHandle, SCALE, TILE_SIZE, TilePos},
+    ui::{TITLE_TEXT, UiAssets, slice_image_mode},
+    waves::{WaveStartMessage, Waves},
 };
 
 const SPAWNER_UI_SIZE: Vec2 = Vec2::new(64., 64.);
@@ -18,7 +18,7 @@ const SPAWNER_UI_SIZE: Vec2 = Vec2::new(64., 64.);
 pub struct SpawnerPlugin;
 impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<WaveStartEvent>()
+        app.add_message::<WaveStartMessage>()
             .init_resource::<SpawnerStates>()
             .init_resource::<SpawningPaused>()
             .add_systems(
@@ -111,7 +111,7 @@ fn spawn(
     mut states: ResMut<SpawnerStates>,
     time: Res<Time>,
     mut waves: ResMut<Waves>,
-    mut events: EventWriter<SpawnEnemyEvent>,
+    mut messages: MessageWriter<SpawnEnemyMessage>,
     spawners: Query<(&TilePos, &SpawnerIndex)>,
     paused: Res<SpawningPaused>,
     sound_assets: Res<SoundAssets>,
@@ -131,7 +131,7 @@ fn spawn(
         }
 
         state.delay_timer.tick(time.delta());
-        if !state.delay_timer.finished() {
+        if !state.delay_timer.is_finished() {
             continue;
         }
 
@@ -142,7 +142,7 @@ fn spawn(
                 continue;
             };
 
-            events.write(SpawnEnemyEvent {
+            messages.write(SpawnEnemyMessage {
                 pos: *pos,
                 kind: state.spawn.kind,
                 hp: state.spawn.hp,
@@ -267,7 +267,7 @@ fn update_spawner_ui(
             continue;
         };
 
-        if !spawning_paused.0 && state.remaining > 0 && !state.delay_timer.finished() {
+        if !spawning_paused.0 && state.remaining > 0 && !state.delay_timer.is_finished() {
             container_node.display = Display::Flex;
         } else {
             container_node.display = Display::None;

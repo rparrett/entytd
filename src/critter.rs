@@ -1,24 +1,24 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use rand::{rngs::SmallRng, seq::SliceRandom, Rng, SeedableRng};
+use rand::{Rng, SeedableRng, rngs::SmallRng, seq::IndexedRandom};
 use serde::Deserialize;
 
 use crate::{
+    GameState,
     level::{LevelConfig, LevelHandle},
     main_menu::MainMenuAssets,
     movement::{MovingProgress, Speed},
-    pathfinding::{critter_cost_fn, heuristic, NeighborCostIter, PathState, SquareAreaCostIter},
+    pathfinding::{NeighborCostIter, PathState, SquareAreaCostIter, critter_cost_fn, heuristic},
     tilemap::{AtlasHandle, Map, TilePos},
     util::cleanup,
-    GameState,
 };
 use pathfinding::prelude::astar;
 
 pub struct CritterPlugin;
 impl Plugin for CritterPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnCritterEvent>()
+        app.add_message::<SpawnCritterMessage>()
             .init_resource::<CritterRng>()
             .add_systems(OnEnter(GameState::Playing), setup)
             .add_systems(OnEnter(GameState::MainMenu), setup_main_menu)
@@ -50,8 +50,8 @@ impl CritterKind {
     }
 }
 
-#[derive(Event)]
-pub struct SpawnCritterEvent {
+#[derive(Message)]
+pub struct SpawnCritterMessage {
     pub kind: CritterKind,
     pub pos: TilePos,
 }
@@ -75,12 +75,12 @@ impl Default for IdleTimer {
 pub struct CritterRng(SmallRng);
 impl Default for CritterRng {
     fn default() -> Self {
-        Self(SmallRng::from_entropy())
+        Self(SmallRng::from_os_rng())
     }
 }
 
 fn setup(
-    mut events: EventWriter<SpawnCritterEvent>,
+    mut messages: MessageWriter<SpawnCritterMessage>,
     level_handle: Res<LevelHandle>,
     levels: Res<Assets<LevelConfig>>,
 ) {
@@ -90,7 +90,7 @@ fn setup(
     };
 
     for (pos, kind) in &level.critters {
-        events.write(SpawnCritterEvent {
+        messages.write(SpawnCritterMessage {
             kind: *kind,
             pos: *pos,
         });
@@ -98,7 +98,7 @@ fn setup(
 }
 
 fn setup_main_menu(
-    mut events: EventWriter<SpawnCritterEvent>,
+    mut messages: MessageWriter<SpawnCritterMessage>,
     main_menu_assets: Res<MainMenuAssets>,
     levels: Res<Assets<LevelConfig>>,
 ) {
@@ -108,7 +108,7 @@ fn setup_main_menu(
     };
 
     for (pos, kind) in &level.critters {
-        events.write(SpawnCritterEvent {
+        messages.write(SpawnCritterMessage {
             kind: *kind,
             pos: *pos,
         });
@@ -118,24 +118,24 @@ fn setup_main_menu(
 // TODO consider replacing with OnAdd observer
 fn spawn(
     mut commands: Commands,
-    mut events: EventReader<SpawnCritterEvent>,
+    mut messages: MessageReader<SpawnCritterMessage>,
     atlas_handle: Res<AtlasHandle>,
     tilemap_query: Query<&Map>,
     mut rng: ResMut<CritterRng>,
 ) {
-    for event in events.read() {
+    for message in messages.read() {
         let Ok(tilemap) = tilemap_query.single() else {
             continue;
         };
 
-        let world = tilemap.pos_to_world(event.pos);
+        let world = tilemap.pos_to_world(message.pos);
 
         commands.spawn((
             Sprite {
                 image: atlas_handle.image.clone(),
                 texture_atlas: Some(TextureAtlas {
                     layout: atlas_handle.layout.clone(),
-                    index: event.kind.atlas_index(),
+                    index: message.kind.atlas_index(),
                 }),
                 ..default()
             },
@@ -145,11 +145,11 @@ fn spawn(
                 ..default()
             },
             IdleTimer(Timer::new(
-                Duration::from_secs_f32(rng.0.gen_range(4.0..14.0)),
+                Duration::from_secs_f32(rng.0.random_range(4.0..14.0)),
                 TimerMode::Once,
             )),
-            event.kind,
-            event.pos,
+            message.kind,
+            message.pos,
             Speed(1.),
             Name::new("Critter"),
         ));

@@ -1,11 +1,10 @@
 use bevy::prelude::*;
-use rand::{rngs::SmallRng, Rng, SeedableRng};
+use rand::{Rng, SeedableRng, rngs::SmallRng};
 
 use crate::{
-    layer,
+    GameState, layer,
     settings::ParticlesSetting,
     tilemap::{AtlasHandle, SCALE},
-    GameState,
 };
 
 pub struct ParticlePlugin;
@@ -24,7 +23,7 @@ impl Plugin for ParticlePlugin {
 pub struct ParticleRng(SmallRng);
 impl Default for ParticleRng {
     fn default() -> Self {
-        Self(SmallRng::from_entropy())
+        Self(SmallRng::from_os_rng())
     }
 }
 
@@ -92,8 +91,8 @@ fn update_particles(
         // Everything except the random velocity could be done in a simple function returning an
         // impl Bundle.
         if kind.is_added() {
-            velocity.0 =
-                Vec2::new(rng.0.gen::<f32>() - 0.5, 1.0).normalize() * (rng.0.gen::<f32>() + 1.0);
+            velocity.0 = Vec2::new(rng.0.random::<f32>() - 0.5, 1.0).normalize()
+                * (rng.0.random::<f32>() + 1.0);
             sprite.texture_atlas = Some(TextureAtlas {
                 layout: atlas_handle.layout.clone(),
                 index: 103 * 49 + 53,

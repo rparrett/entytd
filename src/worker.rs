@@ -1,26 +1,26 @@
 use crate::{
+    GameState,
     designate_tool::{DesignationKind, Designations},
     hit_points::HitPoints,
     layer,
     level::{LevelConfig, LevelHandle},
     movement::{MovingProgress, Speed},
-    pathfinding::{heuristic, worker_cost_fn, NeighborCostIter, PathState},
+    pathfinding::{NeighborCostIter, PathState, heuristic, worker_cost_fn},
     settings::SfxSetting,
     sound::SoundAssets,
     stats::Stats,
-    stone::HitStoneEvent,
+    stone::HitStoneMessage,
     tilemap::{AtlasHandle, Map, TileEntities, TileKind, TilePos},
-    tower::BuildTowerEvent,
-    GameState,
+    tower::BuildTowerMessage,
 };
 use bevy::{audio::Volume, prelude::*};
 use pathfinding::prelude::astar;
-use rand::{rngs::SmallRng, seq::SliceRandom, Rng, SeedableRng};
+use rand::{Rng, SeedableRng, rngs::SmallRng, seq::IndexedRandom};
 
 pub struct WorkerPlugin;
 impl Plugin for WorkerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnWorkerEvent>()
+        app.add_message::<SpawnWorkerMessage>()
             .init_resource::<WorkerSortTimer>()
             .init_resource::<WorkerRng>()
             .add_systems(Update, spawn.run_if(in_state(GameState::Playing)))
@@ -56,8 +56,8 @@ impl Default for WorkCooldown {
         Self(Timer::from_seconds(1., TimerMode::Once))
     }
 }
-#[derive(Event)]
-pub struct SpawnWorkerEvent;
+#[derive(Message)]
+pub struct SpawnWorkerMessage;
 
 #[derive(Resource)]
 pub struct WorkerSortTimer(Timer);
@@ -71,33 +71,33 @@ impl Default for WorkerSortTimer {
 pub struct WorkerRng(SmallRng);
 impl Default for WorkerRng {
     fn default() -> Self {
-        Self(SmallRng::from_entropy())
+        Self(SmallRng::from_os_rng())
     }
 }
 
 fn spawn(
     mut commands: Commands,
-    mut events: EventReader<SpawnWorkerEvent>,
+    mut messages: MessageReader<SpawnWorkerMessage>,
     atlas_handle: Res<AtlasHandle>,
     tilemap_query: Query<&Map>,
     mut rng: ResMut<WorkerRng>,
 ) {
-    if events.is_empty() {
+    if messages.is_empty() {
         return;
     }
 
-    for _ in events.read() {
+    for _ in messages.read() {
         let Ok(tilemap) = tilemap_query.single() else {
             continue;
         };
 
         let index = *WORKER_SPRITES.choose(&mut rng.0).unwrap();
-        let color = Color::hsl(rng.0.gen_range(0.0..=360.0), 0.9, 0.5);
+        let color = Color::hsl(rng.0.random_range(0.0..=360.0), 0.9, 0.5);
 
         let home = (60, 30);
         let pos = TilePos {
-            x: rng.0.gen_range((home.0 - 2)..(home.0 + 2)),
-            y: rng.0.gen_range((home.1 - 2)..(home.1 + 2)),
+            x: rng.0.random_range((home.0 - 2)..(home.0 + 2)),
+            y: rng.0.random_range((home.1 - 2)..(home.1 + 2)),
         };
         let world = tilemap.pos_to_world(pos);
 
@@ -115,7 +115,7 @@ fn spawn(
             Transform {
                 // Give workers a random z value so their display order is stable as
                 // entities are added/removed from the view/world.
-                translation: world.extend(layer::MOBS + rng.0.gen::<f32>()),
+                translation: world.extend(layer::MOBS + rng.0.random::<f32>()),
                 scale: crate::tilemap::SCALE.extend(1.),
                 ..default()
             },
@@ -128,7 +128,7 @@ fn spawn(
 }
 
 fn init(
-    mut events: EventWriter<SpawnWorkerEvent>,
+    mut messages: MessageWriter<SpawnWorkerMessage>,
     levels: Res<Assets<LevelConfig>>,
     level_handle: Res<LevelHandle>,
 ) {
@@ -138,7 +138,7 @@ fn init(
     };
 
     for _ in 0..level.workers {
-        events.write(SpawnWorkerEvent);
+        messages.write(SpawnWorkerMessage);
     }
 }
 
@@ -242,8 +242,8 @@ fn do_job(
     dig_query: Query<&HitPoints>,
     tile_kind_query: Query<&TileKind>,
     mut tilemap_query: Query<&TileEntities>,
-    mut events: EventWriter<HitStoneEvent>,
-    mut tower_events: EventWriter<BuildTowerEvent>,
+    mut hit_messages: MessageWriter<HitStoneMessage>,
+    mut tower_messages: MessageWriter<BuildTowerMessage>,
     sound_assets: Res<SoundAssets>,
     sfx_setting: Res<SfxSetting>,
     mut stats: ResMut<Stats>,
@@ -281,11 +281,11 @@ fn do_job(
                     continue;
                 }
 
-                if !cooldown.0.finished() {
+                if !cooldown.0.is_finished() {
                     continue;
                 }
 
-                events.write(HitStoneEvent {
+                hit_messages.write(HitStoneMessage {
                     entity: tile_entity,
                     damage: 1,
                 });
@@ -325,7 +325,7 @@ fn do_job(
                     continue;
                 }
 
-                if !cooldown.0.finished() {
+                if !cooldown.0.is_finished() {
                     continue;
                 }
 
@@ -333,7 +333,7 @@ fn do_job(
 
                 if hit_points.is_zero() {
                     stats.towers += 1;
-                    tower_events.write(BuildTowerEvent(*pos));
+                    tower_messages.write(BuildTowerMessage(*pos));
                 }
 
                 cooldown.0.reset();
@@ -362,7 +362,7 @@ fn sort_workers(
     }
 
     for mut translation in &mut query {
-        translation.translation.z = layer::MOBS + rng.0.gen::<f32>();
+        translation.translation.z = layer::MOBS + rng.0.random::<f32>();
     }
 }
 

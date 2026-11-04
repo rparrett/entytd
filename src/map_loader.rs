@@ -1,6 +1,6 @@
 use crate::tilemap::Map;
 use bevy::{
-    asset::{io::Reader, AssetLoader, LoadContext},
+    asset::{AssetLoader, LoadContext, io::Reader},
     prelude::*,
 };
 use image::{GenericImageView, ImageError, Pixel};
