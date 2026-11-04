@@ -92,7 +92,7 @@ impl Default for AttackCooldown {
 pub struct EnemyRng(SmallRng);
 impl Default for EnemyRng {
     fn default() -> Self {
-        Self(SmallRng::from_os_rng())
+        Self(SmallRng::from_rng(&mut rand::rng()))
     }
 }
 

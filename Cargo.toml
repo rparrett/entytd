@@ -7,21 +7,18 @@ edition = "2024"
 bevy_common_assets = { version = "0.14.0", features = ["ron"] }
 bevy_pipelines_ready = "0.7.0"
 bevy_simple_prefs = "0.7.0"
-rand = { version = "0.9", default-features = false, features = [
+rand = { version = "0.10.3", default-features = false, features = [
     "std",
-    "small_rng",
-    "os_rng",
+    "thread_rng",
 ] }
-getrandom = { version = "0.3", features = ["wasm_js"] }
-image = { version = "*", default-features = false }
-pathfinding = "4.10.0"
-serde = "*"
-ron = "0.11"
-strum = "0.27.1"
-strum_macros = "0.27.1"
-grid = "1"
-thiserror = "1.0"
-
+image = { version = "0.25", default-features = false }
+pathfinding = "4.16"
+serde = "1"
+ron = "0.12"
+strum = "0.28"
+strum_macros = "0.28"
+grid = "1.0"
+thiserror = "2.0"
 
 [features]
 inspector = ["bevy-inspector-egui"]
@@ -70,7 +67,8 @@ map_flatten = "warn"
 
 # Dependencies for WASM only.
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-web-sys = { version = "*", features = ["console", "Window", "Storage"] }
+web-sys = { version = "0.3", features = ["console", "Window", "Storage"] }
+getrandom = { version = "0.4", features = ["wasm_js"] }
 
 # Enable only a small amount of optimization in debug mode
 [profile.dev]

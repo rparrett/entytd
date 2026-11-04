@@ -15,7 +15,7 @@ use crate::{
 };
 use bevy::{audio::Volume, prelude::*};
 use pathfinding::prelude::astar;
-use rand::{Rng, SeedableRng, rngs::SmallRng, seq::IndexedRandom};
+use rand::{RngExt, SeedableRng, rngs::SmallRng, seq::IndexedRandom};
 
 pub struct WorkerPlugin;
 impl Plugin for WorkerPlugin {
@@ -71,7 +71,7 @@ impl Default for WorkerSortTimer {
 pub struct WorkerRng(SmallRng);
 impl Default for WorkerRng {
     fn default() -> Self {
-        Self(SmallRng::from_os_rng())
+        Self(SmallRng::from_rng(&mut rand::rng()))
     }
 }
 

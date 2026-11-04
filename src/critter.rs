@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use rand::{Rng, SeedableRng, rngs::SmallRng, seq::IndexedRandom};
+use rand::{RngExt, SeedableRng, rngs::SmallRng, seq::IndexedRandom};
 use serde::Deserialize;
 
 use crate::{
@@ -75,7 +75,7 @@ impl Default for IdleTimer {
 pub struct CritterRng(SmallRng);
 impl Default for CritterRng {
     fn default() -> Self {
-        Self(SmallRng::from_os_rng())
+        Self(SmallRng::from_rng(&mut rand::rng()))
     }
 }
 
