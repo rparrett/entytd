@@ -10,7 +10,7 @@ use crate::{
     main_menu::MainMenuAssets,
     movement::{MovingProgress, Speed},
     pathfinding::{NeighborCostIter, PathState, SquareAreaCostIter, critter_cost_fn, heuristic},
-    tilemap::{AtlasHandle, Map, TilePos},
+    tilemap::{GlobalAtlasHandle, Map, TilePos},
     util::cleanup,
 };
 use pathfinding::prelude::astar;
@@ -25,7 +25,7 @@ impl Plugin for CritterPlugin {
             .add_systems(
                 Update,
                 (spawn, pathfinding, behavior, idle)
-                    .run_if(in_state(GameState::Playing).or(in_state(GameState::MainMenu))),
+                    .run_if(in_state(GameState::Playing).or_else(in_state(GameState::MainMenu))),
             )
             .add_systems(OnExit(GameState::GameOver), cleanup::<CritterKind>)
             .add_systems(OnExit(GameState::MainMenu), cleanup::<CritterKind>);
@@ -119,7 +119,7 @@ fn setup_main_menu(
 fn spawn(
     mut commands: Commands,
     mut messages: MessageReader<SpawnCritterMessage>,
-    atlas_handle: Res<AtlasHandle>,
+    atlas_handle: Res<GlobalAtlasHandle>,
     tilemap_query: Query<&Map>,
     mut rng: ResMut<CritterRng>,
 ) {

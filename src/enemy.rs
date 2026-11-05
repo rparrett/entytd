@@ -11,7 +11,7 @@ use crate::{
     pathfinding::{NeighborCostIter, PathState, enemy_cost_fn, heuristic},
     settings::{DifficultySetting, ParticlesSetting},
     stats::Stats,
-    tilemap::{AtlasHandle, Map, TilePos},
+    tilemap::{GlobalAtlasHandle, Map, TilePos},
     util::cleanup,
 };
 use pathfinding::prelude::astar;
@@ -100,7 +100,7 @@ impl Default for EnemyRng {
 fn spawn(
     mut commands: Commands,
     mut messages: MessageReader<SpawnEnemyMessage>,
-    atlas_handle: Res<AtlasHandle>,
+    atlas_handle: Res<GlobalAtlasHandle>,
     tilemap_query: Query<&Map>,
     difficulty: Res<DifficultySetting>,
 ) {

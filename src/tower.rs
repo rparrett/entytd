@@ -9,7 +9,7 @@ use crate::{
     movement::Speed,
     particle::ParticleKind,
     settings::ParticlesSetting,
-    tilemap::{AtlasHandle, Map, SCALE, TILE_SIZE, TileEntities, TileKind, TilePos},
+    tilemap::{GlobalAtlasHandle, Map, SCALE, TILE_SIZE, TileEntities, TileKind, TilePos},
     util::cleanup,
 };
 
@@ -66,7 +66,7 @@ fn attack(
     mut query: Query<(&Transform, &Range, &Upgrades, &mut CooldownTimer), With<Tower>>,
     time: Res<Time>,
     enemies: Query<(Entity, &Transform), With<EnemyKind>>,
-    atlas_handle: Res<AtlasHandle>,
+    atlas_handle: Res<GlobalAtlasHandle>,
 ) {
     for (transform, range, upgrades, mut timer) in &mut query {
         timer.0.tick(time.delta());
@@ -116,7 +116,7 @@ fn build_tower(
     mut messages: MessageReader<BuildTowerMessage>,
     mut designations: ResMut<Designations>,
     mut tilemap_query: Query<(&mut Map, &mut TileEntities)>,
-    atlas_handle: Res<AtlasHandle>,
+    atlas_handle: Res<GlobalAtlasHandle>,
 ) {
     for message in messages.read() {
         let Ok((mut tilemap, mut tile_entities)) = tilemap_query.single_mut() else {

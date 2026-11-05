@@ -10,7 +10,7 @@ use crate::{
     sound::SoundAssets,
     stats::Stats,
     stone::HitStoneMessage,
-    tilemap::{AtlasHandle, Map, TileEntities, TileKind, TilePos},
+    tilemap::{GlobalAtlasHandle, Map, TileEntities, TileKind, TilePos},
     tower::BuildTowerMessage,
 };
 use bevy::{audio::Volume, prelude::*};
@@ -78,7 +78,7 @@ impl Default for WorkerRng {
 fn spawn(
     mut commands: Commands,
     mut messages: MessageReader<SpawnWorkerMessage>,
-    atlas_handle: Res<AtlasHandle>,
+    atlas_handle: Res<GlobalAtlasHandle>,
     tilemap_query: Query<&Map>,
     mut rng: ResMut<WorkerRng>,
 ) {

@@ -11,7 +11,7 @@ use crate::{
     layer,
     settings::SfxSetting,
     sound::SoundAssets,
-    tilemap::{AtlasHandle, Map, TileKind, TilePos},
+    tilemap::{GlobalAtlasHandle, Map, TileKind, TilePos},
     tool_selector::{SelectedTool, Tool},
     ui::UiAssets,
 };
@@ -114,7 +114,11 @@ struct DesignationToolState {
     touched: HashSet<TilePos>,
 }
 
-fn init_cursor(mut commands: Commands, atlas_handle: Res<AtlasHandle>, ui_assets: Res<UiAssets>) {
+fn init_cursor(
+    mut commands: Commands,
+    atlas_handle: Res<GlobalAtlasHandle>,
+    ui_assets: Res<UiAssets>,
+) {
     commands
         .spawn((
             Sprite {
@@ -253,7 +257,7 @@ fn designate(
     mut designations: ResMut<Designations>,
     mut tool_state: ResMut<DesignationToolState>,
     tilemap_query: Query<&Map>,
-    atlas_handle: Res<AtlasHandle>,
+    atlas_handle: Res<GlobalAtlasHandle>,
     mut currency: ResMut<Currency>,
     sfx_setting: Res<SfxSetting>,
     sound_assets: Res<SoundAssets>,

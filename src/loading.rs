@@ -5,7 +5,7 @@ use strum::IntoEnumIterator;
 use crate::{
     GameState,
     enemy::EnemyKind,
-    tilemap::{AtlasHandle, TileKind},
+    tilemap::{GlobalAtlasHandle, TileKind},
     ui::{UiAssets, slice_image_mode},
 };
 
@@ -71,7 +71,7 @@ fn wait(
 
 fn init_loading_scene(
     mut commands: Commands,
-    maybe_atlas_handle: Option<Res<AtlasHandle>>,
+    maybe_atlas_handle: Option<Res<GlobalAtlasHandle>>,
     ui_assets: Res<UiAssets>,
     mut done: Local<bool>,
 ) {
@@ -96,6 +96,7 @@ fn init_loading_scene(
             ImageNode {
                 image: ui_assets.nine_button.clone(),
                 image_mode: slice_image_mode(),
+                visual_box: VisualBox::BorderBox,
                 ..default()
             },
             DespawnOnExit(GameState::Loading),

@@ -302,11 +302,20 @@ impl std::ops::Add<TilePos> for (isize, isize) {
     }
 }
 
-#[derive(Resource, Component, Clone, Default)]
+#[derive(Component, Clone, Default)]
 pub struct TilemapHandle(pub Handle<Map>);
 
-#[derive(Resource, Component, Clone, Default)]
+#[derive(Resource, Clone, Default)]
+pub struct GlobalTilemapHandle(pub Handle<Map>);
+
+#[derive(Component, Clone, Default)]
 pub struct AtlasHandle {
+    pub layout: Handle<TextureAtlasLayout>,
+    pub image: Handle<Image>,
+}
+
+#[derive(Resource, Clone, Default)]
+pub struct GlobalAtlasHandle {
     pub layout: Handle<TextureAtlasLayout>,
     pub image: Handle<Image>,
 }
@@ -357,8 +366,8 @@ fn queue_load(
 
     loading_assets.0.push(tilemap_handle.id().into());
 
-    commands.insert_resource(TilemapHandle(tilemap_handle));
-    commands.insert_resource(AtlasHandle {
+    commands.insert_resource(GlobalTilemapHandle(tilemap_handle));
+    commands.insert_resource(GlobalAtlasHandle {
         layout: layouts.add(atlas),
         image: texture_handle,
     });
@@ -474,16 +483,19 @@ pub fn process_loaded_maps(
 
 fn spawn(
     mut commands: Commands,
-    tilemap_handle: Res<TilemapHandle>,
-    atlas_handle: Res<AtlasHandle>,
+    tilemap_handle: Res<GlobalTilemapHandle>,
+    atlas_handle: Res<GlobalAtlasHandle>,
     tilemaps: Res<Assets<Map>>,
 ) {
     let tiles = tilemaps.get(&tilemap_handle.0).unwrap().clone();
     let entities = TileEntities(Grid::new(tiles.0.rows(), tiles.0.cols()));
 
     commands.spawn(TilemapBundle {
-        tilemap_handle: tilemap_handle.clone(),
-        atlas_handle: atlas_handle.clone(),
+        tilemap_handle: TilemapHandle(tilemap_handle.0.clone()),
+        atlas_handle: AtlasHandle {
+            layout: atlas_handle.layout.clone(),
+            image: atlas_handle.image.clone(),
+        },
         tiles,
         entities,
     });

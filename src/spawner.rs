@@ -8,7 +8,7 @@ use crate::{
     enemy::{EnemyKind, SpawnEnemyMessage},
     settings::SfxSetting,
     sound::SoundAssets,
-    tilemap::{AtlasHandle, SCALE, TILE_SIZE, TilePos},
+    tilemap::{GlobalAtlasHandle, SCALE, TILE_SIZE, TilePos},
     ui::{TITLE_TEXT, UiAssets, slice_image_mode},
     waves::{WaveStartMessage, Waves},
 };
@@ -184,7 +184,7 @@ fn add_spawner_ui(
     mut commands: Commands,
     query: Query<Entity, Added<Spawner>>,
     ui_assets: Res<UiAssets>,
-    atlas_handle: Res<AtlasHandle>,
+    atlas_handle: Res<GlobalAtlasHandle>,
 ) {
     for entity in &query {
         let ui_entity = commands
@@ -202,6 +202,7 @@ fn add_spawner_ui(
                 ImageNode {
                     image: ui_assets.nine_panel_warning.clone(),
                     image_mode: slice_image_mode(),
+                    visual_box: VisualBox::BorderBox,
                     ..default()
                 },
                 SpawnerContainer,
@@ -230,7 +231,7 @@ fn add_spawner_ui(
                     },
                     Text::new("10.1"),
                     TextFont {
-                        font_size: 15.0,
+                        font_size: FontSize::Px(15.0),
 
                         ..default()
                     },
