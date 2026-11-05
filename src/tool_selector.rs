@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     GameState,
     radio_button::{RadioButton, RadioButtonGroup, RadioButtonGroupRelation},
-    tilemap::{AtlasHandle, SCALE, TILE_SIZE, TileKind},
+    tilemap::{GlobalAtlasHandle, SCALE, TILE_SIZE, TileKind},
     ui::{BUTTON_TEXT, UiAssets, slice_image_mode},
     util::cleanup,
 };
@@ -61,7 +61,7 @@ impl Tool {
 #[derive(Resource, Default)]
 pub struct SelectedTool(pub Tool);
 
-fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<AtlasHandle>) {
+fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<GlobalAtlasHandle>) {
     let mut tool_button_ids = vec![];
 
     commands
@@ -95,6 +95,7 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
                     ImageNode {
                         image: ui_assets.nine_button.clone(),
                         image_mode: slice_image_mode(),
+                        visual_box: VisualBox::BorderBox,
                         ..default()
                     },
                     RadioButton { selected: i == 1 },
@@ -122,7 +123,7 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Atla
                     parent.spawn((
                         Text::new(format!("{}", i)),
                         TextFont {
-                            font_size: 15.0,
+                            font_size: FontSize::Px(15.0),
                             ..default()
                         },
                         TextColor(BUTTON_TEXT),

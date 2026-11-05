@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use bevy::{
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
+    ecs::resource::IsResource,
     prelude::*,
 };
 
@@ -11,7 +12,7 @@ use crate::{
     designate_tool::DesignationKind,
     hit_points::HitPoints,
     home::Home,
-    tilemap::{AtlasHandle, SCALE, TILE_SIZE},
+    tilemap::{GlobalAtlasHandle, SCALE, TILE_SIZE},
     tool_selector::SelectedTool,
     ui::{self, TITLE_TEXT, UiAssets, slice_image_mode},
     waves::Waves,
@@ -91,7 +92,7 @@ impl Default for FpsUpdateTimer {
     }
 }
 
-fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHandle>) {
+fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<GlobalAtlasHandle>) {
     commands
         .spawn((
             Node {
@@ -122,6 +123,7 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     ImageNode {
                         image: assets.nine_panel.clone(),
                         image_mode: slice_image_mode(),
+                        visual_box: VisualBox::BorderBox,
                         ..default()
                     },
                     HudContainer,
@@ -144,6 +146,7 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     ImageNode {
                         image: assets.nine_panel.clone(),
                         image_mode: slice_image_mode(),
+                        visual_box: VisualBox::BorderBox,
                         ..default()
                     },
                     // 9 slice
@@ -167,6 +170,7 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     ImageNode {
                         image: assets.nine_panel.clone(),
                         image_mode: slice_image_mode(),
+                        visual_box: VisualBox::BorderBox,
                         ..default()
                     },
                     HudContainer,
@@ -190,6 +194,7 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
                     ImageNode {
                         image: assets.nine_panel.clone(),
                         image_mode: slice_image_mode(),
+                        visual_box: VisualBox::BorderBox,
                         ..default()
                     },
                     HudContainer,
@@ -202,12 +207,12 @@ fn init(mut commands: Commands, assets: Res<UiAssets>, atlas_handle: Res<AtlasHa
 
 fn hud_item(
     text: impl Into<String>,
-    atlas_handle: &AtlasHandle,
+    atlas_handle: &GlobalAtlasHandle,
     atlas_index: usize,
 ) -> impl Bundle {
     let font = (
         TextFont {
-            font_size: 15.0,
+            font_size: FontSize::Px(15.0),
             ..default()
         },
         TextColor(TITLE_TEXT),
@@ -254,7 +259,7 @@ fn hud_item(
 }
 
 fn update_entity_count(
-    entities: Query<Entity>,
+    entities: Query<Entity, Without<IsResource>>,
     time: Res<Time>,
     mut timer: ResMut<EntityCountUpdateTimer>,
     item_query: Query<&Children, With<EntityCount>>,

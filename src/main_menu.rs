@@ -4,7 +4,7 @@ use crate::{
     loading::LoadingAssets,
     settings::{DifficultySetting, MusicSetting, ParticlesSetting, SfxSetting},
     sound::{MusicController, SoundAssets},
-    tilemap::{AtlasHandle, Map, TileEntities, TilemapBundle, TilemapHandle},
+    tilemap::{AtlasHandle, GlobalAtlasHandle, Map, TileEntities, TilemapBundle, TilemapHandle},
     ui::{BUTTON_TEXT, TITLE_TEXT, UiAssets, slice_image_mode},
 };
 use bevy::{
@@ -94,26 +94,27 @@ fn setup_menu(
         ImageNode {
             image: ui_assets.nine_button.clone(),
             image_mode: slice_image_mode(),
+            visual_box: VisualBox::BorderBox,
             ..default()
         },
     );
     let button_text_style = (
         TextFont {
-            font_size: 15.0,
+            font_size: FontSize::Px(15.0),
             ..default()
         },
         TextColor(BUTTON_TEXT),
     );
     let title_text_style = (
         TextFont {
-            font_size: 15.0,
+            font_size: FontSize::Px(15.0),
             ..default()
         },
         TextColor(TITLE_TEXT),
     );
     let subtitle_text_style = (
         TextFont {
-            font_size: 15.0,
+            font_size: FontSize::Px(15.0),
             ..default()
         },
         TextColor(TITLE_TEXT),
@@ -131,6 +132,7 @@ fn setup_menu(
             ImageNode {
                 image: ui_assets.nine_panel.clone(),
                 image_mode: slice_image_mode(),
+                visual_box: VisualBox::BorderBox,
                 ..default()
             },
             DespawnOnExit(GameState::MainMenu),
@@ -339,7 +341,7 @@ fn particles_button(
 
 fn init_background(
     mut commands: Commands,
-    atlas_handle: Res<AtlasHandle>,
+    atlas_handle: Res<GlobalAtlasHandle>,
     mut camera_query: Query<&mut Transform, With<Camera2d>>,
     assets: Res<MainMenuAssets>,
     maps: Res<Assets<Map>>,
@@ -349,7 +351,10 @@ fn init_background(
 
     commands.spawn(TilemapBundle {
         tilemap_handle: TilemapHandle(assets.map.clone()),
-        atlas_handle: atlas_handle.clone(),
+        atlas_handle: AtlasHandle {
+            layout: atlas_handle.layout.clone(),
+            image: atlas_handle.image.clone(),
+        },
         tiles,
         entities,
     });

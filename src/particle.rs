@@ -1,10 +1,10 @@
 use bevy::prelude::*;
-use rand::{Rng, SeedableRng, rngs::SmallRng};
+use rand::{RngExt, SeedableRng, rngs::SmallRng};
 
 use crate::{
     GameState, layer,
     settings::ParticlesSetting,
-    tilemap::{AtlasHandle, SCALE},
+    tilemap::{GlobalAtlasHandle, SCALE},
 };
 
 pub struct ParticlePlugin;
@@ -23,7 +23,7 @@ impl Plugin for ParticlePlugin {
 pub struct ParticleRng(SmallRng);
 impl Default for ParticleRng {
     fn default() -> Self {
-        Self(SmallRng::from_os_rng())
+        Self(SmallRng::from_rng(&mut rand::rng()))
     }
 }
 
@@ -81,7 +81,7 @@ fn update_particles(
         Ref<ParticleKind>,
     )>,
     mut rng: ResMut<ParticleRng>,
-    atlas_handle: Res<AtlasHandle>,
+    atlas_handle: Res<GlobalAtlasHandle>,
     time: Res<Time>,
 ) {
     for (entity, mut life, mut transform, mut velocity, mut sprite, mut visibility, kind) in

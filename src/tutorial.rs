@@ -26,7 +26,7 @@ impl Plugin for TutorialPlugin {
             .add_systems(
                 Update,
                 (camera, dug, dug_more, built, update)
-                    .run_if(in_state(GameState::Playing).and(tutorial_not_finished)),
+                    .run_if(in_state(GameState::Playing).and_then(tutorial_not_finished)),
             );
     }
 }
@@ -73,6 +73,7 @@ pub fn init_tutorial(mut commands: Commands, ui_assets: Res<UiAssets>) {
             ImageNode {
                 image: ui_assets.nine_panel_info.clone(),
                 image_mode: slice_image_mode(),
+                visual_box: VisualBox::BorderBox,
                 ..default()
             },
             Name::new("TutorialContainer"),
@@ -84,7 +85,7 @@ pub fn init_tutorial(mut commands: Commands, ui_assets: Res<UiAssets>) {
                     "This is your new peaceful mountain home.\n\nUse the WASD, QZSD, or arrow keys to look around."
                 ),
                 TextFont {
-                    font_size: 15.0,
+                    font_size: FontSize::Px(15.0),
                     ..default()
                 },
                 TextColor(TITLE_TEXT),

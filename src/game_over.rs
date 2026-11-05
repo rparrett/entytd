@@ -37,7 +37,7 @@ fn init(
 
     let button_text_style = (
         TextFont {
-            font_size: 15.0,
+            font_size: FontSize::Px(15.0),
             ..default()
         },
         TextColor(BUTTON_TEXT),
@@ -45,7 +45,7 @@ fn init(
 
     let title_text_style = (
         TextFont {
-            font_size: 15.0,
+            font_size: FontSize::Px(15.0),
             ..default()
         },
         TextColor(TITLE_TEXT),
@@ -64,6 +64,7 @@ fn init(
             ImageNode {
                 image: ui_assets.nine_panel.clone(),
                 image_mode: slice_image_mode(),
+                visual_box: VisualBox::BorderBox,
                 ..default()
             },
             DespawnOnExit(GameState::GameOver),
@@ -138,6 +139,7 @@ fn init(
             ImageNode {
                 image: ui_assets.nine_button.clone(),
                 image_mode: slice_image_mode(),
+                visual_box: VisualBox::BorderBox,
                 ..default()
             },
             MenuButton,

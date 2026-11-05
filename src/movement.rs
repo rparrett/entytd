@@ -23,7 +23,7 @@ impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            movement.run_if(in_state(GameState::Playing).or(in_state(GameState::MainMenu))),
+            movement.run_if(in_state(GameState::Playing).or_else(in_state(GameState::MainMenu))),
         );
     }
 }
