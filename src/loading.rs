@@ -10,7 +10,7 @@ use crate::{
 };
 
 #[cfg(not(target_arch = "wasm32"))]
-const EXPECTED_PIPELINES: usize = 10;
+const EXPECTED_PIPELINES: usize = 11;
 #[cfg(target_arch = "wasm32")]
 const EXPECTED_PIPELINES: usize = 6;
 
