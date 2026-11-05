@@ -53,7 +53,7 @@ features = [
 [dependencies.bevy-inspector-egui]
 version = "0.37.0"
 default-features = false
-features = ["bevy_render"]
+features = ["2d"]
 optional = true
 
 [lints.clippy]
