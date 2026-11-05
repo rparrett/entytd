@@ -21,7 +21,7 @@ thiserror = "2.0"
 bevy_simple_prefs = "0.9.0"
 
 [features]
-inspector = ["bevy-inspector-egui", "bevy/bevy_mikktspace"]
+inspector = ["bevy-inspector-egui"]
 recording = []
 
 [dependencies.bevy]
