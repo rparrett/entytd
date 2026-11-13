@@ -274,7 +274,7 @@ fn update_entity_count(
         return;
     };
 
-    let mut text_iter = text_query.iter_many_mut(children);
+    let mut text_iter = text_query.iter_many_mut(children).matched();
     let Some(mut text) = text_iter.fetch_next() else {
         return;
     };
@@ -298,7 +298,7 @@ fn update_idle_workers(
         return;
     };
 
-    let mut text_iter = text_query.iter_many_mut(children);
+    let mut text_iter = text_query.iter_many_mut(children).matched();
     let Some((mut text, mut text_color)) = text_iter.fetch_next() else {
         return;
     };
@@ -335,7 +335,7 @@ fn update_fps(
         return;
     };
 
-    let mut text_iter = text_query.iter_many_mut(children);
+    let mut text_iter = text_query.iter_many_mut(children).matched();
     let Some(mut text) = text_iter.fetch_next() else {
         return;
     };
@@ -361,7 +361,7 @@ fn update_home_hit_points(
         return;
     };
 
-    let mut text_iter = text_query.iter_many_mut(children);
+    let mut text_iter = text_query.iter_many_mut(children).matched();
     let Some(mut text) = text_iter.fetch_next() else {
         return;
     };
@@ -386,7 +386,7 @@ fn update_stone(
         return;
     };
 
-    let mut text_iter = text_query.iter_many(children);
+    let mut text_iter = text_query.iter_many(children).matched();
     let Some(text_entity) = text_iter.next() else {
         return;
     };
@@ -421,7 +421,7 @@ fn update_metal(
         return;
     };
 
-    let mut text_iter = text_query.iter_many(children);
+    let mut text_iter = text_query.iter_many(children).matched();
     let Some(text_entity) = text_iter.next() else {
         return;
     };
@@ -456,7 +456,7 @@ fn update_crystal(
         return;
     };
 
-    let mut text_iter = text_query.iter_many(children);
+    let mut text_iter = text_query.iter_many(children).matched();
     let Some(text_entity) = text_iter.next() else {
         return;
     };
@@ -493,7 +493,7 @@ fn update_wave_count(
         return;
     };
 
-    let mut text_iter = text_query.iter_many_mut(children);
+    let mut text_iter = text_query.iter_many_mut(children).matched();
     let Some(mut text) = text_iter.fetch_next() else {
         return;
     };

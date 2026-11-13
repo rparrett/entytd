@@ -259,7 +259,7 @@ fn update_spawner_ui(
             continue;
         };
 
-        let mut text_iter = ui_text_query.iter_many_mut(children);
+        let mut text_iter = ui_text_query.iter_many_mut(children).matched();
         let Some(mut text) = text_iter.fetch_next() else {
             continue;
         };
@@ -275,7 +275,7 @@ fn update_spawner_ui(
             continue;
         }
 
-        let mut image_iter = ui_atlas_query.iter_many_mut(children);
+        let mut image_iter = ui_atlas_query.iter_many_mut(children).matched();
         let Some(mut image_node) = image_iter.fetch_next() else {
             continue;
         };

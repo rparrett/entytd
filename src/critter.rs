@@ -205,7 +205,7 @@ fn behavior(
 ) {
     // We've reached our destination whenever a `PathState` has been removed.
 
-    let mut critter_iter = query.iter_many_mut(removed.read());
+    let mut critter_iter = query.iter_many_mut(removed.read()).matched();
     while let Some((mut behavior, mut timer)) = critter_iter.fetch_next() {
         if matches!(*behavior, CritterBehavior::RandomWalk) {
             *behavior = CritterBehavior::Idle;

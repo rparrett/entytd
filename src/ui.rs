@@ -1,4 +1,9 @@
-use bevy::{prelude::*, ui::widget::NodeImageMode};
+use bevy::{
+    picking::hover::Hovered,
+    prelude::*,
+    ui::{Pressed, widget::NodeImageMode},
+    ui_widgets::Button,
+};
 
 use crate::{loading::LoadingAssets, radio_button::RadioButton};
 
@@ -59,28 +64,23 @@ impl FromWorld for UiAssets {
 
 pub fn button_style(
     mut interaction_query: Query<
-        (&Interaction, &mut ImageNode, Option<&RadioButton>),
-        (Changed<Interaction>, With<Button>),
+        (&mut ImageNode, Has<Pressed>, &Hovered, Option<&RadioButton>),
+        With<Button>,
     >,
     assets: Res<UiAssets>,
 ) {
-    for (interaction, mut node, maybe_radio) in interaction_query.iter_mut() {
-        match *interaction {
-            Interaction::Pressed => {
-                node.image = assets.nine_button_selected.clone();
-            }
-            Interaction::Hovered => {
-                if !maybe_radio.map_or_else(|| false, |radio| radio.selected) {
-                    node.image = assets.nine_button_hovered.clone();
-                }
-            }
-            Interaction::None => {
-                node.image = if maybe_radio.map_or_else(|| false, |radio| radio.selected) {
-                    assets.nine_button_selected.clone()
-                } else {
-                    assets.nine_button.clone()
-                };
-            }
+    for (mut node, pressed, hovered, maybe_radio) in interaction_query.iter_mut() {
+        let selected = maybe_radio.is_some_and(|radio| radio.selected);
+        let image = if pressed || selected {
+            &assets.nine_button_selected
+        } else if hovered.get() {
+            &assets.nine_button_hovered
+        } else {
+            &assets.nine_button
+        };
+
+        if node.image != *image {
+            node.image = image.clone();
         }
     }
 }

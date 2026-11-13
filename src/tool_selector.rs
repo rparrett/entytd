@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{picking::hover::Hovered, prelude::*, ui_widgets::Button};
 
 use crate::{
     GameState,
@@ -84,6 +84,7 @@ fn init(mut commands: Commands, ui_assets: Res<UiAssets>, atlas_handle: Res<Glob
 
                 let mut button_command = parent.spawn((
                     Button,
+                    Hovered::default(),
                     Node {
                         width: Val::Px(64.0),
                         height: Val::Px(64.0),

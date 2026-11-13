@@ -200,7 +200,7 @@ fn behavior(
 ) {
     // just assume that we've reached the home whenever a PathState is removed.
 
-    let mut enemy_iter = query.iter_many_mut(removed.read());
+    let mut enemy_iter = query.iter_many_mut(removed.read()).matched();
     while let Some(mut behavior) = enemy_iter.fetch_next() {
         if matches!(*behavior, Behavior::SeekHome) {
             *behavior = Behavior::Attack;
