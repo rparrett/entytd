@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, ui::Pressed, ui_widgets::Button};
 
 pub struct RadioButtonPlugin;
 #[derive(Component)]
@@ -56,13 +56,11 @@ fn radio_button_group_system(
 
 fn radio_button_system(
     mut interaction_query: Query<
-        (&mut RadioButton, &Interaction),
-        (Changed<Interaction>, With<Button>, With<RadioButton>),
+        &mut RadioButton,
+        (Added<Pressed>, With<Button>, With<RadioButton>),
     >,
 ) {
-    for (mut radio, interaction) in interaction_query.iter_mut() {
-        if *interaction == Interaction::Pressed {
-            radio.selected = true;
-        }
+    for mut radio in interaction_query.iter_mut() {
+        radio.selected = true;
     }
 }

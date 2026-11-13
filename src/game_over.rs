@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{picking::hover::Hovered, prelude::*, ui::Pressed, ui_widgets::Button};
 
 use crate::{
     GameState,
@@ -135,6 +135,7 @@ fn init(
     let play_button = commands
         .spawn((
             Button,
+            Hovered::default(),
             button_style.clone(),
             ImageNode {
                 image: ui_assets.nine_button.clone(),
@@ -166,12 +167,10 @@ fn init(
 }
 
 fn menu_button(
-    mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<MenuButton>)>,
+    interaction_query: Query<(), (Added<Pressed>, With<MenuButton>)>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    for interaction in interaction_query.iter_mut() {
-        if *interaction == Interaction::Pressed {
-            next_state.set(GameState::MainMenu);
-        }
+    if !interaction_query.is_empty() {
+        next_state.set(GameState::MainMenu);
     }
 }

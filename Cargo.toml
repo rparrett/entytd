@@ -4,8 +4,8 @@ version = "0.3.0"
 edition = "2024"
 
 [dependencies]
-bevy_common_assets = { version = "0.17.0", features = ["ron"] }
-bevy_pipelines_ready = "0.9.0"
+bevy_common_assets = { version = "0.18.0", features = ["ron"] }
+bevy_pipelines_ready = "0.10.0"
 rand = { version = "0.10.3", default-features = false, features = [
     "std",
     "thread_rng",
@@ -18,14 +18,14 @@ strum = "0.28"
 strum_macros = "0.28"
 grid = "1.0"
 thiserror = "2.0"
-bevy_simple_prefs = "0.9.0"
+bevy_simple_prefs = "0.10.0"
 
 [features]
 inspector = ["bevy-inspector-egui"]
 recording = []
 
 [dependencies.bevy]
-version = "0.19"
+version = "0.20"
 default-features = false
 features = [
     "bevy_asset",
@@ -37,12 +37,14 @@ features = [
     "bevy_text",
     "bevy_ui",
     "bevy_ui_render",
+    "bevy_ui_widgets",
     "bevy_winit",
     "bevy_window",
     "default_font",
     "multi_threaded",
     "png",
     "tonemapping_luts",
+    "ui_picking",
     "vorbis",
     "webgl2",
     "x11",
@@ -51,7 +53,7 @@ features = [
 ]
 
 [dependencies.bevy-inspector-egui]
-version = "0.37.0"
+version = "0.38.0"
 default-features = false
 features = ["2d"]
 optional = true

@@ -9,7 +9,10 @@ use crate::{
 };
 use bevy::{
     audio::{AudioSink, Volume},
+    picking::hover::Hovered,
     prelude::*,
+    ui::Pressed,
+    ui_widgets::Button,
 };
 use grid::Grid;
 
@@ -97,6 +100,7 @@ fn setup_menu(
             visual_box: VisualBox::BorderBox,
             ..default()
         },
+        Hovered::default(),
     );
     let button_text_style = (
         TextFont {
@@ -251,91 +255,83 @@ fn setup_menu(
 }
 
 fn play_button(
-    mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<PlayButton>)>,
+    interaction_query: Query<(), (Added<Pressed>, With<PlayButton>)>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    for interaction in interaction_query.iter_mut() {
-        if *interaction == Interaction::Pressed {
-            next_state.set(GameState::Playing);
-        }
+    if !interaction_query.is_empty() {
+        next_state.set(GameState::Playing);
     }
 }
 
 fn sfx_button(
-    mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<SfxSettingButton>)>,
+    interaction_query: Query<(), (Added<Pressed>, With<SfxSettingButton>)>,
     mut text_query: Query<&mut Text, With<SfxSettingButtonText>>,
     mut sfx_setting: ResMut<SfxSetting>,
 ) {
-    for interaction in interaction_query.iter_mut() {
-        if *interaction == Interaction::Pressed {
-            if **sfx_setting == 0 {
-                **sfx_setting = 100;
-            } else {
-                **sfx_setting -= 10;
-            }
+    if interaction_query.is_empty() {
+        return;
+    }
 
-            for mut text in text_query.iter_mut() {
-                text.0 = format!("Sfx {}%", **sfx_setting);
-            }
-        }
+    if **sfx_setting == 0 {
+        **sfx_setting = 100;
+    } else {
+        **sfx_setting -= 10;
+    }
+
+    for mut text in text_query.iter_mut() {
+        text.0 = format!("Sfx {}%", **sfx_setting);
     }
 }
 
 fn music_button(
-    mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<MusicSettingButton>)>,
+    interaction_query: Query<(), (Added<Pressed>, With<MusicSettingButton>)>,
     mut text_query: Query<&mut Text, With<MusicSettingButtonText>>,
     mut music_setting: ResMut<MusicSetting>,
 ) {
-    for interaction in interaction_query.iter_mut() {
-        if *interaction == Interaction::Pressed {
-            if **music_setting == 0 {
-                **music_setting = 100;
-            } else {
-                **music_setting -= 10;
-            }
+    if interaction_query.is_empty() {
+        return;
+    }
 
-            for mut text in text_query.iter_mut() {
-                text.0 = format!("Music {}%", **music_setting);
-            }
-        }
+    if **music_setting == 0 {
+        **music_setting = 100;
+    } else {
+        **music_setting -= 10;
+    }
+
+    for mut text in text_query.iter_mut() {
+        text.0 = format!("Music {}%", **music_setting);
     }
 }
 
 fn difficulty_button(
-    mut interaction_query: Query<
-        &Interaction,
-        (Changed<Interaction>, With<DifficultySettingButton>),
-    >,
+    interaction_query: Query<(), (Added<Pressed>, With<DifficultySettingButton>)>,
     mut text_query: Query<&mut Text, With<DifficultySettingButtonText>>,
     mut difficulty_setting: ResMut<DifficultySetting>,
 ) {
-    for interaction in interaction_query.iter_mut() {
-        if *interaction == Interaction::Pressed {
-            *difficulty_setting = difficulty_setting.next();
+    if interaction_query.is_empty() {
+        return;
+    }
 
-            for mut text in text_query.iter_mut() {
-                text.0 = format!("{}", *difficulty_setting);
-            }
-        }
+    *difficulty_setting = difficulty_setting.next();
+
+    for mut text in text_query.iter_mut() {
+        text.0 = format!("{}", *difficulty_setting);
     }
 }
 
 fn particles_button(
-    mut interaction_query: Query<
-        &Interaction,
-        (Changed<Interaction>, With<ParticlesSettingButton>),
-    >,
+    interaction_query: Query<(), (Added<Pressed>, With<ParticlesSettingButton>)>,
     mut text_query: Query<&mut Text, With<ParticlesSettingButtonText>>,
     mut particles_setting: ResMut<ParticlesSetting>,
 ) {
-    for interaction in interaction_query.iter_mut() {
-        if *interaction == Interaction::Pressed {
-            *particles_setting = particles_setting.next();
+    if interaction_query.is_empty() {
+        return;
+    }
 
-            for mut text in text_query.iter_mut() {
-                text.0 = format!("{}", *particles_setting);
-            }
-        }
+    *particles_setting = particles_setting.next();
+
+    for mut text in text_query.iter_mut() {
+        text.0 = format!("{}", *particles_setting);
     }
 }
 
